@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticsRecorder", "AnalyticsRecorder\AnalyticsRecorder.csproj", "{0BD72E82-2144-415A-91B9-0EE4680DB50C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{C873E01A-7496-4DED-A530-5B0EDBF7B651}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\dependabot.yml = .github\dependabot.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0BD72E82-2144-415A-91B9-0EE4680DB50C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BD72E82-2144-415A-91B9-0EE4680DB50C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BD72E82-2144-415A-91B9-0EE4680DB50C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BD72E82-2144-415A-91B9-0EE4680DB50C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B362619B-EB27-47F4-A437-F9781F79E8B8}
+	EndGlobalSection
+EndGlobal
