@@ -323,6 +323,9 @@
         <Reference Include="UnityEngine.XRModule">
             <HintPath>$(HollowKnightRefs)/UnityEngine.XRModule.dll</HintPath>
         </Reference>
+        <Reference Include="HKMirror.Reflection">
+            <HintPath>$(HollowKnightRefs)/Mods/HKMirror/HKMirror.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     
