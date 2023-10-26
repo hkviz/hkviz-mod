@@ -10,6 +10,15 @@ using Mono.Security.X509.Extensions;
 using UnityEngine.SceneManagement;
 using HKMirror.Reflection.SingletonClasses;
 using HKMirror.Reflection;
+using MapChanger.MonoBehaviours;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Security.Principal;
+using System.Drawing;
+using Modding.Converters;
+using AnalyticsRecorder.Converters;
+using System.Security.Policy;
+using System.Text;
 
 namespace AnalyticsRecorder {
     public class AnalyticsRecorderMod : Mod {
@@ -80,9 +89,13 @@ namespace AnalyticsRecorder {
             //}
         }
 
-        private string GetRecordingPath() {
-            string recodingFileName = $"user{profileId}.analytics-recording.dat";
+        private string GetUserFilePath(string suffix) {
+            string recodingFileName = $"user{profileId}.{suffix}.dat";
             return Path.Combine(Application.persistentDataPath, recodingFileName);
+        }
+
+        private string GetRecordingPath() {
+            return GetUserFilePath("analytics-recording");
         }
 
         // called when a save state is loaded or a new game is started
@@ -139,6 +152,10 @@ namespace AnalyticsRecorder {
                     lastFreqWriteTime = time;
                 }
             }
+
+            if (Input.GetKeyDown(KeyCode.J)) {
+                ExportMap();
+            }
         }
 
         public override void Initialize() {
@@ -174,5 +191,102 @@ namespace AnalyticsRecorder {
         private void WriteSep() {
             writer?.Write(";");
         }
+
+        public MapData ExportMap() {
+
+            var imports = new StringBuilder();
+
+            var rooms = new List<MapRoomData>();
+
+            foreach (var m in GameObject.Find("Game_Map(Clone)").GetComponentsInChildren<RoomSprite>(true)) {
+                var rsd = m.Rsd;
+
+
+
+                //Log(m.Rsd?.MapZone);
+                //Log(m.Rsd?.SceneName);
+                //Log(m.OrigColor);
+
+                var spriteRenderer = m.GetComponent<SpriteRenderer>();
+
+                //Log(spriteRenderer.bounds);
+                //Log(spriteRenderer.sprite.texture.GetPixels32());
+
+                var mapZone = rsd.MapZone.ToString();
+                var sceneName = rsd.SceneName;
+                var gameObjectName = m.name;
+                var roughMapRoom = m.GetComponent<RoughMapRoom>();
+                var hasCorniferVersion = roughMapRoom != null;
+                // if there is a cornifer version we can always get the not corniger version from roughMapRoom.
+                var spriteName = roughMapRoom?.fullSprite?.name ?? spriteRenderer?.sprite?.name;
+                // for more maps mod, we have to use the gameObject name, since it does not declare sprite names.
+                if (spriteName == null || spriteName == "") {
+                    spriteName = gameObjectName;
+                }
+
+                imports.AppendLine($"import {spriteName.ToLower()} from '../assets/areas/{spriteName}.png';");
+                if (hasCorniferVersion) {
+                    imports.AppendLine($"import {spriteName.ToLower()}_cornifer from '../assets/areas/{spriteName}_Cornifer.png';");
+                }
+
+                rooms.Add(new MapRoomData() {
+                    sceneName = sceneName,
+                    spriteName = spriteName,
+                    gameObjectName = gameObjectName,
+                    mapZone = mapZone,
+                    origColor = m.OrigColor,
+                    boundsMin = spriteRenderer.bounds.min,
+                    boundsMax = spriteRenderer.bounds.max,
+                    hasCorniferVersion = hasCorniferVersion,
+                    sprite = $"IMPORT_STRING_START:{spriteName.ToLower()}:IMPORT_STRING_END",
+                    spriteCorniger = hasCorniferVersion ? $"IMPORT_STRING_START:{spriteName.ToLower()}_cornifer:IMPORT_STRING_END" : null,
+                });
+            }
+
+            var mapData = new MapData() {
+                rooms = rooms,
+            };
+            var json = JsonConvert.SerializeObject(mapData, Formatting.Indented, jsonConverter);
+            var js = json
+                .Replace("\"IMPORT_STRING_START:", "")
+                .Replace(":IMPORT_STRING_END\"", "")
+            ;
+
+
+            using (var mapWriter = new StreamWriter(GetUserFilePath("map-export"))) {
+                mapWriter.Write(js);
+            }
+
+            using (var importWriter = new StreamWriter(GetUserFilePath("map-imports"))) {
+                importWriter.Write(imports.ToString());
+            }
+
+            return mapData;
+        }
+
+        public static JsonConverter[] jsonConverter = new JsonConverter[] {
+            new Vector2Converter(),
+            new Vector3Converter(),
+            new Vector4Converter(),
+        };
+    }
+
+    [System.Serializable]
+    public class MapRoomData {
+        public string sceneName;
+        public string spriteName;
+        public string gameObjectName;
+        public string mapZone;
+        public Vector4 origColor;
+        public Vector3 boundsMin;
+        public Vector3 boundsMax;
+        public string sprite;
+        public string spriteCorniger;
+        public bool hasCorniferVersion;
+    }
+
+    [System.Serializable]
+    public class MapData {
+        public List<MapRoomData> rooms;
     }
 }
