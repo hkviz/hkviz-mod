@@ -19,6 +19,7 @@ using Modding.Converters;
 using AnalyticsRecorder.Converters;
 using System.Security.Policy;
 using System.Text;
+using UnityEngine.Sprites;
 
 namespace AnalyticsRecorder {
     public class AnalyticsRecorderMod : Mod {
@@ -193,6 +194,7 @@ namespace AnalyticsRecorder {
         }
 
         public MapData ExportMap() {
+            Log("Started map export. This should run at the beginning of the game, after buying the first map, but before buying the quill");
 
             var imports = new StringBuilder();
 
@@ -207,7 +209,7 @@ namespace AnalyticsRecorder {
                 //Log(m.Rsd?.SceneName);
                 //Log(m.OrigColor);
 
-                var spriteRenderer = m.GetComponent<SpriteRenderer>();
+                var selfSpriteRenderer = m.GetComponent<SpriteRenderer>();
 
                 //Log(spriteRenderer.bounds);
                 //Log(spriteRenderer.sprite.texture.GetPixels32());
@@ -216,30 +218,54 @@ namespace AnalyticsRecorder {
                 var sceneName = rsd.SceneName;
                 var gameObjectName = m.name;
                 var roughMapRoom = m.GetComponent<RoughMapRoom>();
-                var hasCorniferVersion = roughMapRoom != null;
-                // if there is a cornifer version we can always get the not corniger version from roughMapRoom.
-                var spriteName = roughMapRoom?.fullSprite?.name ?? spriteRenderer?.sprite?.name;
-                // for more maps mod, we have to use the gameObject name, since it does not declare sprite names.
-                if (spriteName == null || spriteName == "") {
-                    spriteName = gameObjectName;
+
+                // we can not use the generic GetComponent, since the type is internal
+                var isAdditionalMap = m.GetComponent("AdditionalMaps.MonoBehaviours.MappedCustomRoom") != null;
+                var additionalMapSpriteRenderer = isAdditionalMap ? m.transform.GetChild(0)?.GetComponent<SpriteRenderer>() : null;
+
+                // if there is a cornifer version we can always get the not cornifer version from roughMapRoom.
+                Sprite? sprite = additionalMapSpriteRenderer?.sprite ?? roughMapRoom?.fullSprite ?? selfSpriteRenderer?.sprite;
+                var spriteInfo = SpriteInfo.fromSprite(sprite, m.gameObject.name);
+
+                if (m.gameObject.name == "Fungus3_48_bot") {
+                    // speical case, since sprite name is duplicated in game of 47. 
+                    spriteInfo.name = "Fungus3_48_bottom";
+                }
+                if (m.gameObject.name == "Ruins2_10") {
+                    spriteInfo.name = "Ruins2_10";
                 }
 
-                imports.AppendLine($"import {spriteName.ToLower()} from '../assets/areas/{spriteName}.png';");
-                if (hasCorniferVersion) {
-                    imports.AppendLine($"import {spriteName.ToLower()}_cornifer from '../assets/areas/{spriteName}_Cornifer.png';");
+                var visualSpriteRenderer = additionalMapSpriteRenderer ?? selfSpriteRenderer;
+
+
+
+                bool hasCorniferVersion = (roughMapRoom != null && 
+                        roughMapRoom.fullSprite.name != null && // addional map mod ignored wrong rough maps
+                        roughMapRoom.fullSprite.name != "" && // addional map mod ignored wrong rough maps
+                        roughMapRoom.fullSprite.name != selfSpriteRenderer?.sprite?.name); // rough maps accidentally left in the game? using same sprite ignored.
+
+                var roughSprite = hasCorniferVersion ? selfSpriteRenderer?.sprite : null;
+                var roughSpriteInfo = roughSprite != null ? SpriteInfo.fromSprite(roughSprite, m.gameObject.name + "_Cornifer") : null;
+
+
+
+                imports.AppendLine($"import {spriteInfo.name.ToLower()} from '../assets/areas/{spriteInfo.name}.png';");
+                if (roughSpriteInfo != null) {
+                    imports.AppendLine($"import {roughSpriteInfo.name.ToLower()} from '../assets/areas/{roughSpriteInfo.name}.png';");
                 }
 
                 rooms.Add(new MapRoomData() {
                     sceneName = sceneName,
-                    spriteName = spriteName,
+                    spriteInfo = spriteInfo,
+                    roughSpriteInfo = roughSpriteInfo,
                     gameObjectName = gameObjectName,
                     mapZone = mapZone,
                     origColor = m.OrigColor,
-                    boundsMin = spriteRenderer.bounds.min,
-                    boundsMax = spriteRenderer.bounds.max,
-                    hasCorniferVersion = hasCorniferVersion,
-                    sprite = $"IMPORT_STRING_START:{spriteName.ToLower()}:IMPORT_STRING_END",
-                    spriteCorniger = hasCorniferVersion ? $"IMPORT_STRING_START:{spriteName.ToLower()}_cornifer:IMPORT_STRING_END" : null,
+                    visualBounds = ExportBounds.fromBounds(visualSpriteRenderer.bounds),
+                    playerPositionBounds = ExportBounds.fromBounds(selfSpriteRenderer.bounds),
+                    hasRoughVersion = hasCorniferVersion,
+                    sprite = $"IMPORT_STRING_START:{spriteInfo.name.ToLower()}:IMPORT_STRING_END",
+                    spriteRough = roughSpriteInfo != null ? $"IMPORT_STRING_START:{roughSpriteInfo.name?.ToLower()}:IMPORT_STRING_END" : null,
                 });
             }
 
@@ -261,6 +287,7 @@ namespace AnalyticsRecorder {
                 importWriter.Write(imports.ToString());
             }
 
+            Log("Finished map export");
             return mapData;
         }
 
@@ -272,17 +299,52 @@ namespace AnalyticsRecorder {
     }
 
     [System.Serializable]
+    public class SpriteInfo {
+        public string name;
+        public Vector2 size;
+        public Vector4 padding; 
+
+        public static SpriteInfo fromSprite(Sprite? sprite, string fallbackName) {
+            var spriteName = sprite.name;
+            if (spriteName == null || spriteName == "") spriteName = fallbackName;
+
+            var size = sprite == null ? Vector2.zero : new Vector2(sprite.rect.width, sprite.rect.height);
+            var padding = sprite == null ? Vector4.zero : DataUtility.GetPadding(sprite);
+
+            return new SpriteInfo() {
+                name = spriteName,
+                size = size,
+                padding = padding,
+            };
+        }
+    }
+
+    [System.Serializable]
     public class MapRoomData {
         public string sceneName;
-        public string spriteName;
+        public SpriteInfo spriteInfo;
+        public SpriteInfo? roughSpriteInfo;
         public string gameObjectName;
         public string mapZone;
         public Vector4 origColor;
-        public Vector3 boundsMin;
-        public Vector3 boundsMax;
+        public ExportBounds visualBounds;
+        public ExportBounds playerPositionBounds;
         public string sprite;
-        public string spriteCorniger;
-        public bool hasCorniferVersion;
+        public string? spriteRough;
+        public bool hasRoughVersion;
+    }
+
+    [System.Serializable]
+    public class ExportBounds {
+        public Vector3 min;
+        public Vector3 max;
+
+        public static ExportBounds fromBounds(UnityEngine.Bounds bounds) {
+            return new ExportBounds {
+                min = bounds.min,
+                max = bounds.max,
+            };
+        }
     }
 
     [System.Serializable]
