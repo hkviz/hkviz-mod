@@ -47,9 +47,6 @@
     <None Remove="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="AdditionalMaps">
-      <HintPath>$(HollowKnightRefs)/Mods/AdditionalMaps/AdditionalMaps.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(HollowKnightRefs)/Assembly-CSharp.dll</HintPath>
     </Reference>
