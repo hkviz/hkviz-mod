@@ -1,3 +1,2 @@
-AdditionalMaps
 HKMirror
 MapChanger
