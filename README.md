@@ -1,12 +1,20 @@
-﻿# AnalyticsRecorder
+﻿# HKViz mod
 
-A Hollow Knight mod that records analytics about player position and in game events
+> [!IMPORTANT]  
+> This mod is still work in progress. It can not be used yet. A first release should follow late 2023 or early 2024.
 
-# Developer notes
+A Hollow Knight mod which records information about player movement and collected items, health, charms, deaths over time.
+This allows visualizing that data, like seeing the complete path one has taken in playthrough or seeing to which boss one has died the most.
 
-## How hk maps player location
-Each room which is shown on the map contains a game object called: "Map Scene Region". 
-It contains a BoxCollider2D which contains the area which should be mapped to the map tile inside the game map with the same name as the scene name.
+The visualizations + website for uploading recordings is contained in the [hkviz-web repository](https://github.com/hkviz/hkviz-web).
 
-There is also a FSM named "Compass Icon-Position" it does not handle the mapping from player position to exact spot on the map, 
-and is only used for the zoomed out map. Where the player position is the same no matter where within an area the player is currently.
+Checkout [hkviz.vercel.app](https://hkviz.vercel.app/) for more infos. 
+
+## I have Ideas/Feedback (e.g. for some additional data this mod should log.)
+Feel free to open a issue on this repository or write @olivergrack on discord.
+
+## I have Ideas/Feedback for visualizations
+Best open a issue in the [hkviz-web repository](https://github.com/hkviz/hkviz-web) or write @olivergrack on discord.
+
+## How to install
+Not at all at the moment. A first version should hopefully be released in the coming months.
