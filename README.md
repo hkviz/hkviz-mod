@@ -10,7 +10,7 @@ The visualizations + website for uploading recordings is contained in the [hkviz
 
 Checkout [hkviz.vercel.app](https://hkviz.vercel.app/) for more infos. 
 
-## I have Ideas/Feedback (e.g. for some additional data this mod should log.)
+## I have Ideas/Feedback (e.g. for some additional data to record.)
 Feel free to open a issue on this repository or write @olivergrack on discord.
 
 ## I have Ideas/Feedback for visualizations
