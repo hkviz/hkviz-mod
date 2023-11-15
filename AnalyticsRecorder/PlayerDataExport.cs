@@ -17,6 +17,7 @@ namespace AnalyticsRecorder {
         public string name;
         public string type;
         public string shortCode;
+        public string defaultValue;
     }
 
     internal class PlayerDataExport : Loggable {
@@ -32,14 +33,21 @@ namespace AnalyticsRecorder {
         }
 
 
-        public void ExportPlayerData() {
+        public void Export() {
             Log("Started playerData export");
+            // creating a fake new playerdata object to get initial values
+            PlayerData fakePlayerData = (PlayerData)Activator.CreateInstance(typeof(PlayerData), true);
+            MethodInfo setupNewPlayerData = typeof(PlayerData).GetMethod("SetupNewPlayerData", BindingFlags.NonPublic | BindingFlags.Instance);
+            setupNewPlayerData.Invoke(fakePlayerData, new object[0]);
+
+
             var fields = typeof(PlayerData)
                 .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                 .Select((it, index) => new PlayerDataField {
                     name = it.Name,
                     type = it.FieldType.Name,
-                    shortCode = Base36Converter.ConvertTo(index+1),
+                    shortCode = Base36Converter.ConvertTo(index + 1),
+                    defaultValue = RecordingSerializer.Instance.serializeUntyped(it.GetValue(fakePlayerData)),
                 })
                 .ToDictionary(it => it.name, it => it);
 
@@ -55,7 +63,8 @@ namespace AnalyticsRecorder {
                         ["{{field.Key}}"] = new PlayerDataField {
                             name = "{{field.Value.name}}",    
                             type = "{{field.Value.type}}",
-                            shortCode = "{{field.Value.shortCode}}"
+                            shortCode = "{{field.Value.shortCode}}",
+                            defaultValue = "{{field.Value.defaultValue}}",
                         },
                         """);
                 }

@@ -1,0 +1,101 @@
+﻿using Modding;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+
+namespace AnalyticsRecorder {
+    internal record HeroControllerQueueValue(string fieldName, string valueString, float timestamp);
+
+    internal class HeroControllerWriter: Loggable {
+        private RecordingFileManager recording = RecordingFileManager.Instance;
+
+        private static HeroControllerWriter? _instance;
+        public static HeroControllerWriter Instance {
+            get {
+                if (_instance != null) return _instance;
+                _instance = new HeroControllerWriter();
+                return _instance;
+            }
+        }
+
+        private static FieldInfo[] stateFields = typeof(global::HeroControllerStates)
+                .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+        public static HashSet<String> notLoggedStates = new() { 
+            "facingRight", 
+            "onGround", 
+            "falling", 
+            "touchingWall",
+            "wallSliding",
+            "transitioning",
+            "lookingUp",
+            "lookingDown",
+            "recoilingRight",
+            "recoilingLeft",
+            "dashCooldown",
+            "backDashCooldown",
+            "wasOnGround",
+        };
+
+        public static HashSet<String> onlyTruthLoggedStates = new() {
+            "attacking",
+            "altAttack",
+            "upAttacking",
+            "downAttacking",
+            "jumping",
+            "wallJumping",
+            "doubleJumping",
+            "shadowDashing",
+            "dashing",
+            "bouncing",
+        };
+
+        // default all states false, so no writing at beginning of game.
+        private Dictionary<string, bool> previousHeroControllerStates = stateFields
+            .ToDictionary(it => it.Name, it => false);
+
+        internal void InitializeRun() {
+            previousHeroControllerStates.Clear();
+        }
+
+        internal void SetupHooks() {
+            On.HeroControllerStates.SetState += HeroControllerStates_SetState;
+            ModHooks.HeroUpdateHook += ModHooks_HeroUpdateHook;
+        }
+
+        private void ModHooks_HeroUpdateHook() {
+            foreach(var field in stateFields) {
+                var currentVal = (field.GetValue(HeroController.instance.cState) as bool?).GetValueOrDefault();
+                WriteStateIfChanged(field.Name, currentVal);
+            }
+        }
+
+        private void HeroControllerStates_SetState(On.HeroControllerStates.orig_SetState orig, global::HeroControllerStates self, string stateName, bool value) {
+            if (self != HeroController.instance.cState) return;
+            WriteStateIfChanged(stateName, value);
+        }
+
+        private void WriteStateIfChanged(string stateName, bool value) {
+            if (previousHeroControllerStates.TryGetValue(stateName, out var previous) && previous == value) {
+                return;
+            }
+            previousHeroControllerStates[stateName] = value;
+
+            if (!value && onlyTruthLoggedStates.Contains(stateName)) return;
+            if (notLoggedStates.Contains(stateName)) return;
+
+            var hasShortName = HeroControllerStateInfos.stats.TryGetValue(stateName, out var statInfo);
+
+            var prefixKey = hasShortName ? RecordingPrefixes.HERO_CONTROLER_STATE_SHORTNAME + statInfo.shortCode : RecordingPrefixes.HERO_CONTROLER_STATE_LONGNAME + stateName;
+
+            // Log("Write hero controller" + stateName + ": " + value);
+            recording.WriteEntryPrefix(prefixKey);
+            recording.Write(value ? "1" : "0");
+            recording.WriteNL();
+        }
+    }
+}

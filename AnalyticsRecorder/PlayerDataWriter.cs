@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace AnalyticsRecorder {
         private static readonly float WRITE_QUEUE_DELAY_SECONDS = .1f;
 
         private RecordingFileManager recording = RecordingFileManager.Instance;
+        private RecordingSerializer serializer = RecordingSerializer.Instance;
 
         private static PlayerDataWriter? _instance;
         public static PlayerDataWriter Instance {
@@ -23,8 +25,24 @@ namespace AnalyticsRecorder {
             }
         }
 
-        private Dictionary<string, string> previousPlayerData = new Dictionary<string, string>();
+        public Dictionary<string, string> previousPlayerData = new Dictionary<string, string>();
         private List<PlayerDataQueueValue> playerDataQueueValues = new List<PlayerDataQueueValue>();
+
+        private bool checkAllPlayerDataInNextFrame = false;
+
+        private static FieldInfo[] playerDataFields = typeof(PlayerData)
+                .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+        public void InitFromLocalSave(Dictionary<string, string> previousPlayerData) {
+            var combinedFromDefaultsAndSave = PlayerDataFieldInfos.fields.ToDictionary(it => it.Value.name, it => it.Value.defaultValue);
+            foreach (var field in previousPlayerData) {
+                combinedFromDefaultsAndSave[field.Key] = field.Value;
+            }
+            previousPlayerData = combinedFromDefaultsAndSave;
+
+            checkAllPlayerDataInNextFrame = true;
+            Log("init from local save");
+        }
 
         internal void SetupHooks() {
             ModHooks.HeroUpdateHook += ModHooks_HeroUpdateHook;
@@ -58,7 +76,7 @@ namespace AnalyticsRecorder {
         private void WriteFirstFromQueue() {
             var d = playerDataQueueValues[0];
 
-            var hasShortName = PlayerDataFields.fields.TryGetValue(d.fieldName, out var fieldInfo);
+            var hasShortName = PlayerDataFieldInfos.fields.TryGetValue(d.fieldName, out var fieldInfo);
 
             var prefixKey = hasShortName ? RecordingPrefixes.PLAYER_DATA_SHORTNAME + fieldInfo.shortCode : RecordingPrefixes.PLAYER_DATA_LONGNAME + d.fieldName;
 
@@ -70,19 +88,35 @@ namespace AnalyticsRecorder {
         }
 
         private void ModHooks_HeroUpdateHook() {
+
+            if (checkAllPlayerDataInNextFrame) {
+                Log("Checking all player data at start");
+                CheckAllPlayerData();
+                checkAllPlayerDataInNextFrame = false;
+            }
+
             var writeUntil = Time.unscaledTime - WRITE_QUEUE_DELAY_SECONDS;
             while (playerDataQueueValues.Count > 0 && playerDataQueueValues[0].timestamp <= writeUntil) {
                 WriteFirstFromQueue();
             }
         }
 
-        private void QueuePlayerData(string fieldName, string valueString) {
+        private void CheckAllPlayerData() {
+            foreach(var field in playerDataFields) {
+                var currentValue = field.GetValue(PlayerData.instance);
+                QueuePlayerData(PlayerData.instance, field.Name, serializer.serializeUntyped(currentValue));
+            }
+        }
+
+        private void QueuePlayerData(PlayerData self, string fieldName, string valueString) {
+            if (self != PlayerData.instance) return;
+
             Log("Queue pd" + fieldName + ": " + valueString);
             if(previousPlayerData.TryGetValue(fieldName, out string previousValue) && previousValue == valueString) {
                 // already wrote current value. No need to write again
                 return;
             }
-            Log("Write into dict");
+            // Log("Write into dict");
             previousPlayerData[fieldName] = valueString;
 
             for (int i = 0; i < playerDataQueueValues.Count; i++) {
@@ -92,31 +126,29 @@ namespace AnalyticsRecorder {
                     break; // since queue can not contain duplicates, break here is ok
                 }
             }
-            Log("Add to queue");
             playerDataQueueValues.Add(new PlayerDataQueueValue(fieldName, valueString, Time.unscaledTime));
-            Log("Fin");
         }
 
         private void PlayerData_SetBool(On.PlayerData.orig_SetBool orig, PlayerData self, string boolName, bool value) {
             orig(self, boolName, value);
-            QueuePlayerData(boolName, value ? "1" : "0");
+            QueuePlayerData(self, boolName, serializer.serialize(value));
         }
 
         private void PlayerData_SetFloat(On.PlayerData.orig_SetFloat orig, PlayerData self, string floatName, float value) {
             orig(self, floatName, value);
-            QueuePlayerData(floatName, value.ToString());
+            QueuePlayerData(self, floatName, serializer.serialize(value));
         }
         private void PlayerData_SetInt(On.PlayerData.orig_SetInt orig, PlayerData self, string intName, int value) {
             orig(self, intName, value);
-            QueuePlayerData(intName, value.ToString());
+            QueuePlayerData(self, intName, serializer.serialize(value));
         }
         private void PlayerData_SetString(On.PlayerData.orig_SetString orig, PlayerData self, string stringName, string value) {
             orig(self, stringName, value);
-            QueuePlayerData(stringName, value.ToString());
+            QueuePlayerData(self, stringName, serializer.serializeUntyped(value));
         }
         private void PlayerData_SetVector3(On.PlayerData.orig_SetVector3 orig, PlayerData self, string vectorName, UnityEngine.Vector3 value) {
             orig(self, vectorName, value);
-            QueuePlayerData(vectorName, value.x.ToString() + ";" + value.y.ToString() + ";" + value.z.ToString());
+            QueuePlayerData(self, vectorName, serializer.serialize(value));
         }
     }
 }
