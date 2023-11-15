@@ -23,7 +23,7 @@ namespace AnalyticsRecorder {
         }
 
 
-        public MapData ExportMap() {
+        public MapData Export() {
             Log("Started map export. This should run at the beginning of the game, after buying the first map, but before buying the quill");
 
             var imports = new StringBuilder();

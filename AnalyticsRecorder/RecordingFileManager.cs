@@ -62,7 +62,7 @@ namespace AnalyticsRecorder {
                 previousFullTimestampTime = Time.unscaledTime;
                 writer?.Write("=");
                 writer?.Write(nowMillis.ToString());
-            } else {
+            } else if(diff != 0) {
                 writer?.Write("+");
                 writer?.Write(diff.ToString());
             }

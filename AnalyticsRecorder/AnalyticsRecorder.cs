@@ -22,8 +22,8 @@ using System.Text;
 using UnityEngine.Sprites;
 
 namespace AnalyticsRecorder {
-    public class AnalyticsRecorderMod : Mod {
-        private static float WRITE_PERIOD_SECONDS = 1;
+    public class AnalyticsRecorderMod : Mod, ILocalSettings<LocalSettings> {
+        private static float WRITE_PERIOD_SECONDS = .5f;
         private static string RECORDER_FILE_VERSION = "0.0.0";
 
         private static AnalyticsRecorderMod? _instance;
@@ -59,6 +59,7 @@ namespace AnalyticsRecorder {
             On.GameMap.GetTilemapDimensions += GameMap_GetTilemapDimensions;
 
             PlayerDataWriter.Instance.SetupHooks();
+            HeroControllerWriter.Instance.SetupHooks();
         }
 
         private void ModHooks_AttackHook(GlobalEnums.AttackDirection obj) {
@@ -98,6 +99,8 @@ namespace AnalyticsRecorder {
 
             profileId = GameManager.instance.profileID;
 
+            HeroControllerWriter.Instance.InitializeRun();
+
             recording.WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, RECORDER_FILE_VERSION);
 
             // TODO instead log with playerData from start
@@ -136,8 +139,9 @@ namespace AnalyticsRecorder {
             }
 
             if (Input.GetKeyDown(KeyCode.J)) {
-                MapExport.Instance.ExportMap();
-                PlayerDataExport.Instance.ExportPlayerData();
+                MapExport.Instance.Export();
+                PlayerDataExport.Instance.Export();
+                HeroControllerExport.Instance.Export();
             }
         }
 
@@ -147,6 +151,19 @@ namespace AnalyticsRecorder {
             // put additional initialization logic here
 
             Log("Initialized");
+        }
+
+        void ILocalSettings<LocalSettings>.OnLoadLocal(LocalSettings s) {
+            // TODO for new game initialize with defaults from config.
+            Log("Loading local settings" + s);
+            PlayerDataWriter.Instance.InitFromLocalSave(s.previousPlayerData);
+        }
+
+        LocalSettings ILocalSettings<LocalSettings>.OnSaveLocal() {
+            Log("Save local settings");
+            return new LocalSettings {
+                previousPlayerData = PlayerDataWriter.Instance.previousPlayerData,
+            };
         }
     }
 }

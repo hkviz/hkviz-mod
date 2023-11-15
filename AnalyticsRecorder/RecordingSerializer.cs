@@ -1,0 +1,83 @@
+﻿using HKMirror.Reflection.InstanceClasses;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace AnalyticsRecorder {
+    internal class RecordingSerializer {
+        private static RecordingSerializer? _instance;
+        public static RecordingSerializer Instance {
+            get {
+                if (_instance != null) return _instance;
+                _instance = new RecordingSerializer();
+                return _instance;
+            }
+        }
+
+        public string serialize(Vector3 value) => $"{value.x};{value.y};{value.z}";
+        public string serialize(Vector2 value) => $"{value.x};{value.y}";
+        public string serialize(float value) => value.ToString();
+        public string serialize(bool value) => value ? "1" : "0";
+        public string serialize(int value) => value.ToString();
+
+        public string serialize(string value) => value;
+        public string serialize(List<string> value) => string.Join(",", value);
+        public string serialize(List<int> value) => string.Join(",", value);
+        public string serialize(List<Vector3> value) => string.Join(",", value.Select(serialize));
+
+        public string serialize(BossSequenceDoor.Completion value) {
+            return (
+                serialize(value.canUnlock) +
+                serialize(value.unlocked) +
+                serialize(value.completed) +
+                serialize(value.allBindings) +
+                serialize(value.noHits) +
+                serialize(value.boundNail) +
+                serialize(value.boundShell) +
+                serialize(value.boundCharms) +
+                serialize(value.boundSoul) +
+                ";" +
+                serialize(value.viewedBossSceneCompletions)
+            );
+        }
+
+        public string serialize(BossStatue.Completion value) {
+            return (
+                serialize(value.hasBeenSeen) +
+                serialize(value.isUnlocked) +
+                serialize(value.completedTier1) +
+                serialize(value.completedTier2) +
+                serialize(value.completedTier3) +
+                serialize(value.seenTier3Unlock) +
+                serialize(value.usingAltVersion)
+            );
+        }
+
+        public string serialize(BossSequenceController.BossSequenceData value) {
+            return (
+                serialize((int)value.bindings) + 
+                ";" +
+                serialize(value.bossSequenceName)
+                // intentionally not everything included, as might change to much
+            );
+        }
+
+        public string serializeUntyped(object? value) => value switch {
+            null => "null",
+            Vector3 v => serialize(v),
+            Vector2 v => serialize(v),
+            float v => serialize(v),
+            bool v => serialize(v),
+            int v => serialize(v),
+            string v => serialize(v),
+            List<string> v => serialize(v),
+            List<int> v => serialize(v),
+            List<Vector3> v => serialize(v),
+            BossSequenceDoor.Completion v => serialize(v),
+            BossStatue.Completion v => serialize(v),
+            BossSequenceController.BossSequenceData v => serialize(v),
+            _ => value.ToString(),
+        };
+
+    }
+}
