@@ -10,7 +10,6 @@ namespace AnalyticsRecorder {
     internal record PlayerDataQueueValue(string fieldName, string valueString, float timestamp);
 
     internal class PlayerDataWriter: Loggable {
-        private static readonly string WRITE_KEY = "D";
         private static readonly float WRITE_QUEUE_DELAY_SECONDS = .1f;
 
         private RecordingFileManager recording = RecordingFileManager.Instance;
@@ -58,11 +57,14 @@ namespace AnalyticsRecorder {
 
         private void WriteFirstFromQueue() {
             var d = playerDataQueueValues[0];
+
+            var hasShortName = PlayerDataFields.fields.TryGetValue(d.fieldName, out var fieldInfo);
+
+            var prefixKey = hasShortName ? RecordingPrefixes.PLAYER_DATA_SHORTNAME + fieldInfo.shortCode : RecordingPrefixes.PLAYER_DATA_LONGNAME + d.fieldName;
+
             Log("Write pd" + d.fieldName + ": " + d.valueString);
             playerDataQueueValues.RemoveAt(0);
-            recording.WriteEntryPrefix(WRITE_KEY);
-            recording.Write(d.fieldName);
-            recording.WriteSep();
+            recording.WriteEntryPrefix(prefixKey);
             recording.Write(d.valueString);
             recording.WriteNL();
         }
@@ -97,7 +99,7 @@ namespace AnalyticsRecorder {
 
         private void PlayerData_SetBool(On.PlayerData.orig_SetBool orig, PlayerData self, string boolName, bool value) {
             orig(self, boolName, value);
-            QueuePlayerData(boolName, value.ToString());
+            QueuePlayerData(boolName, value ? "1" : "0");
         }
 
         private void PlayerData_SetFloat(On.PlayerData.orig_SetFloat orig, PlayerData self, string floatName, float value) {

@@ -52,11 +52,17 @@ namespace AnalyticsRecorder {
             ModHooks.SavegameLoadHook += SavegameLoadHook;
             ModHooks.NewGameHook += NewGameHook;
 
+            ModHooks.AttackHook += ModHooks_AttackHook;
+
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ActiveSceneChanged;
             On.GameMap.SetManualTilemap += GameMap_SetManualTilemap;
             On.GameMap.GetTilemapDimensions += GameMap_GetTilemapDimensions;
 
             PlayerDataWriter.Instance.SetupHooks();
+        }
+
+        private void ModHooks_AttackHook(GlobalEnums.AttackDirection obj) {
+            throw new NotImplementedException();
         }
 
         private void GameMap_GetTilemapDimensions(On.GameMap.orig_GetTilemapDimensions orig, GameMap self) {
@@ -71,7 +77,7 @@ namespace AnalyticsRecorder {
 
         private void WriteRoomTilemap(GameMap map) {
             var rmap = map.Reflect();
-            recording.WriteEntryPrefix("room-dimensions");
+            recording.WriteEntryPrefix(RecordingPrefixes.ROOM_DIMENSIONS);
             recording.Write(rmap.originOffsetX.ToString("0.00"));
             recording.WriteSep();
             recording.Write(rmap.originOffsetY.ToString("0.00"));
@@ -92,10 +98,12 @@ namespace AnalyticsRecorder {
 
             profileId = GameManager.instance.profileID;
 
-            recording.WriteEntry("recorder-file-version", RECORDER_FILE_VERSION);
-            recording.WriteEntry("profile-id", profileId.ToString());
-            recording.WriteEntry("application-version", Application.version);
-            recording.WriteEntry("mod-version", GetVersion());
+            recording.WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, RECORDER_FILE_VERSION);
+
+            // TODO instead log with playerData from start
+            // recording.WriteEntry("profile-id", profileId.ToString());
+            recording.WriteEntry(RecordingPrefixes.HOLLOWKNIGHT_VERSION, Application.version);
+            recording.WriteEntry(RecordingPrefixes.HZVIZ_MOD_VERSION, GetVersion());
         }
 
 
@@ -108,6 +116,8 @@ namespace AnalyticsRecorder {
         }
 
         private void HeroUpdateHook() {
+            if (GameManager.instance.isPaused) return;
+
             if (knight == null) { // if destroyed needs to find new player
                 knight = GameObject.Find("Knight").transform;
             }
@@ -115,7 +125,7 @@ namespace AnalyticsRecorder {
             if (knight != null) {
                 var time = Time.time;
                 if (time - lastFreqWriteTime > WRITE_PERIOD_SECONDS) {
-                    recording.WriteEntryPrefix("P");
+                    recording.WriteEntryPrefix(RecordingPrefixes.PLAYER_POSITION);
                     recording.Write(knight.position.x.ToString("0.00"));
                     recording.WriteSep();
                     recording.Write(knight.position.y.ToString("0.00"));
@@ -127,6 +137,7 @@ namespace AnalyticsRecorder {
 
             if (Input.GetKeyDown(KeyCode.J)) {
                 MapExport.Instance.ExportMap();
+                PlayerDataExport.Instance.ExportPlayerData();
             }
         }
 
