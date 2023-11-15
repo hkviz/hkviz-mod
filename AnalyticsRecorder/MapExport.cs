@@ -107,7 +107,7 @@ namespace AnalyticsRecorder {
             var mapData = new MapData() {
                 rooms = rooms,
             };
-            var json = JsonConvert.SerializeObject(mapData, Formatting.Indented, jsonConverter);
+            var json = Json.ToString(mapData);
             //var js = json
             //    .Replace("\"IMPORT_STRING_START:", "")
             //    .Replace(":IMPORT_STRING_END\"", "")
@@ -125,11 +125,5 @@ namespace AnalyticsRecorder {
             Log("Finished map export");
             return mapData;
         }
-
-        public static JsonConverter[] jsonConverter = new JsonConverter[] {
-            new Vector2Converter(),
-            new Vector3Converter(),
-            new Vector4Converter(),
-        };
     }
 }
