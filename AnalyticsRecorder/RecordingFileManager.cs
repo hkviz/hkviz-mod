@@ -1,4 +1,5 @@
-﻿using Steamworks;
+﻿using Modding;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 
 namespace AnalyticsRecorder {
-    internal class RecordingFileManager {
+    internal class RecordingFileManager : Loggable {
         private static RecordingFileManager? _instance;
         public static RecordingFileManager Instance {
             get {
@@ -44,6 +45,7 @@ namespace AnalyticsRecorder {
         public void StopRecorder() {
             try {
                 if (writer != null) {
+                    Log("hkviz recording stopped");
                     BeforeWriterClose?.Invoke();
                     WriteEntry(RecordingPrefixes.SESSION_END);
                     writer.Close();
