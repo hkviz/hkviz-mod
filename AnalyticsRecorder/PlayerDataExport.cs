@@ -18,6 +18,7 @@ namespace AnalyticsRecorder {
         public string type;
         public string shortCode;
         public string defaultValue;
+        public bool notLogged;
     }
 
     internal class PlayerDataExport : Loggable {
@@ -48,6 +49,7 @@ namespace AnalyticsRecorder {
                     type = it.FieldType.Name,
                     shortCode = Base36Converter.ConvertTo(index + 1),
                     defaultValue = RecordingSerializer.Instance.serializeUntyped(it.GetValue(fakePlayerData)),
+                    notLogged = PlayerDataWriter.notLoggedFields.Contains(it.Name),
                 })
                 .ToDictionary(it => it.name, it => it);
 
@@ -65,7 +67,7 @@ namespace AnalyticsRecorder {
                             type = "{{field.Value.type}}",
                             shortCode = "{{field.Value.shortCode}}",
                             defaultValue = "{{field.Value.defaultValue}}",
-                        },
+                            notLogged = {{field.Value.notLogged.ToString().ToLower()}}},
                         """);
                 }
             }

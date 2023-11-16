@@ -1,5 +1,7 @@
-﻿using Modding;
+﻿using MapChanger;
+using Modding;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,13 +10,30 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AnalyticsRecorder {
-    internal record PlayerDataQueueValue(string fieldName, string valueString, float timestamp);
+    internal record PlayerDataQueueValue(
+        string fieldName,
+        string valueString,
+        float timestamp,
+        bool writeIncremental
+    );
 
     internal class PlayerDataWriter: Loggable {
         private static readonly float WRITE_QUEUE_DELAY_SECONDS = .1f;
 
         private RecordingFileManager recording = RecordingFileManager.Instance;
         private RecordingSerializer serializer = RecordingSerializer.Instance;
+
+        public static HashSet<string> notLoggedFields = new() {
+            // potentially we could log charms, but remove the default ids since those are duplicated into their own vars, or not log the individual vars
+            "equippedCharms",
+            "mapZoneBools",
+            "isInvincible",
+            "hazardRespawnLocation",
+            "hazardRespawnFacingRight",
+            "previousDarkness",
+            "disablePause",
+            "environmentType",
+        };
 
         private static PlayerDataWriter? _instance;
         public static PlayerDataWriter Instance {
@@ -48,7 +67,10 @@ namespace AnalyticsRecorder {
             ModHooks.HeroUpdateHook += ModHooks_HeroUpdateHook;
             recording.BeforeWriterClose += Recording_BeforeWriterClose;
 
-
+            // using Settings does sadly not work, since some vars are directly mutated. 
+            // a bit to difficult to track. Now just chceking differences each frame.
+            /*
+            // TODO add for incrememts and similar
             // On.PlayerData.SetBenchRespawn_RespawnMarker_string_int
             // On.PlayerData.SetBenchRespawn_string_string_bool
             // On.PlayerData.SetBenchRespawn_string_string_int_bool
@@ -64,6 +86,7 @@ namespace AnalyticsRecorder {
             // On.PlayerData.SetStringSwappedArgs
             On.PlayerData.SetVector3 += PlayerData_SetVector3;
             // On.PlayerData.SetVector3SwappedArgs
+            */
         }
 
         private void Recording_BeforeWriterClose() {
@@ -80,7 +103,7 @@ namespace AnalyticsRecorder {
 
             var prefixKey = hasShortName ? RecordingPrefixes.PLAYER_DATA_SHORTNAME + fieldInfo.shortCode : RecordingPrefixes.PLAYER_DATA_LONGNAME + d.fieldName;
 
-            Log("Write pd" + d.fieldName + ": " + d.valueString);
+            // Log("Write pd " + d.fieldName + ": " + d.valueString);
             playerDataQueueValues.RemoveAt(0);
             recording.WriteEntryPrefix(prefixKey);
             recording.Write(d.valueString);
@@ -93,6 +116,10 @@ namespace AnalyticsRecorder {
                 Log("Checking all player data at start");
                 CheckAllPlayerData();
                 checkAllPlayerDataInNextFrame = false;
+            } else {
+                // possible one could just check a few per frame.
+                // so data could be behind a few additional frames
+                CheckAllPlayerData();
             }
 
             var writeUntil = Time.unscaledTime - WRITE_QUEUE_DELAY_SECONDS;
@@ -104,20 +131,31 @@ namespace AnalyticsRecorder {
         private void CheckAllPlayerData() {
             foreach(var field in playerDataFields) {
                 var currentValue = field.GetValue(PlayerData.instance);
-                QueuePlayerData(PlayerData.instance, field.Name, serializer.serializeUntyped(currentValue));
+                QueuePlayerData(
+                    PlayerData.instance, 
+                    field.Name, 
+                    serializer.serializeUntyped(currentValue),
+                    writeIncremental: currentValue is IList
+                );
             }
         }
 
-        private void QueuePlayerData(PlayerData self, string fieldName, string valueString) {
+        private void QueuePlayerData(PlayerData self, string fieldName, string valueString, bool writeIncremental = false) {
             if (self != PlayerData.instance) return;
+            if (notLoggedFields.Contains(fieldName)) return;
 
-            Log("Queue pd" + fieldName + ": " + valueString);
+            // Log("Queue pd" + fieldName + ": " + valueString);
             if(previousPlayerData.TryGetValue(fieldName, out string previousValue) && previousValue == valueString) {
                 // already wrote current value. No need to write again
                 return;
             }
+
             // Log("Write into dict");
             previousPlayerData[fieldName] = valueString;
+
+            if (writeIncremental && valueString is not null && previousValue is not null) {
+                valueString = valueString.Replace(previousValue, "::");
+            }
 
             for (int i = 0; i < playerDataQueueValues.Count; i++) {
                 var d = playerDataQueueValues[i];
@@ -126,9 +164,15 @@ namespace AnalyticsRecorder {
                     break; // since queue can not contain duplicates, break here is ok
                 }
             }
-            playerDataQueueValues.Add(new PlayerDataQueueValue(fieldName, valueString, Time.unscaledTime));
+            playerDataQueueValues.Add(new PlayerDataQueueValue(
+                fieldName: fieldName, 
+                valueString: valueString, 
+                timestamp: Time.unscaledTime,
+                writeIncremental: writeIncremental
+            ));
         }
 
+        /*
         private void PlayerData_SetBool(On.PlayerData.orig_SetBool orig, PlayerData self, string boolName, bool value) {
             orig(self, boolName, value);
             QueuePlayerData(self, boolName, serializer.serialize(value));
@@ -150,5 +194,6 @@ namespace AnalyticsRecorder {
             orig(self, vectorName, value);
             QueuePlayerData(self, vectorName, serializer.serialize(value));
         }
+        */
     }
 }

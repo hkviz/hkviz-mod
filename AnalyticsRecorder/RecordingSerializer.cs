@@ -14,16 +14,17 @@ namespace AnalyticsRecorder {
             }
         }
 
-        public string serialize(Vector3 value) => $"{value.x};{value.y};{value.z}";
+        public string serialize(Vector3 value, string? format = null) 
+            => $"{serialize(value.x, format)};{serialize(value.y, format)};{serialize(value.z, format)}";
         public string serialize(Vector2 value) => $"{value.x};{value.y}";
-        public string serialize(float value) => value.ToString();
+        public string serialize(float value, string? format = null) => format is null ? value.ToString() : value.ToString(format);
         public string serialize(bool value) => value ? "1" : "0";
         public string serialize(int value) => value.ToString();
 
         public string serialize(string value) => value;
         public string serialize(List<string> value) => string.Join(",", value);
         public string serialize(List<int> value) => string.Join(",", value);
-        public string serialize(List<Vector3> value) => string.Join(",", value.Select(serialize));
+        public string serialize(List<Vector3> value, string? format = null) => string.Join(",", value.Select(it => serialize(it, format)));
 
         public string serialize(BossSequenceDoor.Completion value) {
             return (

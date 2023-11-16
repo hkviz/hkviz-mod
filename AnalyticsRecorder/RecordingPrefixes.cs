@@ -22,5 +22,9 @@ namespace AnalyticsRecorder {
         public static readonly string RECORDING_FILE_VERSION = "rfv";
         public static readonly string RECORDING_ID = "rid";
         public static readonly string SESSION_END = "send";
+
+        public static readonly string SPELL_FIREBALL = "sfb";
+        public static readonly string SPELL_UP = "sup";
+        public static readonly string SPELL_DOWN = "sdn";
     }
 }
