@@ -14,9 +14,9 @@ namespace AnalyticsRecorder {
             }
         }
 
+        public string serialize(Vector2 value, string? format = null) => $"{serialize(value.x)};{serialize(value.y)}";
         public string serialize(Vector3 value, string? format = null) 
             => $"{serialize(value.x, format)};{serialize(value.y, format)};{serialize(value.z, format)}";
-        public string serialize(Vector2 value) => $"{value.x};{value.y}";
         public string serialize(float value, string? format = null) => format is null ? value.ToString() : value.ToString(format);
         public string serialize(bool value) => value ? "1" : "0";
         public string serialize(int value) => value.ToString();

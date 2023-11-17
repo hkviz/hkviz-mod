@@ -47,19 +47,25 @@ namespace AnalyticsRecorder {
         public Dictionary<string, string> previousPlayerData = new Dictionary<string, string>();
         private List<PlayerDataQueueValue> playerDataQueueValues = new List<PlayerDataQueueValue>();
 
-        private bool checkAllPlayerDataInNextFrame = false;
+        private bool isRecording = false;
 
         private static FieldInfo[] playerDataFields = typeof(PlayerData)
                 .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
         public void InitFromLocalSave(Dictionary<string, string> previousPlayerData) {
-            var combinedFromDefaultsAndSave = PlayerDataFieldInfos.fields.ToDictionary(it => it.Value.name, it => it.Value.defaultValue);
+            // at the start of a game all previous values are initialized with the default
+            // since those are just assumed when parsing. This saves storing the defaults
+            // at each run file.
+            var combinedFromDefaultsAndSave = PlayerDataFieldInfos.fields
+                .Where(it => it.Value.name != "version" && !it.Value.notLogged)
+                .ToDictionary(it => it.Value.name, it => it.Value.defaultValue);
+
             foreach (var field in previousPlayerData) {
                 combinedFromDefaultsAndSave[field.Key] = field.Value;
             }
             previousPlayerData = combinedFromDefaultsAndSave;
 
-            checkAllPlayerDataInNextFrame = true;
+            isRecording = true;
             Log("init from local save");
         }
 
@@ -90,6 +96,7 @@ namespace AnalyticsRecorder {
         }
 
         private void Recording_BeforeWriterClose() {
+            isRecording = false;
             // write all remaining queue values when recording stops
             while (playerDataQueueValues.Count > 0) {
                 WriteFirstFromQueue();
@@ -111,21 +118,13 @@ namespace AnalyticsRecorder {
         }
 
         private void ModHooks_HeroUpdateHook() {
-
-            if (checkAllPlayerDataInNextFrame) {
-                Log("Checking all player data at start");
-                CheckAllPlayerData();
-                checkAllPlayerDataInNextFrame = false;
-            } else {
-                // possible one could just check a few per frame.
-                // so data could be behind a few additional frames
-                CheckAllPlayerData();
-            }
-
             var writeUntil = Time.unscaledTime - WRITE_QUEUE_DELAY_SECONDS;
             while (playerDataQueueValues.Count > 0 && playerDataQueueValues[0].timestamp <= writeUntil) {
                 WriteFirstFromQueue();
             }
+
+            if (!isRecording) return;
+            CheckAllPlayerData();
         }
 
         private void CheckAllPlayerData() {
@@ -153,7 +152,7 @@ namespace AnalyticsRecorder {
             // Log("Write into dict");
             previousPlayerData[fieldName] = valueString;
 
-            if (writeIncremental && valueString is not null && previousValue is not null) {
+            if (writeIncremental && valueString is not null && previousValue is not null && previousValue != "") {
                 valueString = valueString.Replace(previousValue, "::");
             }
 

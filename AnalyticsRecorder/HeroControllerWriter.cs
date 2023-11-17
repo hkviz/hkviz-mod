@@ -52,6 +52,8 @@ namespace AnalyticsRecorder {
             "shadowDashing",
             "dashing",
             "bouncing",
+            "freezeCharge", // this always becomes false in the next frame, even when it takes longer
+            "superDashing", // this always becomes false in the next frame. Is false while super dashing
         };
 
         // default all states false, so no writing at beginning of game.
@@ -93,6 +95,8 @@ namespace AnalyticsRecorder {
             var prefixKey = hasShortName ? RecordingPrefixes.HERO_CONTROLER_STATE_SHORTNAME + statInfo.shortCode : RecordingPrefixes.HERO_CONTROLER_STATE_LONGNAME + stateName;
 
             // Log("Write hero controller" + stateName + ": " + value);
+
+            Log($"Write hero controller state {stateName} {value}");
             recording.WriteEntryPrefix(prefixKey);
             recording.Write(value ? "1" : "0");
             recording.WriteNL();

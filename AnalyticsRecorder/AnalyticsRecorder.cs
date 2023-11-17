@@ -22,6 +22,7 @@ using System.Text;
 using UnityEngine.Sprites;
 using Core.FsmUtil;
 using static MonoMod.Cil.RuntimeILReferenceBag.FastDelegateInvokers;
+using System.Linq;
 
 namespace AnalyticsRecorder {
     public class AnalyticsRecorderMod : Mod, ILocalSettings<LocalSettings> {
@@ -65,6 +66,8 @@ namespace AnalyticsRecorder {
 
             PlayerDataWriter.Instance.SetupHooks();
             HeroControllerWriter.Instance.SetupHooks();
+
+            InitFsm();
         }
 
         private void ModHooks_AttackHook(GlobalEnums.AttackDirection obj) {
@@ -130,20 +133,26 @@ namespace AnalyticsRecorder {
 
         private void InitKnight() {
             knight = GameObject.Find("Knight").transform;
-            var spellControlFsm = knight.gameObject.LocateMyFSM("Spell Control");
 
+            Log("|" + String.Join("|", knight.gameObject.LocateMyFSM("Nail Arts").FsmStates.Select(it => it.Name).ToList()) + "|");
+            Log("|" + String.Join("|", knight.gameObject.LocateMyFSM("Spell Control").FsmStates.Select(it => it.Name).ToList()) + "|");
+            Log("|" + String.Join("|", knight.gameObject.LocateMyFSM("Superdash").FsmStates.Select(it => it.Name).ToList()) + "|");
+        }
+
+        private void InitFsm() {
+            // ---- SPELLS ----
             // fireball
             Hooks.HookStateEntered(new FSMData(
-                GameObjectName: knight.gameObject.name,
+                // GameObjectName: knight.gameObject.name,
                 FsmName: "Spell Control",
                 StateName: "Fireball Antic"
             ), a => {
-                recording.WriteEntry(RecordingPrefixes.SPELL_FIREBALL, serializer.serialize(HeroController.instance.cState.facingRight));
+                recording.WriteEntry(RecordingPrefixes.SPELL_FIREBALL, facingDirectionChar());
             });
 
             // spell down
             Hooks.HookStateExited(new FSMData(
-                GameObjectName: knight.gameObject.name,
+                // GameObjectName: knight.gameObject.name,
                 FsmName: "Spell Control",
                 StateName: "Quake Antic"
             ), a => {
@@ -152,20 +161,92 @@ namespace AnalyticsRecorder {
 
             // spell up
             Hooks.HookStateExited(new FSMData(
-                GameObjectName: knight.gameObject.name,
+                // GameObjectName: knight.gameObject.name,
                 FsmName: "Spell Control",
                 StateName: "Scream Antic1"
             ), a => {
                 recording.WriteEntry(RecordingPrefixes.SPELL_UP);
             });
             Hooks.HookStateExited(new FSMData(
-                GameObjectName: knight.gameObject.name,
+                // GameObjectName: knight.gameObject.name,
                 FsmName: "Spell Control",
                 StateName: "Scream Antic2"
             ), a => {
                 recording.WriteEntry(RecordingPrefixes.SPELL_UP);
             });
+
+            // ----- NAIL ARTS -----
+            // cyclone
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Nail Arts",
+                StateName: "Cyclone Start"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.NAIL_ART_CYCLONE, facingDirectionChar());
+            });
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Nail Arts",
+                StateName: "Cyclone End"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.NAIL_ART_CYCLONE, "0");
+            });
+            // dslash
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Nail Arts",
+                StateName: "DSlash Start"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.NAIL_ART_D_SLASH, facingDirectionChar());
+            });
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Nail Arts",
+                StateName: "D Slash End"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.NAIL_ART_D_SLASH, "0");
+            });
+            // gslash
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Nail Arts",
+                StateName: "Flash 2"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.NAIL_ART_G_SLASH, facingDirectionChar());
+            });
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Nail Arts",
+                StateName: "G Slash End"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.NAIL_ART_G_SLASH, "0");
+            });
+
+            // ----- SUPER DASH ----
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Superdash",
+                StateName: "G Right"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "r");
+            });
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Superdash",
+                StateName: "G Left"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "l");
+            });
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Superdash",
+                StateName: "Regain Control"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "0");
+            });
         }
+
+        private string facingDirectionChar() => HeroController.instance.cState.facingRight ? "r" : "l";
 
         private void HeroUpdateHook() {
             if (GameManager.instance.isPaused) return;
@@ -178,7 +259,7 @@ namespace AnalyticsRecorder {
                 var time = Time.time;
                 if (time - lastFreqWriteTime > WRITE_PERIOD_SECONDS) {
                     recording.WriteEntryPrefix(RecordingPrefixes.PLAYER_POSITION);
-                    var currentPositionString = serializer.serialize(knight.position, "0.00");
+                    var currentPositionString = serializer.serialize(new Vector2(knight.position.x, knight.position.y), "0.00"); // no z position needed
                     if (previousPositionString == currentPositionString) {
                         recording.Write("=");
                     } else {

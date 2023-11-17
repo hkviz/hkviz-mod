@@ -26,5 +26,11 @@ namespace AnalyticsRecorder {
         public static readonly string SPELL_FIREBALL = "sfb";
         public static readonly string SPELL_UP = "sup";
         public static readonly string SPELL_DOWN = "sdn";
+
+        public static readonly string NAIL_ART_CYCLONE = "nac";
+        public static readonly string NAIL_ART_D_SLASH = "nad";
+        public static readonly string NAIL_ART_G_SLASH = "nag";
+
+        public static readonly string SUPER_DASH = "sd";
     }
 }
