@@ -107,7 +107,7 @@ namespace AnalyticsRecorder {
             var mapData = new MapData() {
                 rooms = rooms,
             };
-            var json = Json.ToString(mapData);
+            var json = Json.Stringify(mapData);
             //var js = json
             //    .Replace("\"IMPORT_STRING_START:", "")
             //    .Replace(":IMPORT_STRING_END\"", "")
