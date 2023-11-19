@@ -25,7 +25,7 @@ using static MonoMod.Cil.RuntimeILReferenceBag.FastDelegateInvokers;
 using System.Linq;
 
 namespace AnalyticsRecorder {
-    public class AnalyticsRecorderMod : Mod, ILocalSettings<LocalSettings> {
+    public class AnalyticsRecorderMod : Mod, ILocalSettings<LocalSettings>, ICustomMenuMod {
         private static float WRITE_PERIOD_SECONDS = .5f;
         private static string RECORDER_FILE_VERSION = "0.0.0";
 
@@ -42,6 +42,8 @@ namespace AnalyticsRecorder {
                 return _instance;
             }
         }
+
+        public bool ToggleButtonInsideMenu { get;  }
 
         private Transform? knight;
         private int profileId = -1;
@@ -299,5 +301,8 @@ namespace AnalyticsRecorder {
                 previousPlayerData = PlayerDataWriter.Instance.previousPlayerData,
             };
         }
+
+        public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+            => HKVizModUI.Instance.GetMenuScreen(modListMenu, toggleDelegates);
     }
 }

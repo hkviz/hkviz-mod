@@ -62,6 +62,10 @@ namespace AnalyticsRecorder {
 
         internal void InitializeRun() {
             previousHeroControllerStates.Clear();
+
+            foreach(var stateField in stateFields) {
+                previousHeroControllerStates[stateField.Name] = false;
+            }
         }
 
         internal void SetupHooks() {

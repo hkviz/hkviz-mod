@@ -16,8 +16,12 @@ namespace AnalyticsRecorder {
             new Vector4Converter(),
         };
 
-        public static string ToString(Object obj) {
+        public static string Stringify(Object obj) {
             return JsonConvert.SerializeObject(obj, Formatting.Indented, jsonConverter);
+        }
+
+        public static T? Parse<T>(string json) {
+            return JsonConvert.DeserializeObject<T>(json);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace AnalyticsRecorder {
                 })
                 .ToDictionary(it => it.name, it => it);
 
-            var json = Json.ToString(fields);
+            var json = Json.Stringify(fields);
             using (var writer = new StreamWriter(StoragePaths.GetUserFilePath("hero-controller-export.txt"))) {
                 writer.Write(json);
             }
