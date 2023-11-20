@@ -1,6 +1,7 @@
 ﻿using MapChanger;
 using Modding;
 using Newtonsoft.Json;
+using Satchel.BetterMenus;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,6 +26,21 @@ namespace AnalyticsRecorder {
         public string id;
     }
 
+    [Serializable]
+    internal class UserInfo {
+        public string id;
+        public string name;
+
+    }
+
+    [Serializable]
+    internal class SessionInfo {
+        public string id;
+        public string name;
+        public UserInfo? user;
+
+    }
+
     internal class HKVizAuthManager: Loggable {
         private static HKVizAuthManager instance;
 
@@ -37,20 +53,81 @@ namespace AnalyticsRecorder {
             }
         }
 
+        public enum LoginState {
+            NOT_LOGGED_IN,
+            LOADING_LOGIN_URL,
+            LOADING_LOGIN_URL_FAILED,
+            WAITING_FOR_USER_LOGIN_IN_BROWSER,
+            LOGGED_IN,
+        }
+
+        public string? SessionId;
+        public string? UserName;
+
+        private LoginState _state = LoginState.NOT_LOGGED_IN;
+        public LoginState State {
+            get {
+                return State;
+            }
+            private set {
+                _state = value;
+                StateChanged?.Invoke(value);
+            }
+        }
+
+        public event Action<LoginState>? StateChanged;
+
+        private HKVizAuthManager() {
+            //Application.focusChanged += Application_focusChanged;
+        }
+
+        private void Application_focusChanged(bool focused) {
+            if (focused && State == LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER) {
+                CheckSessionState();
+            }
+        }
 
         public void Login() {
             InitSessionToken();
         }
 
+        public void CancelLogin() {
+            State = LoginState.NOT_LOGGED_IN;
+            SessionId = null;
+        }
+
         private void InitSessionToken() {
+            State = LoginState.LOADING_LOGIN_URL;
             GameManager.instance.StartCoroutine(ApiPost<InitSessionBodyPayload, InitSessionResult>(
                 path: "ingamesession/init",
                 body: new() {
-                    name = SystemInfo.deviceName,
+                    name = SystemInfo.deviceName.Substring(0, Math.Min(SystemInfo.deviceName.Length, 255)),
                 },
                 onSuccess: data => {
-                    Log("Got session token " + data.id);
-                    Application.OpenURL(Constants.LOGIN_URL + data.id);
+                    SessionId = data.id;
+                    Log("Got session token " + SessionId);
+                    Application.OpenURL(Constants.LOGIN_URL + SessionId);
+                    State = LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER;
+                },
+                onError: request => {
+                    Debug.Log(request.error);
+                    Debug.Log(request.downloadHandler.text);
+                    State = LoginState.LOADING_LOGIN_URL_FAILED;
+                }
+            ));
+        }
+
+        private void CheckSessionState() {
+            GameManager.instance.StartCoroutine(ApiGet<SessionInfo>(
+                path: "ingamesession/" + SessionId,
+                onSuccess: data => {
+                    SessionId = data.id;
+                    Log("Got session info " + data.id + " " + data.user?.id + " " + data.user?.name);
+                    //Application.OpenURL(Constants.LOGIN_URL + sessionId);
+                    if (data.user != null) {
+                        State = LoginState.LOGGED_IN;
+                        UserName = data.user?.name;
+                    }
                 },
                 onError: request => {
                     Debug.Log(request.error);
@@ -63,29 +140,6 @@ namespace AnalyticsRecorder {
             var json = Json.Stringify(body);
             var url = Constants.API_URL + path;
 
-            //WWWForm form = new WWWForm();
-            //form.AddField("data", json);
-
-
-            // using (var www = UnityWebRequest.Put(url, json)) {
-            //using (var www = UnityWebRequest.Post(url, form)) {
-            //        // www.method = "POST";
-            //    // www.SetRequestHeader("Content-Type", "application/json");
-            //    // www.SetRequestHeader("Accept", "application/json");
-            //    yield return www.SendWebRequest();
-
-            //    if (www.result != UnityWebRequest.Result.Success) {
-            //        Debug.Log(www.error);
-            //        Debug.Log(www.downloadHandler.text);
-            //        onError(www);
-            //    } else {
-            //        Log("Got session token " + www.downloadHandler.text);
-            //        var result = Json.Parse<TResponse>(www.downloadHandler.text) ?? throw new Exception("No response data");
-            //        onSuccess(result);
-            //    }
-            //}
-
-
             var request = new UnityWebRequest(url, "POST");
             //var json = Json.Stringify(body);
             Log(json);
@@ -93,6 +147,17 @@ namespace AnalyticsRecorder {
             request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
+            return WrapWWW(request, onSuccess, onError);
+        }
+
+        private IEnumerator ApiGet<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
+            var url = Constants.API_URL + path;
+            var request = UnityWebRequest.Get(url);
+            return WrapWWW(request, onSuccess, onError);
+        }
+
+
+        private IEnumerator WrapWWW<TResponse>(UnityWebRequest request, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
             yield return request.SendWebRequest();
             Debug.Log("Status Code: " + request.responseCode);
 
