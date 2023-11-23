@@ -71,7 +71,7 @@ namespace AnalyticsRecorder {
 
         internal void SetupHooks() {
             ModHooks.HeroUpdateHook += ModHooks_HeroUpdateHook;
-            recording.BeforeWriterClose += Recording_BeforeWriterClose;
+            recording.BeforeCloseLastSessionFile += Recording_BeforeWriterClose;
 
             // using Settings does sadly not work, since some vars are directly mutated. 
             // a bit to difficult to track. Now just chceking differences each frame.

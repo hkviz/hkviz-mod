@@ -88,7 +88,7 @@ namespace AnalyticsRecorder {
                 self.SetFieldByReflection("entries", newEntries);
 
                 AuthStateChanged(HKVizAuthManager.Instance.State);
-                GameManager.instance.StartCoroutine(CheckButtonVisibilityNextFrame());
+                CheckButtonVisibilityNextFrame().StartGlobal();
             }
 
             orig.Invoke(self);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static AnalyticsRecorder.UploadManager;
 
 namespace AnalyticsRecorder {
     public class GlobalSettings {
@@ -11,6 +12,8 @@ namespace AnalyticsRecorder {
         public string? userName = null;
         public bool autoUpload = true;
         public bool showLoginButtonInMainMenu = true;
+        public List<UploadQueueEntry> queuedUploadFiles = new List<UploadQueueEntry>();
+        public List<UploadQueueEntry> failedUploadFiles = new List<UploadQueueEntry>();
     }
     internal class GlobalSettingsManager {
         private static GlobalSettingsManager instance;
@@ -26,12 +29,18 @@ namespace AnalyticsRecorder {
         private GlobalSettings _settings = new GlobalSettings();
         public static GlobalSettings Settings => Instance._settings;
 
+        public GlobalSettings GetForSave() {
+            BeforeSave?.Invoke();
+            return Settings;
+        }
+
         public void InitializeFromSavedSettings(GlobalSettings settings) {
             _settings = settings;
             SettingsLoaded?.Invoke();
         }
 
         public event Action? SettingsLoaded;
+        public event Action? BeforeSave;
 
     }
 }

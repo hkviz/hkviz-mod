@@ -26,13 +26,9 @@ using System.Linq;
 
 namespace AnalyticsRecorder {
     public class AnalyticsRecorderMod : Mod, ILocalSettings<LocalSettings>, ICustomMenuMod, IGlobalSettings<GlobalSettings> {
-        private static float WRITE_PERIOD_SECONDS = .5f;
         private static string RECORDER_FILE_VERSION = "0.0.0";
 
         private static AnalyticsRecorderMod? _instance;
-
-        private RecordingFileManager recording = RecordingFileManager.Instance;
-        private RecordingSerializer serializer = RecordingSerializer.Instance;
 
         internal static AnalyticsRecorderMod Instance {
             get {
@@ -43,19 +39,21 @@ namespace AnalyticsRecorder {
             }
         }
 
+        private RecordingFileManager recording = RecordingFileManager.Instance;
+        private RecordingSerializer serializer = RecordingSerializer.Instance;
+
         public bool ToggleButtonInsideMenu { get;  }
 
-        private Transform? knight;
         private int profileId = -1;
-        private float lastFreqWriteTime = 0;
-
-        private string previousPositionString = "";
 
         public override string GetVersion() => GetType().Assembly.GetName().Version.ToString();
 
         public AnalyticsRecorderMod() : base("HKViz") {
             _instance = this;
+            BehaviourManager.Instance.Initialize();
             MainMenuUI.Instance.Initialize();
+            UploadManager.Instance.Initialize();
+            RecordingFileManager.Instance.Initialize();
 
             ModHooks.HeroUpdateHook += HeroUpdateHook;
             ModHooks.SavegameLoadHook += SavegameLoadHook;
@@ -66,12 +64,20 @@ namespace AnalyticsRecorder {
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ActiveSceneChanged;
             On.GameMap.SetManualTilemap += GameMap_SetManualTilemap;
             On.GameMap.GetTilemapDimensions += GameMap_GetTilemapDimensions;
+            On.GameManager.ReturnToMainMenu += GameManager_ReturnToMainMenu;
 
             PlayerDataWriter.Instance.SetupHooks();
             HeroControllerWriter.Instance.SetupHooks();
+            PlayerPositionWriter.Instance.Ininitialize();
 
             InitFsm();
+        }
 
+        private System.Collections.IEnumerator GameManager_ReturnToMainMenu(On.GameManager.orig_ReturnToMainMenu orig, GameManager self, GameManager.ReturnToMainMenuSaveModes saveMode, System.Action<bool> callback) {
+            // will switch to next part --> next time uses next one.
+            RecordingFileManager.Instance.OnReturnToMenu();
+
+            return orig(self, saveMode, callback);
         }
 
         private void ModHooks_AttackHook(GlobalEnums.AttackDirection obj) {
@@ -102,11 +108,10 @@ namespace AnalyticsRecorder {
         }
 
         private void ActiveSceneChanged(Scene oldScene, Scene newScene) {
-            if (newScene.name == "Menu_Title") {
-                // player went back to menu, so recorder should stop.
-                recording.StopRecorder();
-            } else {
-                recording.WriteEntry("S", newScene.name);
+            // only switch file here, so a scene event will always be the first thing inside a recording part.
+            recording.SwitchToNextPartIfNessessary();
+            if (newScene.name != "Menu_Title") {
+                recording.WriteEntry(RecordingPrefixes.SCENE_CHANGE, newScene.name);
             }
         }
 
@@ -133,14 +138,6 @@ namespace AnalyticsRecorder {
 
         private void SavegameLoadHook(int playerIndex) {
             InitializeRecorder();
-        }
-
-        private void InitKnight() {
-            knight = GameObject.Find("Knight").transform;
-
-            Log("|" + String.Join("|", knight.gameObject.LocateMyFSM("Nail Arts").FsmStates.Select(it => it.Name).ToList()) + "|");
-            Log("|" + String.Join("|", knight.gameObject.LocateMyFSM("Spell Control").FsmStates.Select(it => it.Name).ToList()) + "|");
-            Log("|" + String.Join("|", knight.gameObject.LocateMyFSM("Superdash").FsmStates.Select(it => it.Name).ToList()) + "|");
         }
 
         private void InitFsm() {
@@ -253,29 +250,6 @@ namespace AnalyticsRecorder {
         private string facingDirectionChar() => HeroController.instance.cState.facingRight ? "r" : "l";
 
         private void HeroUpdateHook() {
-            if (GameManager.instance.isPaused) return;
-
-            if (knight == null) { // if destroyed needs to find new player
-                InitKnight();
-            }
-
-            if (knight != null) {
-                var time = Time.time;
-                if (time - lastFreqWriteTime > WRITE_PERIOD_SECONDS) {
-                    recording.WriteEntryPrefix(RecordingPrefixes.PLAYER_POSITION);
-                    var currentPositionString = serializer.serialize(new Vector2(knight.position.x, knight.position.y), "0.00"); // no z position needed
-                    if (previousPositionString == currentPositionString) {
-                        recording.Write("=");
-                    } else {
-                        recording.Write(currentPositionString);
-                        previousPositionString = currentPositionString;
-                    }
-                    recording.WriteNL();
-
-                    lastFreqWriteTime = time;
-                }
-            }
-
             if (Input.GetKeyDown(KeyCode.J)) {
                 MapExport.Instance.Export();
                 PlayerDataExport.Instance.Export();
@@ -295,12 +269,16 @@ namespace AnalyticsRecorder {
             // TODO for new game initialize with defaults from config.
             Log("Loading local settings" + s);
             PlayerDataWriter.Instance.InitFromLocalSave(s.previousPlayerData);
+            RecordingFileManager.Instance.InitFromLocalSave(s);
+            // InitializeRecorder();
         }
 
         LocalSettings ILocalSettings<LocalSettings>.OnSaveLocal() {
             Log("Save local settings");
             return new LocalSettings {
                 previousPlayerData = PlayerDataWriter.Instance.previousPlayerData,
+                currentPart = RecordingFileManager.Instance.currentPart,
+                localRunId = RecordingFileManager.Instance.localRunId
             };
         }
 
@@ -313,7 +291,7 @@ namespace AnalyticsRecorder {
         }
 
         public GlobalSettings OnSaveGlobal() {
-            return GlobalSettingsManager.Settings;
+            return GlobalSettingsManager.Instance.GetForSave();
         }
     }
 }
