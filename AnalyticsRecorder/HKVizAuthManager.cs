@@ -154,6 +154,12 @@ namespace AnalyticsRecorder {
         }
 
         private void CheckSessionState(bool fromSettings) {
+            if (AuthId == null) {
+                UserName = null;
+                State = LoginState.NOT_LOGGED_IN;
+                return;
+            }
+
             GameManager.instance.StartCoroutine(ApiGet<SessionInfo>(
                 path: "ingameauth/" + AuthId,
                 onSuccess: data => {
