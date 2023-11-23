@@ -22,6 +22,9 @@ namespace AnalyticsRecorder {
 
         private Menu? MenuRef;
         private MenuButton? LoginButton;
+        private MenuButton? MainMenuLoginButton;
+        private HorizontalOption? AutoUploadOption;
+        private HorizontalOption? MainMenuLoginButtonOption;
 
         public event Action? BeforeMenuShowed;
 
@@ -29,48 +32,64 @@ namespace AnalyticsRecorder {
             if (MenuRef == null) {
                 LoginButton = new MenuButton(
                                 name: "Login to " + Constants.WEBSITE_URL,
-                                description: "So analytics files can be uploaded and visualized",
+                                description: "So analytics files can be uploaded automatically",
                                 submitAction: (_) => HKVizAuthManager.Instance.Login()
                             );
+
+                AutoUploadOption = new HorizontalOption(
+                     name: "Auto upload",
+                    description: "Upload run data once going to the menu and every few minutes",
+                    values: new[] { "On", "Off" },
+                    applySetting: index => {
+                        GlobalSettingsManager.Settings.autoUpload = index == 0;
+                    },
+                    loadSetting: () => GlobalSettingsManager.Settings.autoUpload ? 0 : 1
+                );
+
+                MainMenuLoginButtonOption = new HorizontalOption(
+                    name: "Main Menu login button",
+                    description: "Display a login button in the main menu, when not signed in",
+                    values: new[] { "On", "Off" },
+                    applySetting: index => {
+                        GlobalSettingsManager.Settings.showLoginButtonInMainMenu = index == 0;
+                    },
+                    loadSetting: () => GlobalSettingsManager.Settings.showLoginButtonInMainMenu ? 0 : 1
+                );
+
+
 
                 MenuRef = new Menu(
                     name: "HKViz",
                     elements: new Element[] {
-                        LoginButton
+                        AutoUploadOption,
+                        MainMenuLoginButtonOption,
+                        LoginButton,
                     }
                 );
-
-                HKVizAuthManager.Instance.StateChanged += LoginStateChanged;
-                //LoginStateChanged(HKVizAuthManager.Instance.State);
+                HKVizAuthManager.Instance.StateChanged += state => LoginStateChanged(state);
+                LoginStateChanged(HKVizAuthManager.Instance.State, update: false);
             }
 
             return MenuRef.GetMenuScreen(modListMenu);
         }
 
-        private void LoginStateChanged(HKVizAuthManager.LoginState state) {
-            LoginButton.Name = state switch {
-                HKVizAuthManager.LoginState.NOT_LOGGED_IN => $"Login to {Constants.WEBSITE_URL}",
-                HKVizAuthManager.LoginState.LOADING_LOGIN_URL => $"Cancel login",
-                HKVizAuthManager.LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER => "Cancel login",
-                HKVizAuthManager.LoginState.LOADING_LOGIN_URL_FAILED => "Login failed. Try again?",
-                HKVizAuthManager.LoginState.LOGGED_IN => "Logout",
-            };
-            LoginButton.Description = state switch {
-                HKVizAuthManager.LoginState.NOT_LOGGED_IN => "So analytics files can be uploaded and visualized",
-                HKVizAuthManager.LoginState.LOADING_LOGIN_URL => $"Waiting for {Constants.WEBSITE_URL}",
-                HKVizAuthManager.LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER => "Please login inside the opened browser tab",
-                HKVizAuthManager.LoginState.LOADING_LOGIN_URL_FAILED => "Could not initialize login flow",
-                HKVizAuthManager.LoginState.LOGGED_IN => "Logged in as "+ HKVizAuthManager.Instance.UserName,
+        private void LoginStateChanged(HKVizAuthManager.LoginState state, bool update = true) {
+            var btnState = HKVizAuthManager.Instance.GetLoginButtonState(justTitle: false);
+
+            LoginButton.Name = btnState.name;
+            LoginButton.Description = btnState.description;
+            LoginButton.SubmitAction = btn => {
+                Log("Auth button clicked");
+                btnState.action(btn);
             };
 
-            LoginButton.SubmitAction = state switch {
-                HKVizAuthManager.LoginState.NOT_LOGGED_IN => btn => HKVizAuthManager.Instance.Login(),
-                HKVizAuthManager.LoginState.LOADING_LOGIN_URL => btn => HKVizAuthManager.Instance.CancelLogin(),
-                HKVizAuthManager.LoginState.LOADING_LOGIN_URL_FAILED => btn => HKVizAuthManager.Instance.CancelLogin(),
-                HKVizAuthManager.LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER => btn => HKVizAuthManager.Instance.Login(),
-                HKVizAuthManager.LoginState.LOGGED_IN => throw new NotImplementedException(),
-            };
-            LoginButton.Update();
+            AutoUploadOption.isVisible = state == HKVizAuthManager.LoginState.LOGGED_IN;
+
+            if (update) {
+                LoginButton.Update();
+                AutoUploadOption.Update();
+                MenuRef.Update();
+            }
         }
     }
 }

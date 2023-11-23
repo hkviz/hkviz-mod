@@ -25,7 +25,7 @@ using static MonoMod.Cil.RuntimeILReferenceBag.FastDelegateInvokers;
 using System.Linq;
 
 namespace AnalyticsRecorder {
-    public class AnalyticsRecorderMod : Mod, ILocalSettings<LocalSettings>, ICustomMenuMod {
+    public class AnalyticsRecorderMod : Mod, ILocalSettings<LocalSettings>, ICustomMenuMod, IGlobalSettings<GlobalSettings> {
         private static float WRITE_PERIOD_SECONDS = .5f;
         private static string RECORDER_FILE_VERSION = "0.0.0";
 
@@ -53,8 +53,9 @@ namespace AnalyticsRecorder {
 
         public override string GetVersion() => GetType().Assembly.GetName().Version.ToString();
 
-        public AnalyticsRecorderMod() : base("AnalyticsRecorder") {
+        public AnalyticsRecorderMod() : base("HKViz") {
             _instance = this;
+            MainMenuUI.Instance.Initialize();
 
             ModHooks.HeroUpdateHook += HeroUpdateHook;
             ModHooks.SavegameLoadHook += SavegameLoadHook;
@@ -70,6 +71,7 @@ namespace AnalyticsRecorder {
             HeroControllerWriter.Instance.SetupHooks();
 
             InitFsm();
+
         }
 
         private void ModHooks_AttackHook(GlobalEnums.AttackDirection obj) {
@@ -304,5 +306,14 @@ namespace AnalyticsRecorder {
 
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
             => HKVizModUI.Instance.GetMenuScreen(modListMenu, toggleDelegates);
+
+        public void OnLoadGlobal(GlobalSettings s) {
+            GlobalSettingsManager.Instance.InitializeFromSavedSettings(s);
+            HKVizAuthManager.Instance.GlobalSettingsLoaded();
+        }
+
+        public GlobalSettings OnSaveGlobal() {
+            return GlobalSettingsManager.Settings;
+        }
     }
 }
