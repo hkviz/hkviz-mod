@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AnalyticsRecorder {
-    internal class EventForwarder: MonoBehaviour {
-        private static EventForwarder _instance;
+    internal class BehaviourManager: MonoBehaviour {
+        private static BehaviourManager _instance;
 
         private bool callFocusNextFrame = false;
         private bool lastFocusValue = false;
 
         public event Action<bool>? ApplicationFocusChanged;
 
-        public static EventForwarder Instance {
+        public static BehaviourManager Instance {
             get {
                 if ( _instance == null ) {
-                    _instance = GameManager.instance.gameObject.AddComponent<EventForwarder>();
+                    var foreverEmpty = new GameObject("HkViz Behviours");
+                    UnityEngine.Object.DontDestroyOnLoad(foreverEmpty);
+                    _instance = foreverEmpty.AddComponent<BehaviourManager>();
                 }
                 return _instance;
             }
@@ -34,5 +37,13 @@ namespace AnalyticsRecorder {
                 callFocusNextFrame = false;
             }
         }
+
+        public void Initialize() {
+            // noop
+        }
+    }
+
+    internal static class CoroutineExtensions {
+        public static Coroutine StartGlobal(this System.Collections.IEnumerator coro) => BehaviourManager.Instance.StartCoroutine(coro); 
     }
 }

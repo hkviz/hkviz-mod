@@ -118,7 +118,7 @@ namespace AnalyticsRecorder {
             AuthId = null;
 
             if (AuthId != null) {
-                GameManager.instance.StartCoroutine(ApiDelete<Empty>(
+                ServerApi.Instance.ApiDelete<Empty>(
                     path: "ingameauth/" + AuthId,
                     onSuccess: data => {
                         Log("Deleted session in backend");
@@ -128,13 +128,13 @@ namespace AnalyticsRecorder {
                         Log(request.error);
                         Log(request.downloadHandler.text);
                     }
-                ));
+                ).StartGlobal();
             }
         }
 
         private void InitSessionToken() {
             State = LoginState.LOADING_LOGIN_URL;
-            GameManager.instance.StartCoroutine(ApiPost<InitSessionBodyPayload, InitSessionResult>(
+            ServerApi.Instance.ApiPost<InitSessionBodyPayload, InitSessionResult>(
                 path: "ingameauth/init",
                 body: new() {
                     name = SystemInfo.deviceName.Substring(0, Math.Min(SystemInfo.deviceName.Length, 255)),
@@ -150,7 +150,7 @@ namespace AnalyticsRecorder {
                     Log(request.downloadHandler.text);
                     State = LoginState.LOADING_LOGIN_URL_FAILED;
                 }
-            ));
+            ).StartGlobal();
         }
 
         private void CheckSessionState(bool fromSettings) {
@@ -160,7 +160,7 @@ namespace AnalyticsRecorder {
                 return;
             }
 
-            GameManager.instance.StartCoroutine(ApiGet<SessionInfo>(
+            ServerApi.Instance.ApiGet<SessionInfo>(
                 path: "ingameauth/" + AuthId,
                 onSuccess: data => {
                     AuthId = data.id;
@@ -178,52 +178,7 @@ namespace AnalyticsRecorder {
                     Log(request.downloadHandler.text);
                     State = LoginState.LOADING_AUTH_STATE_FAILED;
                 }
-            ));
-        }
-
-        private IEnumerator ApiPost<TBody, TResponse>(string path, TBody body, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
-            var json = Json.Stringify(body);
-            var url = Constants.API_URL + path;
-
-            var request = new UnityWebRequest(url, "POST");
-            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-            request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            return WrapWWW(request, onSuccess, onError);
-        }
-
-        private IEnumerator ApiGet<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
-            var url = Constants.API_URL + path;
-            Log(url);
-            var request = UnityWebRequest.Get(url);
-            return WrapWWW(request, onSuccess, onError);
-        }
-
-        private IEnumerator ApiDelete<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
-            var url = Constants.API_URL + path;
-            Log(url);
-            var request = UnityWebRequest.Delete(url);
-            return WrapWWW(request, onSuccess, onError);
-        }
-
-
-        private IEnumerator WrapWWW<TResponse>(UnityWebRequest request, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
-            yield return request.SendWebRequest();
-            Debug.Log("Status Code: " + request.responseCode);
-
-            if (request.result != UnityWebRequest.Result.Success) {
-                Log(request.error);
-                Log(request.downloadHandler.text);
-                onError(request);
-            } else {
-                var result = Json.Parse<TResponse>(request.downloadHandler.text) ?? throw new Exception("No response data");
-                onSuccess(result);
-            }
-
-            request.uploadHandler.Dispose();
-            request.downloadHandler.Dispose();
-            request.Dispose();
+            ).StartGlobal();
         }
 
         public ButtonSimpleState GetLoginButtonState(bool justTitle) {

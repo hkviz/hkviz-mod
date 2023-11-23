@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace AnalyticsRecorder {
     internal class StoragePaths {
-        public static string GetUserFilePath(string suffix) {
-            string recodingFileName = $"user{GameManager.instance.profileID}.{suffix}";
+        public static string GetUserFilePath(string suffix, int? profileId = null) {
+            string recodingFileName = $"user{profileId ?? GameManager.instance.profileID}.{suffix}";
             return Path.Combine(Application.persistentDataPath, recodingFileName);
         }
 
-        public static string GetRecordingPath() {
-            return GetUserFilePath("analytics.hkrun");
+        public static string GetRecordingPath(int partNumber, int? profileId = null) {
+            return GetUserFilePath($"part{partNumber}.analytics.hkrun", profileId);
         }
     }
 }

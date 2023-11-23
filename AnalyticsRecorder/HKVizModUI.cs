@@ -37,7 +37,7 @@ namespace AnalyticsRecorder {
                             );
 
                 AutoUploadOption = new HorizontalOption(
-                     name: "Auto upload",
+                    name: "Auto upload",
                     description: "Upload run data once going to the menu and every few minutes",
                     values: new[] { "On", "Off" },
                     applySetting: index => {
