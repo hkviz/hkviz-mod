@@ -96,7 +96,7 @@ namespace AnalyticsRecorder {
 
             var hasShortName = HeroControllerStateInfos.stats.TryGetValue(stateName, out var statInfo);
 
-            var prefixKey = hasShortName ? RecordingPrefixes.HERO_CONTROLER_STATE_SHORTNAME + statInfo.shortCode : RecordingPrefixes.HERO_CONTROLER_STATE_LONGNAME + stateName;
+            var prefixKey = hasShortName ? RecordingPrefixes.HERO_CONTROLLER_STATE_SHORTNAME + statInfo.shortCode : RecordingPrefixes.HERO_CONTROLLER_STATE_LONGNAME + stateName;
 
             // Log("Write hero controller" + stateName + ": " + value);
 

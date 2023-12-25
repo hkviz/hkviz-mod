@@ -14,11 +14,17 @@ namespace AnalyticsRecorder {
         string fieldName,
         string valueString,
         float timestamp,
+        // unix millis are the same for all checked values within a frame. (Even if the unix millis would change within the check)
+        // this allows us to easily find all changes within a frame in the data.
+        long unixMillis,
         bool writeIncremental
     );
 
     internal class PlayerDataWriter: Loggable {
-        private static readonly float WRITE_QUEUE_DELAY_SECONDS = .1f;
+        // a queue might creates some problems when some values change with each other
+        // since the other value might not change with the same timeframe in the file.
+        // therefore I have set the delay to zero for now. 
+        private static readonly float WRITE_QUEUE_DELAY_SECONDS = 0;  // .1f;
 
         private RecordingFileManager recording = RecordingFileManager.Instance;
         private RecordingSerializer serializer = RecordingSerializer.Instance;
@@ -128,18 +134,26 @@ namespace AnalyticsRecorder {
         }
 
         private void CheckAllPlayerData() {
-            foreach(var field in playerDataFields) {
+            var unixMillis = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            foreach (var field in playerDataFields) {
                 var currentValue = field.GetValue(PlayerData.instance);
-                QueuePlayerData(
-                    PlayerData.instance, 
-                    field.Name, 
-                    serializer.serializeUntyped(currentValue),
+                PlayerDataValueChanged(
+                    self: PlayerData.instance, 
+                    fieldName: field.Name,
+                    valueString: serializer.serializeUntyped(currentValue),
+                    unixMillis: unixMillis,
                     writeIncremental: currentValue is IList
                 );
             }
         }
 
-        private void QueuePlayerData(PlayerData self, string fieldName, string valueString, bool writeIncremental = false) {
+        private void PlayerDataValueChanged(
+            PlayerData self, 
+            string fieldName, 
+            string valueString,
+            long unixMillis,
+            bool writeIncremental = false
+        ) {
             if (self != PlayerData.instance) return;
             if (notLoggedFields.Contains(fieldName)) return;
 
@@ -167,6 +181,7 @@ namespace AnalyticsRecorder {
                 fieldName: fieldName, 
                 valueString: valueString, 
                 timestamp: Time.unscaledTime,
+                unixMillis: unixMillis,
                 writeIncremental: writeIncremental
             ));
         }
