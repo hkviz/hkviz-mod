@@ -125,8 +125,8 @@ namespace AnalyticsRecorder {
             FinishPart(previousPart, previousWriter);
         }
         
-        private void WriteTimeInfo() {
-            var nowMillis = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        private void WriteTimeInfo(long? unixTimeMillis) {
+            var nowMillis = unixTimeMillis ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             var diff = nowMillis - previousUnixMillis;
             var unscaledTime = Time.unscaledTime;
 
@@ -143,9 +143,9 @@ namespace AnalyticsRecorder {
         }
 
 
-        public void WriteEntryPrefix(string eventType, bool withSeperator = true) {
+        public void WriteEntryPrefix(string eventType, bool withSeperator = true, long? unixTimeMillis = null) {
             writer?.Write(eventType);
-            WriteTimeInfo(); // timeinfo contains = or + which is uses as seperator between eventType and time
+            WriteTimeInfo(unixTimeMillis); // timeinfo contains = or + which is uses as seperator between eventType and time
             if (withSeperator) {
                 WriteSep();
             }
