@@ -26,7 +26,7 @@ using System.Linq;
 
 namespace AnalyticsRecorder {
     public class AnalyticsRecorderMod : Mod, ILocalSettings<LocalSettings>, ICustomMenuMod, IGlobalSettings<GlobalSettings> {
-        private static string RECORDER_FILE_VERSION = "0.0.0";
+        private static string RECORDER_FILE_VERSION = "1.0.0";
 
         private static AnalyticsRecorderMod? _instance;
 
@@ -69,6 +69,7 @@ namespace AnalyticsRecorder {
             PlayerDataWriter.Instance.SetupHooks();
             HeroControllerWriter.Instance.SetupHooks();
             PlayerPositionWriter.Instance.Ininitialize();
+            EnemyWriter.Instance.SetupHooks();
 
             InitFsm();
         }
@@ -110,6 +111,7 @@ namespace AnalyticsRecorder {
         private void ActiveSceneChanged(Scene oldScene, Scene newScene) {
             // only switch file here, so a scene event will always be the first thing inside a recording part.
             recording.SwitchToNextPartIfNessessary();
+            EnemyWriter.Instance.ActiveSceneChanged(oldScene, newScene);
             if (newScene.name != "Menu_Title") {
                 recording.WriteEntry(RecordingPrefixes.SCENE_CHANGE, newScene.name);
             }

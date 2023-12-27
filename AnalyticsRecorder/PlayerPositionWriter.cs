@@ -41,6 +41,8 @@ namespace AnalyticsRecorder {
         }
 
         private void HeroUpdateHook() {
+            var unixMillis = recording.GetUnixMillis();
+
             if (GameManager.instance.isPaused) return;
 
             if (knight == null) { // if destroyed needs to find new player
@@ -50,14 +52,18 @@ namespace AnalyticsRecorder {
             if (knight != null) {
                 var time = Time.time;
                 if (time - lastFreqWriteTime > WRITE_PERIOD_SECONDS) {
-                    recording.WriteEntryPrefix(RecordingPrefixes.PLAYER_POSITION);
-                    var currentPositionString = serializer.serialize(new Vector2(knight.position.x, knight.position.y), "0.00"); // no z position needed
+                    recording.WriteEntryPrefix(RecordingPrefixes.ENTITY_POSITIONS, unixMillis: unixMillis);
+                    var currentPositionString = serializer.serializePosition2D(knight.position); 
                     if (previousPositionString == currentPositionString) { // TODO reset previousPositionString when switching to new file
                         recording.Write("=");
                     } else {
                         recording.Write(currentPositionString);
                         previousPositionString = currentPositionString;
                     }
+
+                    // in the same line all enemy positions are logged
+                    EnemyWriter.Instance.WriteEnemyPositions(unixMillis: unixMillis);
+
                     recording.WriteNL();
 
                     lastFreqWriteTime = time;

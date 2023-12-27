@@ -1,10 +1,13 @@
 ﻿using HKMirror.Reflection.InstanceClasses;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using UnityEngine;
 
 namespace AnalyticsRecorder {
     internal class RecordingSerializer {
+        private static CultureInfo cultureInfo = new CultureInfo("en-US");
+
         private static RecordingSerializer? _instance;
         public static RecordingSerializer Instance {
             get {
@@ -14,12 +17,14 @@ namespace AnalyticsRecorder {
             }
         }
 
-        public string serialize(Vector2 value, string? format = null) => $"{serialize(value.x)};{serialize(value.y)}";
+        public string serializePosition2D(Vector3 value) => serialize(new Vector2(value.x * 10, value.y * 10), "0");
+
+        public string serialize(Vector2 value, string? format = null) => $"{serialize(value.x, format)},{serialize(value.y, format)}";
         public string serialize(Vector3 value, string? format = null) 
-            => $"{serialize(value.x, format)};{serialize(value.y, format)};{serialize(value.z, format)}";
-        public string serialize(float value, string? format = null) => format is null ? value.ToString() : value.ToString(format);
+            => $"{serialize(value.x, format)},{serialize(value.y, format)},{serialize(value.z, format)}";
+        public string serialize(float value, string? format = null) => format is null ? value.ToString(cultureInfo) : value.ToString(format, cultureInfo);
         public string serialize(bool value) => value ? "1" : "0";
-        public string serialize(int value) => value.ToString();
+        public string serialize(int value) => value.ToString(cultureInfo);
 
         public string serialize(string value) => value;
         public string serialize(List<string> value) => string.Join(",", value);

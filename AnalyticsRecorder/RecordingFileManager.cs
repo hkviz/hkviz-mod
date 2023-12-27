@@ -32,7 +32,7 @@ namespace AnalyticsRecorder {
         public int currentPart = 1;
 
         private float lastPartCreatedTime = 0;
-        private float switchFileAfterSeconds = 10; // 60 * 2; // 2 minutes
+        private float switchFileAfterSeconds = 60 * 5; // 2 minutes
         private bool isRecording = false;
 
 
@@ -124,9 +124,12 @@ namespace AnalyticsRecorder {
             StartPart();
             FinishPart(previousPart, previousWriter);
         }
-        
+
+        public long GetUnixMillis() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+
         private void WriteTimeInfo(long? unixTimeMillis) {
-            var nowMillis = unixTimeMillis ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var nowMillis = unixTimeMillis ?? GetUnixMillis();
             var diff = nowMillis - previousUnixMillis;
             var unscaledTime = Time.unscaledTime;
 
@@ -143,9 +146,9 @@ namespace AnalyticsRecorder {
         }
 
 
-        public void WriteEntryPrefix(string eventType, bool withSeperator = true, long? unixTimeMillis = null) {
+        public void WriteEntryPrefix(string eventType, bool withSeperator = true, long? unixMillis = null) {
             writer?.Write(eventType);
-            WriteTimeInfo(unixTimeMillis); // timeinfo contains = or + which is uses as seperator between eventType and time
+            WriteTimeInfo(unixMillis); // timeinfo contains = or + which is uses as seperator between eventType and time
             if (withSeperator) {
                 WriteSep();
             }

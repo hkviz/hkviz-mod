@@ -47,7 +47,7 @@ namespace AnalyticsRecorder {
                 .Select((it, index) => new PlayerDataField {
                     name = it.Name,
                     type = it.FieldType.Name,
-                    shortCode = Base36Converter.ConvertTo(index + 1),
+                    shortCode = BaseNConverter.ConvertToBase36(index + 1),
                     defaultValue = RecordingSerializer.Instance.serializeUntyped(it.GetValue(fakePlayerData)),
                     notLogged = PlayerDataWriter.notLoggedFields.Contains(it.Name),
                 })
