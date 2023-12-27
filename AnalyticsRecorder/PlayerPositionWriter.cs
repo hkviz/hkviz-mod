@@ -74,5 +74,9 @@ namespace AnalyticsRecorder {
             //Log("|" + String.Join("|", knight.gameObject.LocateMyFSM("Spell Control").FsmStates.Select(it => it.Name).ToList()) + "|");
             //Log("|" + String.Join("|", knight.gameObject.LocateMyFSM("Superdash").FsmStates.Select(it => it.Name).ToList()) + "|");
         }
+
+        public void ResetFrequency() {
+            lastFreqWriteTime = 0;
+        }
     }
 }
