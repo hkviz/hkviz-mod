@@ -18,7 +18,7 @@ namespace AnalyticsRecorder {
         public static readonly string ROOM_DIMENSIONS = "S";
         public static readonly string SCENE_CHANGE = "s";
         public static readonly string HZVIZ_MOD_VERSION = "vizmodv";
-        public static readonly string HOLLOWKNIGHT_VERSION = "hkv";
+        public static readonly string MODDING_INFO = "mi";
         public static readonly string RECORDING_FILE_VERSION = "rfv";
         public static readonly string RECORDING_ID = "rid";
         public static readonly string SESSION_END = "send";
@@ -27,9 +27,9 @@ namespace AnalyticsRecorder {
         public static readonly string SPELL_UP = "sup";
         public static readonly string SPELL_DOWN = "sdn";
 
-        public static readonly string NAIL_ART_CYCLONE = "nac";
-        public static readonly string NAIL_ART_D_SLASH = "nad";
-        public static readonly string NAIL_ART_G_SLASH = "nag";
+        public static readonly string NAIL_ART_CYCLONE = "nc";
+        public static readonly string NAIL_ART_D_SLASH = "nd";
+        public static readonly string NAIL_ART_G_SLASH = "ng";
 
         public static readonly string SUPER_DASH = "sd";
 
