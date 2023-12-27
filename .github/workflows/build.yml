@@ -29,7 +29,7 @@ jobs:
         uses: BadMagic100/setup-hk@v1
         with:
           apiPath: API
-          dependencyFilePath: AnalyticsRecorder/ModDependencies.txt
+          dependencyFilePath: HKVizMod/ModDependencies.txt
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Publish
-          path: AnalyticsRecorder/bin/Publish
+          path: HKVizMod/bin/Publish
   release:
     needs:
       - build
@@ -75,4 +75,4 @@ jobs:
           body: |
             SHA256: ${{ steps.details.outputs.archiveHash }}
           files: |
-            artifacts/Publish/AnalyticsRecorder.zip
+            artifacts/Publish/HKVizMod.zip
