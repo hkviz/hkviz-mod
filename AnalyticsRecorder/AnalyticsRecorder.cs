@@ -86,6 +86,7 @@ namespace AnalyticsRecorder {
         private void ActiveSceneChanged(Scene oldScene, Scene newScene) {
             // only switch file here, so a scene event will always be the first thing inside a recording part.
             recording.SwitchToNextPartIfNessessary();
+            PlayerPositionWriter.Instance.ResetFrequency();
             EnemyWriter.Instance.ActiveSceneChanged(oldScene, newScene);
             if (newScene.name != "Menu_Title") {
                 recording.WriteEntry(RecordingPrefixes.SCENE_CHANGE, newScene.name);
