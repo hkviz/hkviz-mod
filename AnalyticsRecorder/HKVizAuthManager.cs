@@ -18,7 +18,6 @@ using UnityEngine.SocialPlatforms.Impl;
 namespace AnalyticsRecorder {
     [Serializable]
     internal class InitSessionBodyPayload {
-        public string name;
     }
 
     [Serializable]
@@ -137,7 +136,6 @@ namespace AnalyticsRecorder {
             ServerApi.Instance.ApiPost<InitSessionBodyPayload, InitSessionResult>(
                 path: "ingameauth/init",
                 body: new() {
-                    name = SystemInfo.deviceName.Substring(0, Math.Min(SystemInfo.deviceName.Length, 255)),
                 },
                 onSuccess: data => {
                     AuthId = data.id;

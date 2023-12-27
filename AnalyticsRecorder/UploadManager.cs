@@ -54,8 +54,6 @@ namespace AnalyticsRecorder {
         private bool uploadInProgress = false;
 
         public void Initialize() {
-            GlobalSettingsManager.Instance.SettingsLoaded += GlobalSettingsLoaded;
-            GlobalSettingsManager.Instance.BeforeSave += GLobalSettingsBeforeSave;
             UploadCoro().StartGlobal();
         }
 
@@ -63,14 +61,15 @@ namespace AnalyticsRecorder {
             queuedFiles.Add(entry);
         }
 
-        private void GLobalSettingsBeforeSave() {
+        public void GlobalSettingsBeforeSave() {
             GlobalSettingsManager.Settings.queuedUploadFiles = queuedFiles;
             GlobalSettingsManager.Settings.failedUploadFiles = failedUploads;
         }
 
-        private void GlobalSettingsLoaded() {
-            queuedFiles = GlobalSettingsManager.Settings.queuedUploadFiles;
-            failedUploads = GlobalSettingsManager.Settings.failedUploadFiles;
+        public void GlobalSettingsLoaded() {
+            Log("GS loaded upload manager" + (GlobalSettingsManager.Settings.queuedUploadFiles.Count + "-" + GlobalSettingsManager.Settings.failedUploadFiles.Count));
+            queuedFiles.AddRange(GlobalSettingsManager.Settings.queuedUploadFiles);
+            failedUploads.AddRange(GlobalSettingsManager.Settings.failedUploadFiles);
         }
 
         private IEnumerator UploadCoro() {
@@ -98,30 +97,38 @@ namespace AnalyticsRecorder {
                     partNumber = queueEntry.partNumber,
                 },
                 onSuccess: initResponse => {
-                    ServerApi.Instance.R2Upload(
-                        initResponse.signedUploadUrl, StoragePaths.GetRecordingPath(
-                        partNumber: queueEntry.partNumber,
-                        profileId: queueEntry.profileId),
-                        onSuccess: () => {
-                            ServerApi.Instance.ApiPost<MarkUploadPartFinishedRequest, Empty>(
-                                path: "ingameupload/part/finish",
-                                body: new MarkUploadPartFinishedRequest() {
-                                    ingameAuthId = authId,
-                                    localRunId = queueEntry.localRunId,
-                                    fileId = initResponse.fileId
-                                },
-                                onSuccess: response => OnSuccess(),
-                                onError: OnError
-                            ).StartGlobal();
-                        },
-                        onError: OnError
-                    ).StartGlobal();
+                    try {
+                        ServerApi.Instance.R2Upload(
+                            initResponse.signedUploadUrl, StoragePaths.GetRecordingPath(
+                                partNumber: queueEntry.partNumber,
+                                localRunId: queueEntry.localRunId,
+                                profileId: queueEntry.profileId
+                            ),
+                            onSuccess: () => {
+                                ServerApi.Instance.ApiPost<MarkUploadPartFinishedRequest, Empty>(
+                                    path: "ingameupload/part/finish",
+                                    body: new MarkUploadPartFinishedRequest() {
+                                        ingameAuthId = authId,
+                                        localRunId = queueEntry.localRunId,
+                                        fileId = initResponse.fileId
+                                    },
+                                    onSuccess: response => OnSuccess(),
+                                    onError: OnError
+                                ).StartGlobal();
+                            },
+                            onError: OnError
+                        ).StartGlobal();
+                    } catch (Exception ex) {
+                        LogError("R2 upload failed");
+                        LogError(ex);
+                        OnError(null);
+                    }
                 },
                 onError: OnError
             ).StartGlobal();
 
 
-            void OnError(UnityWebRequest req) {
+            void OnError(UnityWebRequest? req) {
                 queuedFiles.Remove(queueEntry);
                 failedUploads.Add(queueEntry);
                 uploadInProgress = false;

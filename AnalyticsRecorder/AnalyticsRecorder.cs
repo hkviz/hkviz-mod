@@ -1,33 +1,12 @@
+using Core.FsmUtil;
+using HKMirror.Reflection;
 using Modding;
 using System;
 using UnityEngine;
-using TeamCherry;
-using Modding.Utils;
-using Modding.Menu;
-using System.IO;
-using HutongGames.PlayMaker.Actions;
-using Mono.Security.X509.Extensions;
 using UnityEngine.SceneManagement;
-using HKMirror.Reflection.SingletonClasses;
-using HKMirror.Reflection;
-using MapChanger.MonoBehaviours;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.Security.Principal;
-using System.Drawing;
-using Modding.Converters;
-using AnalyticsRecorder.Converters;
-using System.Security.Policy;
-using System.Text;
-using UnityEngine.Sprites;
-using Core.FsmUtil;
-using static MonoMod.Cil.RuntimeILReferenceBag.FastDelegateInvokers;
-using System.Linq;
 
 namespace AnalyticsRecorder {
     public class AnalyticsRecorderMod : Mod, ILocalSettings<LocalSettings>, ICustomMenuMod, IGlobalSettings<GlobalSettings> {
-        private static string RECORDER_FILE_VERSION = "1.0.0";
-
         private static AnalyticsRecorderMod? _instance;
 
         internal static AnalyticsRecorderMod Instance {
@@ -98,13 +77,9 @@ namespace AnalyticsRecorder {
         private void WriteRoomTilemap(GameMap map) {
             var rmap = map.Reflect();
             recording.WriteEntryPrefix(RecordingPrefixes.ROOM_DIMENSIONS);
-            recording.Write(rmap.originOffsetX.ToString("0.00"));
+            recording.Write(serializer.serialize(new Vector2(rmap.originOffsetX, rmap.originOffsetY)));
             recording.WriteSep();
-            recording.Write(rmap.originOffsetY.ToString("0.00"));
-            recording.WriteSep();
-            recording.Write(rmap.sceneWidth.ToString("0.00"));
-            recording.WriteSep();
-            recording.Write(rmap.sceneHeight.ToString("0.00"));
+            recording.Write(serializer.serialize(new Vector2(rmap.sceneWidth, rmap.sceneHeight)));
             recording.WriteNL();
         }
 
@@ -125,12 +100,16 @@ namespace AnalyticsRecorder {
 
             HeroControllerWriter.Instance.InitializeRun();
 
-            recording.WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, RECORDER_FILE_VERSION);
-
             // TODO instead log with playerData from start
             // recording.WriteEntry("profile-id", profileId.ToString());
-            recording.WriteEntry(RecordingPrefixes.HOLLOWKNIGHT_VERSION, Application.version);
             recording.WriteEntry(RecordingPrefixes.HZVIZ_MOD_VERSION, GetVersion());
+            recording.WriteEntry(
+                RecordingPrefixes.MODDING_INFO, 
+                GameObject.FindObjectOfType<ModVersionDraw>().drawString
+                    .ReplaceNewLines(";")
+                    .Replace(" : ", ":")
+                    .Replace(": ", ":")
+            );
         }
 
 
@@ -252,6 +231,13 @@ namespace AnalyticsRecorder {
         private string facingDirectionChar() => HeroController.instance.cState.facingRight ? "r" : "l";
 
         private void HeroUpdateHook() {
+            var unixMillis = recording.GetUnixMillis();
+
+            PlayerPositionWriter.Instance.WritePositionsIfNeeded(unixMillis);
+            HeroControllerWriter.Instance.WriteChangedStates(unixMillis);
+            PlayerDataWriter.Instance.WriteChangedValues(unixMillis);
+
+
             if (Input.GetKeyDown(KeyCode.J)) {
                 MapExport.Instance.Export();
                 PlayerDataExport.Instance.Export();
@@ -290,9 +276,12 @@ namespace AnalyticsRecorder {
         public void OnLoadGlobal(GlobalSettings s) {
             GlobalSettingsManager.Instance.InitializeFromSavedSettings(s);
             HKVizAuthManager.Instance.GlobalSettingsLoaded();
+            UploadManager.Instance.GlobalSettingsLoaded();
+            MainMenuUI.Instance.GlobalSettingsLoaded();
         }
 
         public GlobalSettings OnSaveGlobal() {
+            UploadManager.Instance.GlobalSettingsBeforeSave();
             return GlobalSettingsManager.Instance.GetForSave();
         }
     }

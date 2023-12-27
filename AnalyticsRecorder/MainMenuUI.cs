@@ -31,11 +31,10 @@ namespace AnalyticsRecorder {
             On.MenuButtonList.OnEnable += MenuButtonList_OnEnable;
 
             HKVizAuthManager.Instance.StateChanged += AuthStateChanged;
-            GlobalSettingsManager.Instance.SettingsLoaded += GlobalSettingsLoaded;
             Log("main menu init");
         }
 
-        private void GlobalSettingsLoaded() {
+        public void GlobalSettingsLoaded() {
             CheckButtonVisibility();
         }
 

@@ -30,17 +30,11 @@ namespace AnalyticsRecorder {
         public static GlobalSettings Settings => Instance._settings;
 
         public GlobalSettings GetForSave() {
-            BeforeSave?.Invoke();
             return Settings;
         }
 
         public void InitializeFromSavedSettings(GlobalSettings settings) {
             _settings = settings;
-            SettingsLoaded?.Invoke();
         }
-
-        public event Action? SettingsLoaded;
-        public event Action? BeforeSave;
-
     }
 }

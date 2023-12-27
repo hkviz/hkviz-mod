@@ -70,11 +70,9 @@ namespace AnalyticsRecorder {
 
         internal void SetupHooks() {
             //On.HeroControllerStates.SetState += HeroControllerStates_SetState;
-            ModHooks.HeroUpdateHook += ModHooks_HeroUpdateHook;
         }
 
-        private void ModHooks_HeroUpdateHook() {
-            var unixMillis = recording.GetUnixMillis();
+        public void WriteChangedStates(long unixMillis) {
             foreach (var field in stateFields) {
                 var currentVal = (field.GetValue(HeroController.instance.cState) as bool?).GetValueOrDefault();
                 WriteStateIfChanged(field.Name, currentVal, unixMillis);

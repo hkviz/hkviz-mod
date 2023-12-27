@@ -12,6 +12,7 @@ using UnityEngine.Profiling;
 
 namespace AnalyticsRecorder {
     internal class RecordingFileManager : Loggable {
+        private static string RECORDER_FILE_VERSION = "1.0.0";
         private static RecordingFileManager? _instance;
         public static RecordingFileManager Instance {
             get {
@@ -32,7 +33,7 @@ namespace AnalyticsRecorder {
         public int currentPart = 1;
 
         private float lastPartCreatedTime = 0;
-        private float switchFileAfterSeconds = 60 * 5; // 2 minutes
+        private float switchFileAfterSeconds = 60 * 3; // 3 minutes
         private bool isRecording = false;
 
 
@@ -100,7 +101,7 @@ namespace AnalyticsRecorder {
         public void StartPart() {
             Log("Start part" + currentPart);
             lastPartCreatedTime = Time.unscaledTime;
-            var recordingPath = StoragePaths.GetRecordingPath(currentPart);
+            var recordingPath = StoragePaths.GetRecordingPath(currentPart, localRunId: localRunId);
 
             bool existed = File.Exists(recordingPath);
             Log(recordingPath);
@@ -109,6 +110,7 @@ namespace AnalyticsRecorder {
 
             if (!existed) {
                 WriteEntry(RecordingPrefixes.RECORDING_ID, localRunId);
+                WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, RECORDER_FILE_VERSION);
             }
             AfterSwitchedFile?.Invoke();
         }

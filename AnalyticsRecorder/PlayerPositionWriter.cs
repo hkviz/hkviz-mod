@@ -32,7 +32,6 @@ namespace AnalyticsRecorder {
         private string previousPositionString = "";
 
         public void Ininitialize() {
-            ModHooks.HeroUpdateHook += HeroUpdateHook;
             recording.AfterSwitchedFile += Recording_AfterSwitchedFile;
         }
 
@@ -40,9 +39,7 @@ namespace AnalyticsRecorder {
             previousPositionString = "";
         }
 
-        private void HeroUpdateHook() {
-            var unixMillis = recording.GetUnixMillis();
-
+        public void WritePositionsIfNeeded(long unixMillis) {
             if (GameManager.instance.isPaused) return;
 
             if (knight == null) { // if destroyed needs to find new player
