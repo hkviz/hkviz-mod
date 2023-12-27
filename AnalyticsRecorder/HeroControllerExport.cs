@@ -39,7 +39,7 @@ namespace AnalyticsRecorder {
                 .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                 .Select((it, index) => new HeroControllerStat {
                     name = it.Name,
-                    shortCode = Base36Converter.ConvertTo(index+1),
+                    shortCode = BaseNConverter.ConvertToBase36(index+1),
                     notPartOfLog = HeroControllerWriter.notLoggedStates.Contains(it.Name),
                     onlyTruthLogged = HeroControllerWriter.onlyTruthLoggedStates.Contains(it.Name),
                 })

@@ -14,7 +14,7 @@ namespace AnalyticsRecorder {
         public static readonly string HERO_CONTROLLER_STATE_LONGNAME = "&";
 
         // safe to have other prefixes with same start
-        public static readonly string PLAYER_POSITION = ""; // no prefix = position
+        public static readonly string ENTITY_POSITIONS = ""; // no prefix = positions
         public static readonly string ROOM_DIMENSIONS = "S";
         public static readonly string SCENE_CHANGE = "s";
         public static readonly string HZVIZ_MOD_VERSION = "vizmodv";
@@ -32,5 +32,8 @@ namespace AnalyticsRecorder {
         public static readonly string NAIL_ART_G_SLASH = "nag";
 
         public static readonly string SUPER_DASH = "sd";
+
+        public static readonly string ENEMY_START = "e";
+        public static readonly string ENEMY_HEALTH = "E";
     }
 }

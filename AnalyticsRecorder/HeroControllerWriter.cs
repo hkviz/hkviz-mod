@@ -69,23 +69,24 @@ namespace AnalyticsRecorder {
         }
 
         internal void SetupHooks() {
-            On.HeroControllerStates.SetState += HeroControllerStates_SetState;
+            //On.HeroControllerStates.SetState += HeroControllerStates_SetState;
             ModHooks.HeroUpdateHook += ModHooks_HeroUpdateHook;
         }
 
         private void ModHooks_HeroUpdateHook() {
-            foreach(var field in stateFields) {
+            var unixMillis = recording.GetUnixMillis();
+            foreach (var field in stateFields) {
                 var currentVal = (field.GetValue(HeroController.instance.cState) as bool?).GetValueOrDefault();
-                WriteStateIfChanged(field.Name, currentVal);
+                WriteStateIfChanged(field.Name, currentVal, unixMillis);
             }
         }
 
-        private void HeroControllerStates_SetState(On.HeroControllerStates.orig_SetState orig, global::HeroControllerStates self, string stateName, bool value) {
-            if (self != HeroController.instance.cState) return;
-            WriteStateIfChanged(stateName, value);
-        }
+        //private void HeroControllerStates_SetState(On.HeroControllerStates.orig_SetState orig, global::HeroControllerStates self, string stateName, bool value) {
+        //    if (self != HeroController.instance.cState) return;
+        //    WriteStateIfChanged(stateName, value);
+        //}
 
-        private void WriteStateIfChanged(string stateName, bool value) {
+        private void WriteStateIfChanged(string stateName, bool value, long unixMills) {
             if (previousHeroControllerStates.TryGetValue(stateName, out var previous) && previous == value) {
                 return;
             }
@@ -101,7 +102,7 @@ namespace AnalyticsRecorder {
             // Log("Write hero controller" + stateName + ": " + value);
 
             Log($"Write hero controller state {stateName} {value}");
-            recording.WriteEntryPrefix(prefixKey);
+            recording.WriteEntryPrefix(prefixKey, unixMillis: unixMills);
             recording.Write(value ? "1" : "0");
             recording.WriteNL();
         }

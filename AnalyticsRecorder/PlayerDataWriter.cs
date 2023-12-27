@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AnalyticsRecorder {
-    internal record PlayerDataQueueValue(
+    internal record struct PlayerDataQueueValue(
         string fieldName,
         string valueString,
         float timestamp,
         // unix millis are the same for all checked values within a frame. (Even if the unix millis would change within the check)
-        // this allows us to easily find all changes within a frame in the data.
+        // this allows us to easily find all changes within a frame in the data
         long unixMillis,
         bool writeIncremental
     );
@@ -118,7 +118,7 @@ namespace AnalyticsRecorder {
 
             // Log("Write pd " + d.fieldName + ": " + d.valueString);
             playerDataQueueValues.RemoveAt(0);
-            recording.WriteEntryPrefix(prefixKey);
+            recording.WriteEntryPrefix(prefixKey, unixMillis: d.unixMillis);
             recording.Write(d.valueString);
             recording.WriteNL();
         }
@@ -134,10 +134,10 @@ namespace AnalyticsRecorder {
         }
 
         private void CheckAllPlayerData() {
-            var unixMillis = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var unixMillis = recording.GetUnixMillis();
             foreach (var field in playerDataFields) {
                 var currentValue = field.GetValue(PlayerData.instance);
-                PlayerDataValueChanged(
+                QueuePlayerData(
                     self: PlayerData.instance, 
                     fieldName: field.Name,
                     valueString: serializer.serializeUntyped(currentValue),
@@ -147,7 +147,7 @@ namespace AnalyticsRecorder {
             }
         }
 
-        private void PlayerDataValueChanged(
+        private void QueuePlayerData(
             PlayerData self, 
             string fieldName, 
             string valueString,

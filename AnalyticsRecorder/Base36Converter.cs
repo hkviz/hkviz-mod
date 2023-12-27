@@ -5,19 +5,23 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace AnalyticsRecorder {
-    internal static class Base36Converter {
-        private const int Base = 36;
-        private const string Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        public static string ConvertTo(int value) {
+    internal static class BaseNConverter {
+        public static string ConvertTo(int @base, string chars, int value) {
             string result = "";
 
             while (value > 0) {
-                result = Chars[value % Base] + result; // use StringBuilder for better performance
-                value /= Base;
+                result = chars[value % @base] + result; // use StringBuilder for better performance
+                value /= @base;
             }
 
             return result;
         }
+
+        public static string ConvertToBase36(int value)
+            => ConvertTo(
+                @base: 36,
+                chars: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                value: value
+            );
     }
 }
