@@ -61,8 +61,8 @@ jobs:
         # this assumes that an MSBuild task that writes the SHA256 of the zip file to SHA.txt, and the mod version (usually
         # the same as the assembly version) to version.txt. The contents of these files are read to step outputs for use in release
         run: |
-          $sha = Get-Content artifacts/Publish/SHA.txt
-          $ver = Get-Content artifacts/Publish/VERSION.txt
+          $sha = Get-Content bin/Publish/SHA.txt
+          $ver = Get-Content bin/Publish/VERSION.txt
           echo "archiveHash=$sha" >> $env:GITHUB_OUTPUT
           echo "buildVersion=$ver" >> $env:GITHUB_OUTPUT
       - name: Release
@@ -75,4 +75,4 @@ jobs:
           body: |
             SHA256: ${{ steps.details.outputs.archiveHash }}
           files: |
-            artifacts/Publish/HKVizMod.zip
+            bin/Publish/HKVizMod.zip
