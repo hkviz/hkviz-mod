@@ -227,6 +227,27 @@ namespace HKViz {
             ), a => {
                 recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "0");
             });
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Dream Nail",
+                StateName: "Slash"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.DREAM_NAIL_SLASH);
+            });
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Dream Nail",
+                StateName: "Warp Effect"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.DREAM_NAIL_GATE_WARP);
+            });
+            Hooks.HookStateEntered(new FSMData(
+                // GameObjectName: knight.gameObject.name,
+                FsmName: "Dream Nail",
+                StateName: "Set"
+            ), a => {
+                recording.WriteEntry(RecordingPrefixes.DREAM_NAIL_SET_GATE);
+            });
         }
 
         private string facingDirectionChar() => HeroController.instance.cState.facingRight ? "r" : "l";
