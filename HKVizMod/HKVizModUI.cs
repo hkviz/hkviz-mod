@@ -31,7 +31,7 @@ namespace HKViz {
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? modtoggledelegates) {
             if (MenuRef == null) {
                 LoginButton = new MenuButton(
-                                name: "Login to " + Constants.WEBSITE_URL,
+                                name: "Login to HKViz",
                                 description: "So analytics files can be uploaded automatically",
                                 submitAction: (_) => HKVizAuthManager.Instance.Login()
                             );

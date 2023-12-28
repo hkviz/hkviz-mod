@@ -182,7 +182,7 @@ namespace HKViz {
         public ButtonSimpleState GetLoginButtonState(bool justTitle) {
             ButtonSimpleState btnState = State switch {
                 LoginState.NOT_LOGGED_IN => new(
-                    $"Login to {Constants.WEBSITE_URL}",
+                    $"Login to HKViz",
                     "So analytics files can be uploaded automatically",
                     btn => Login()
                 ),
