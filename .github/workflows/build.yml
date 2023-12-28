@@ -75,4 +75,4 @@ jobs:
           body: |
             SHA256: ${{ steps.details.outputs.archiveHash }}
           files: |
-            artifacts/Publish/HKVizMod.zip
+            artifacts/Publish/HKViz.zip
