@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace HKViz {
     internal class RecordingSerializer {
-        private static CultureInfo cultureInfo = new CultureInfo("en-US");
+        public static CultureInfo cultureInfo = new CultureInfo("en-US");
 
         private static RecordingSerializer? _instance;
         public static RecordingSerializer Instance {

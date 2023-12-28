@@ -15,6 +15,24 @@ namespace HKViz {
         public string localRunId;
         public int partNumber;
         public int profileId;
+
+        // meta data, so it can easily be displayed in the UI without parsing recording files
+        public string? hkVersion;
+        public float? playTime;
+        public int? maxHealth;
+        public int? mpReserveMax;
+        public int? geo;
+        public int? dreamOrbs;
+        public bool? permadeathMode;
+        public string? mapZone;
+        public bool? killedHollowKnight;
+        public bool? killedFinalBoss;
+        public bool? killedVoidIdol;
+        public int? completionPercentage;
+        public bool? unlockedCompletionRate;
+
+        public long firstUnixSeconds;
+        public long lastUnixSeconds;
     }
 
 
@@ -24,6 +42,24 @@ namespace HKViz {
             public string ingameAuthId;
             public string localRunId;
             public int partNumber;
+
+            // meta data, so it can easily be displayed in the UI without parsing recording files
+            public string? hkVersion;
+            public float? playTime;
+            public int? maxHealth;
+            public int? mpReserveMax;
+            public int? geo;
+            public int? dreamOrbs;
+            public bool? permadeathMode;
+            public string? mapZone;
+            public bool? killedHollowKnight;
+            public bool? killedFinalBoss;
+            public bool? killedVoidIdol;
+            public int? completionPercentage;
+            public bool? unlockedCompletionRate;
+
+            public long firstUnixSeconds;
+            public long lastUnixSeconds;
         }
         [Serializable]
         private class CreateUploadPartUrlResponse {
@@ -95,6 +131,24 @@ namespace HKViz {
                     ingameAuthId = authId,
                     localRunId = queueEntry.localRunId,
                     partNumber = queueEntry.partNumber,
+
+
+                    hkVersion = queueEntry.hkVersion,
+                    playTime = queueEntry.playTime,
+                    maxHealth = queueEntry.maxHealth,
+                    mpReserveMax = queueEntry.mpReserveMax,
+                    geo = queueEntry.geo,
+                    dreamOrbs = queueEntry.dreamOrbs,
+                    permadeathMode = queueEntry.permadeathMode,
+                    mapZone = queueEntry.mapZone,
+                    killedHollowKnight = queueEntry.killedHollowKnight,
+                    killedFinalBoss = queueEntry.killedFinalBoss,
+                    killedVoidIdol = queueEntry.killedVoidIdol,
+                    completionPercentage = queueEntry.completionPercentage,
+                    unlockedCompletionRate = queueEntry.unlockedCompletionRate,
+
+                    firstUnixSeconds = queueEntry.firstUnixSeconds,
+                    lastUnixSeconds = queueEntry.lastUnixSeconds,
                 },
                 onSuccess: initResponse => {
                     try {

@@ -3,6 +3,7 @@ using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,8 @@ namespace HKViz {
             }
         }
 
+        private RecordingSerializer serializer = RecordingSerializer.Instance;
+
         public event Action? BeforeCloseLastSessionFile;
         public event Action? AfterSwitchedFile;
 
@@ -35,6 +38,8 @@ namespace HKViz {
         private float lastPartCreatedTime = 0;
         private float switchFileAfterSeconds = 60 * 3; // 3 minutes
         private bool isRecording = false;
+
+        private long currentFileFirstUnixSeconds = 0;
 
 
         private StreamWriter? writer;
@@ -87,19 +92,62 @@ namespace HKViz {
             currentPart = localSettings.currentPart;
         }
 
-        public void FinishPart(int partNumber, StreamWriter? writer) {
+        public void FinishPart(int partNumber, StreamWriter? writer, long partFirstUnixMillis) {
+            string? pd(string key) {
+                var hasValue = PlayerDataWriter.Instance.previousPlayerData.TryGetValue(key, out var value);
+                return hasValue ? value : null;
+            }
+
+            bool? pdBool(string key) {
+                var str = pd(key);
+                if (str == null) return null;
+                return str == "1";
+            }
+
+            int? pdInt(string key) {
+                var str = pd(key);
+                if (str == null) return null;
+                if (int.TryParse(str, NumberStyles.Integer, RecordingSerializer.cultureInfo, out var value)) return value;
+                return null;
+            }
+            float? pdFloat(string key) {
+                var str = pd(key);
+                if (str == null) return null;
+                if (float.TryParse(str, NumberStyles.Number, RecordingSerializer.cultureInfo, out var value)) return value;
+                return null;
+            }
+
+
             writer?.Close();
             if (GlobalSettingsManager.Settings.autoUpload) {
                 UploadManager.Instance.QueueFile(new UploadQueueEntry {
                     localRunId = localRunId,
                     partNumber = partNumber,
                     profileId = GameManager.instance.profileID,
+
+                    hkVersion = pd("version"),
+                    playTime = pdFloat("playTime"),
+                    maxHealth = pdInt("maxHealth"),
+                    mpReserveMax = pdInt("MPReserveMax"),
+                    geo = pdInt("geo"),
+                    dreamOrbs = pdInt("dreamOrbs"),
+                    permadeathMode = pdBool("permadeathMode"),
+                    mapZone = pd("mapZone"),
+                    killedHollowKnight = pdBool("killedHollowKnight"),
+                    killedFinalBoss = pdBool("killedFinalBoss"),
+                    killedVoidIdol = (pdBool("killedVoidIdol_1") ?? false) || (pdBool("killedVoidIdol_2") ?? false),
+                    completionPercentage = pdInt("completionPercentage"),
+                    unlockedCompletionRate = pdBool("unlockedCompletionRate"),
+
+                    firstUnixSeconds = partFirstUnixMillis,
+                    lastUnixSeconds = GetUnixSeconds(),
                 });
             }
         }
 
         public void StartPart() {
             Log("Start part" + currentPart);
+            currentFileFirstUnixSeconds = GetUnixSeconds();
             lastPartCreatedTime = Time.unscaledTime;
             var recordingPath = StoragePaths.GetRecordingPath(currentPart, localRunId: localRunId);
 
@@ -121,13 +169,15 @@ namespace HKViz {
             }
             var previousWriter = writer;
             var previousPart = currentPart;
+            var previousPartFirstUnixMillis = currentFileFirstUnixSeconds;
 
             currentPart++;
             StartPart();
-            FinishPart(previousPart, previousWriter);
+            FinishPart(previousPart, previousWriter, previousPartFirstUnixMillis);
         }
 
         public long GetUnixMillis() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        public long GetUnixSeconds() => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
 
         private void WriteTimeInfo(long? unixTimeMillis) {
