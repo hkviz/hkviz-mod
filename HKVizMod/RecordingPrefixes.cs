@@ -33,6 +33,10 @@ namespace HKViz {
 
         public static readonly string SUPER_DASH = "sd";
 
+        public static readonly string DREAM_NAIL_SLASH = "dn";
+        public static readonly string DREAM_NAIL_GATE_WARP = "dnw";
+        public static readonly string DREAM_NAIL_SET_GATE = "dns";
+
         public static readonly string ENEMY_START = "e";
         public static readonly string ENEMY_HEALTH = "E";
     }

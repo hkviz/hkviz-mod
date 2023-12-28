@@ -10,7 +10,7 @@
     <Copyright>Copyright © Oliver Grack 2023</Copyright>
     <Authors>Oliver Grack</Authors>
     <NoWarn>7035</NoWarn>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <AssemblyVersion>1.1.0</AssemblyVersion>
     <Deterministic>false</Deterministic>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <LangVersion>latest</LangVersion>

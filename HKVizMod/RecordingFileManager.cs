@@ -13,7 +13,7 @@ using UnityEngine.Profiling;
 
 namespace HKViz {
     internal class RecordingFileManager : Loggable {
-        private static string RECORDER_FILE_VERSION = "1.0.0";
+        private static string RECORDER_FILE_VERSION = "1.1.0";
         private static RecordingFileManager? _instance;
         public static RecordingFileManager Instance {
             get {
@@ -156,10 +156,10 @@ namespace HKViz {
             writer = new StreamWriter(recordingPath, append: true);
             previousFullTimestampTime = -9999999999;
 
-            if (!existed) {
-                WriteEntry(RecordingPrefixes.RECORDING_ID, localRunId);
-                WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, RECORDER_FILE_VERSION);
-            }
+            //if (!existed) {
+            WriteEntry(RecordingPrefixes.RECORDING_ID, localRunId);
+            WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, RECORDER_FILE_VERSION);
+            //}
             AfterSwitchedFile?.Invoke();
         }
 
