@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -96,6 +97,8 @@ namespace HKViz {
 
         private bool uploadInProgress = false;
 
+        public event Action? QueuesChanged;
+
         public void Initialize() {
             UploadCoro().StartGlobal();
         }
@@ -115,6 +118,7 @@ namespace HKViz {
             queuedFiles.AddRange(GlobalSettingsManager.Settings.queuedUploadFiles);
             failedUploads.AddRange(GlobalSettingsManager.Settings.failedUploadFiles);
             finishedUploadFiles.AddRange(GlobalSettingsManager.Settings.finishedUploadFiles);
+            QueuesChanged?.Invoke();
         }
 
         private IEnumerator UploadCoro() {
@@ -199,6 +203,7 @@ namespace HKViz {
                 uploadInProgress = false;
                 Log("Error while uploading to " + req.url);
                 Log($"{req.result}");
+                QueuesChanged?.Invoke();
             }
 
             void OnSuccess() {
@@ -207,9 +212,36 @@ namespace HKViz {
                 finishedUploadFiles.Add(queueEntry);
                 queuedFiles.Remove(queueEntry);
                 uploadInProgress = false;
+                QueuesChanged?.Invoke();
             }
         }
 
+        internal void DeleteAlreadyUploadedFiles() {
+            for (int i = finishedUploadFiles.Count - 1; i >= 0; i--) {
+                var queueEntry = finishedUploadFiles[i];
+                var path = StoragePaths.GetRecordingPath(
+                        partNumber: queueEntry.partNumber,
+                        localRunId: queueEntry.localRunId,
+                        profileId: queueEntry.profileId
+                    );
+                try {
+                    File.Delete(path);
+                    finishedUploadFiles.Remove(queueEntry);
+                    QueuesChanged?.Invoke();
+                } catch(Exception ex) {
+                    Log($"Could not delete already uploaded analytics file {path} {ex.Message}");
+                }
+            }
+        }
 
+        internal int QueuedFilesQueueCount() => queuedFiles.Count;
+        internal int FinishedUploadFilesQueueCount() => finishedUploadFiles.Count;
+        internal int FailedUploadsQueueCount() => failedUploads.Count;
+
+        internal void RetryFailedUploads() {
+            queuedFiles.AddRange(failedUploads);
+            failedUploads.Clear();
+            QueuesChanged?.Invoke();
+        }
     }
 }

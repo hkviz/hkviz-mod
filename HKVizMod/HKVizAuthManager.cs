@@ -188,7 +188,7 @@ namespace HKViz {
                 ),
                 LoginState.LOADING_LOGIN_URL => new(
                     "Cancel login",
-                    $"Waiting for {Constants.WEBSITE_URL}",
+                    $"Waiting for {Constants.WEBSITE_DISPLAY_LINK}",
                     btn => Logout()
                 ),
                 LoginState.LOADING_LOGIN_URL_FAILED => new(
@@ -204,7 +204,7 @@ namespace HKViz {
 
                 LoginState.LOADING_AUTH_STATE_FAILED => new(
                     "Login failed. Try again?",
-                    $"Could not load login status from ${Constants.WEBSITE_URL}",
+                    $"Could not load login status from ${Constants.WEBSITE_DISPLAY_LINK}",
                     btn => Login()
                 ),
                 LoginState.LOGGED_IN => new(
