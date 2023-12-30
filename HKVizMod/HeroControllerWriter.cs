@@ -97,9 +97,7 @@ namespace HKViz {
 
             var prefixKey = hasShortName ? RecordingPrefixes.HERO_CONTROLLER_STATE_SHORTNAME + statInfo.shortCode : RecordingPrefixes.HERO_CONTROLLER_STATE_LONGNAME + stateName;
 
-            // Log("Write hero controller" + stateName + ": " + value);
-
-            Log($"Write hero controller state {stateName} {value}");
+            // Log($"Write hero controller state {stateName} {value}");
             recording.WriteEntryPrefix(prefixKey, unixMillis: unixMills);
             recording.Write(value ? "1" : "0");
             recording.WriteNL();

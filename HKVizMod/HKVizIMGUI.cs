@@ -47,7 +47,7 @@ namespace HKViz {
                 GUILayout.Label($"{fileNr} could not be uploaded. You can retry them from the settings", style);
             }
             if (queuedFiles > 0) {
-                style.normal.textColor = Color.green;
+                style.normal.textColor = Color.white;
                 GUILayout.Label(queuedFiles == 1 ? "HKViz upload in progress. One file left." : $"HKViz Upload in progress. {queuedFiles} files left", style);
             }
             GUI.color = prevColor;

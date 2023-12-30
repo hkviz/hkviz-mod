@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace HKViz {
-    internal class PlayerDataFieldInfos {
+    internal static class PlayerDataFieldInfos {
 
         public static readonly Dictionary<string, PlayerDataField> fields = new() {
             ["version"] = new PlayerDataField {

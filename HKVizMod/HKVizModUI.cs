@@ -152,6 +152,7 @@ namespace HKViz {
             if (update) {
                 LoginButton?.Update();
                 //AutoUploadOption?.Update();
+                MainMenuLoginButtonOption?.Update();
                 MenuRef?.Update();
             }
         }
