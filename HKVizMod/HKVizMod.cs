@@ -256,6 +256,7 @@ namespace HKViz {
         private void HeroUpdateHook() {
             var unixMillis = recording.GetUnixMillis();
 
+            GameManagerWriter.Instance.WriteChangedFields(unixMillis);
             PlayerPositionWriter.Instance.WritePositionsIfNeeded(unixMillis);
             HeroControllerWriter.Instance.WriteChangedStates(unixMillis);
             PlayerDataWriter.Instance.WriteChangedValues(unixMillis);
@@ -272,6 +273,7 @@ namespace HKViz {
             Log("Initializing");
 
             // put additional initialization logic here
+            BehaviourManager.Instance.gameObject.AddComponent<HKVizIMGUI>();
 
             Log("Initialized");
         }
@@ -281,6 +283,7 @@ namespace HKViz {
             Log("Loading local settings" + s);
             PlayerDataWriter.Instance.InitFromLocalSave(s.previousPlayerData);
             RecordingFileManager.Instance.InitFromLocalSave(s);
+            GameManagerWriter.Instance.InitFromLocalSave();
             // InitializeRecorder();
         }
 

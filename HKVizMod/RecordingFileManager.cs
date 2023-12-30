@@ -39,7 +39,7 @@ namespace HKViz {
 
         private float lastPartCreatedTime = 0;
         private float switchFileAfterSeconds = 60 * 3; // 3 minutes
-        private bool isRecording = false;
+        public bool isRecording { get; private set; } = false;
 
         private long currentFileFirstUnixSeconds = 0;
 
@@ -213,8 +213,8 @@ namespace HKViz {
             }
         }
 
-        public void WriteEntry(string eventType, string? content = null) {
-            WriteEntryPrefix(eventType, withSeperator: content != null);
+        public void WriteEntry(string eventType, string? content = null, long? unixMillis = null) {
+            WriteEntryPrefix(eventType, withSeperator: content != null, unixMillis: unixMillis);
             if (content != null) {
                 Write(content);
             }

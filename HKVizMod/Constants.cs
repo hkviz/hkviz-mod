@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace HKViz {
     internal class Constants {
-        public static string WEBSITE_URL = "hkviz.olii.dev";
+        public static string WEBSITE_DISPLAY_LINK = "hkviz.olii.dev";
+        public static string WEBSITE_LINK = "https://hkviz.olii.dev";
 
         // TODO add global config for server url
 
