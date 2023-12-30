@@ -262,11 +262,11 @@ namespace HKViz {
             PlayerDataWriter.Instance.WriteChangedValues(unixMillis);
 
 
-            if (Input.GetKeyDown(KeyCode.J)) {
-                MapExport.Instance.Export();
-                PlayerDataExport.Instance.Export();
-                HeroControllerExport.Instance.Export();
-            }
+            //if (Input.GetKeyDown(KeyCode.J)) {
+            //    MapExport.Instance.Export();
+            //    PlayerDataExport.Instance.Export();
+            //    HeroControllerExport.Instance.Export();
+            //}
         }
 
         public override void Initialize() {
