@@ -1,6 +1,8 @@
-﻿<a style="text-align: center; display: block;" href="https://hkviz.olii.dev">
-<img src="./images/logo.svg" alt="HKViz logo text" style="max-width: 150px; border-radius: 15px; box-shadow: 0 0 10px 0 rgba(255, 255, 255, .25);" />
-</a>
+﻿<p align="center">
+    <a href="https://hkviz.olii.dev">
+        <img width="200" height="200" src="./images/logo_glow.svg">
+    </a>
+</p>
 
 # HKViz mod
 
