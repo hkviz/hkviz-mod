@@ -133,7 +133,7 @@ namespace HKViz {
                     mpReserveMax = pdInt("MPReserveMax"),
                     geo = pdInt("geo"),
                     dreamOrbs = pdInt("dreamOrbs"),
-                    permadeathMode = pdBool("permadeathMode"),
+                    permadeathMode = pdInt("permadeathMode"),
                     mapZone = pd("mapZone"),
                     killedHollowKnight = pdBool("killedHollowKnight"),
                     killedFinalBoss = pdBool("killedFinalBoss"),
