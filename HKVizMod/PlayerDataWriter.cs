@@ -1,17 +1,12 @@
-﻿using MapChanger;
-using Modding;
-using System;
+﻿using Modding;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace HKViz {
 
-    internal class PlayerDataWriter: Loggable {
+    internal class PlayerDataWriter : Loggable {
         private RecordingFileManager recording = RecordingFileManager.Instance;
         private RecordingSerializer serializer = RecordingSerializer.Instance;
 
@@ -98,7 +93,7 @@ namespace HKViz {
             foreach (var field in playerDataFields) {
                 var currentValue = field.GetValue(PlayerData.instance);
                 WritePlayerData(
-                    self: PlayerData.instance, 
+                    self: PlayerData.instance,
                     fieldName: field.Name,
                     valueString: serializer.serializeUntyped(currentValue),
                     unixMillis: unixMillis,
@@ -108,8 +103,8 @@ namespace HKViz {
         }
 
         private void WritePlayerData(
-            PlayerData self, 
-            string fieldName, 
+            PlayerData self,
+            string fieldName,
             string valueString,
             long unixMillis,
             bool writeIncremental = false
@@ -117,7 +112,7 @@ namespace HKViz {
             if (self != PlayerData.instance) return;
             if (notLoggedFields.Contains(fieldName)) return;
 
-            if(previousPlayerData.TryGetValue(fieldName, out string previousValue) && previousValue == valueString) {
+            if (previousPlayerData.TryGetValue(fieldName, out string previousValue) && previousValue == valueString) {
                 // already wrote current value. No need to write again
                 return;
             }

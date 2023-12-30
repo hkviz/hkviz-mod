@@ -2,10 +2,6 @@
 using Modding.Converters;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HKViz {
     internal static class Json {

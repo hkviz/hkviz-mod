@@ -1,15 +1,8 @@
 ﻿using Modding;
-using Steamworks;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace HKViz {
     internal class RecordingFileManager : Loggable {
@@ -85,7 +78,7 @@ namespace HKViz {
             } finally {
                 writer = null;
             }
-            
+
         }
 
         public void InitFromLocalSave(LocalSettings localSettings) {
@@ -196,7 +189,7 @@ namespace HKViz {
                 previousFullTimestampTime = Time.unscaledTime;
                 writer?.Write("=");
                 writer?.Write(nowMillis.ToString());
-            } else if(diff != 0) {
+            } else if (diff != 0) {
                 writer?.Write("+");
                 writer?.Write(diff.ToString());
             }

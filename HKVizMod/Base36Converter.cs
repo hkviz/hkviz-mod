@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HKViz {
+﻿namespace HKViz {
     internal static class BaseNConverter {
         public static string ConvertTo(int @base, string chars, int value) {
             string result = "";

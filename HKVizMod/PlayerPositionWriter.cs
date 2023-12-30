@@ -1,11 +1,4 @@
-﻿using Modding;
-using Satchel.Futils.Serialiser;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace HKViz {
     internal class PlayerPositionWriter {
@@ -50,7 +43,7 @@ namespace HKViz {
                 var time = Time.time;
                 if (time - lastFreqWriteTime > WRITE_PERIOD_SECONDS) {
                     recording.WriteEntryPrefix(RecordingPrefixes.ENTITY_POSITIONS, unixMillis: unixMillis);
-                    var currentPositionString = serializer.serializePosition2D(knight.position); 
+                    var currentPositionString = serializer.serializePosition2D(knight.position);
                     if (previousPositionString == currentPositionString) { // TODO reset previousPositionString when switching to new file
                         recording.Write("=");
                     } else {

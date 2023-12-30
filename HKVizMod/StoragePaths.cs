@@ -19,7 +19,7 @@ namespace HKViz {
 
         private static string MakeAndGetRunFolderIfNotExist() {
             var path = GetRunFolderPath();
-            if (!Directory.Exists(path)) { 
+            if (!Directory.Exists(path)) {
                 Directory.CreateDirectory(GetRunFolderPath());
             }
             return path;

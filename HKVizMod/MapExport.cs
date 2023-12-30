@@ -1,9 +1,5 @@
-﻿using HKViz.Converters;
-using MapChanger.MonoBehaviours;
+﻿using MapChanger.MonoBehaviours;
 using Modding;
-using Modding.Converters;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;

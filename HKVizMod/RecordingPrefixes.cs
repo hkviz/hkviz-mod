@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HKViz {
+﻿namespace HKViz {
     internal static class RecordingPrefixes {
         // must not be the start of another prefix
         public static readonly string PLAYER_DATA_SHORTNAME = "$";

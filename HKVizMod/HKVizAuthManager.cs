@@ -1,19 +1,6 @@
-﻿using MapChanger;
-using Modding;
-using Newtonsoft.Json;
-using Satchel.BetterMenus;
+﻿using Modding;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.SocialPlatforms.Impl;
 
 namespace HKViz {
     [Serializable]
@@ -44,7 +31,7 @@ namespace HKViz {
     [Serializable]
     internal class Empty { }
 
-    internal class HKVizAuthManager: Loggable {
+    internal class HKVizAuthManager : Loggable {
         private static HKVizAuthManager instance;
 
         public static HKVizAuthManager Instance {
@@ -75,7 +62,7 @@ namespace HKViz {
             }
             private set {
                 _state = value;
-                
+
                 //if (_state == LoginState.LOGGED_IN) {
                 GlobalSettingsManager.Settings.userName = UserName;
                 GlobalSettingsManager.Settings.authId = AuthId;
@@ -210,7 +197,8 @@ namespace HKViz {
                 LoginState.LOGGED_IN => new(
                     justTitle ? "Logged in as " + UserName : "Logout",
                     "Logged in as " + UserName,
-                    justTitle ? btn => { } : btn => Logout()
+                    justTitle ? btn => { }
+                : btn => Logout()
                 ),
             };
 

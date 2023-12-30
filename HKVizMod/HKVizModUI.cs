@@ -1,13 +1,9 @@
 ﻿using Modding;
 using Satchel.BetterMenus;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HKViz {
-    internal class HKVizModUI: Loggable {
+    internal class HKVizModUI : Loggable {
         private static HKVizModUI instance;
 
         public static HKVizModUI Instance {

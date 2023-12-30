@@ -1,15 +1,8 @@
-﻿using HKViz.Converters;
-using MapChanger.MonoBehaviours;
-using Modding;
-using Modding.Converters;
-using Newtonsoft.Json;
+﻿using Modding;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using UnityEngine;
 
 namespace HKViz {
     [System.Serializable]
@@ -66,7 +59,7 @@ namespace HKViz {
             }
 
             using (var writer = new StreamWriter(StoragePaths.GetUserFilePath("player-data-export-cs.txt"))) {
-                foreach(var field in fields) {
+                foreach (var field in fields) {
                     writer.WriteLine($$"""
                         ["{{field.Key}}"] = new PlayerDataField {
                             name = "{{field.Value.name}}",    
