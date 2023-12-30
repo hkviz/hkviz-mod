@@ -1,6 +1,6 @@
 ﻿<p align="center">
     <a href="https://hkviz.olii.dev">
-        <img width="128" height="128" src="./images/logo_glow@0.25x.png">
+        <img width="128" height="128" src="images/logo_glow@0.25x.png">
     </a>
 </p>
 
