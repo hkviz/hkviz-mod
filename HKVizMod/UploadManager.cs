@@ -30,9 +30,13 @@ namespace HKViz {
         public bool? killedVoidIdol;
         public int? completionPercentage;
         public bool? unlockedCompletionRate;
+        public bool? dreamNailUpgraded;
+        public string? lastScene;
 
         public long firstUnixSeconds;
         public long lastUnixSeconds;
+
+        public long finishedUploadAtUnixSeconds;
     }
 
 
@@ -57,6 +61,8 @@ namespace HKViz {
             public bool? killedVoidIdol;
             public int? completionPercentage;
             public bool? unlockedCompletionRate;
+            public bool? dreamNailUpgraded;
+            public string? lastScene;
 
             public long firstUnixSeconds;
             public long lastUnixSeconds;
@@ -85,6 +91,7 @@ namespace HKViz {
 
         private List<UploadQueueEntry> queuedFiles = new List<UploadQueueEntry>();
         private List<UploadQueueEntry> failedUploads = new List<UploadQueueEntry>();
+        private List<UploadQueueEntry> finishedUploadFiles = new List<UploadQueueEntry>();
         private WaitForSeconds WAIT_1SEC = new WaitForSeconds(1);
 
         private bool uploadInProgress = false;
@@ -100,12 +107,14 @@ namespace HKViz {
         public void GlobalSettingsBeforeSave() {
             GlobalSettingsManager.Settings.queuedUploadFiles = queuedFiles;
             GlobalSettingsManager.Settings.failedUploadFiles = failedUploads;
+            GlobalSettingsManager.Settings.finishedUploadFiles = finishedUploadFiles;
         }
 
         public void GlobalSettingsLoaded() {
             Log("GS loaded upload manager" + (GlobalSettingsManager.Settings.queuedUploadFiles.Count + "-" + GlobalSettingsManager.Settings.failedUploadFiles.Count));
             queuedFiles.AddRange(GlobalSettingsManager.Settings.queuedUploadFiles);
             failedUploads.AddRange(GlobalSettingsManager.Settings.failedUploadFiles);
+            finishedUploadFiles.AddRange(GlobalSettingsManager.Settings.finishedUploadFiles);
         }
 
         private IEnumerator UploadCoro() {
@@ -146,6 +155,8 @@ namespace HKViz {
                     killedVoidIdol = queueEntry.killedVoidIdol,
                     completionPercentage = queueEntry.completionPercentage,
                     unlockedCompletionRate = queueEntry.unlockedCompletionRate,
+                    dreamNailUpgraded = queueEntry.dreamNailUpgraded,
+                    lastScene = queueEntry.lastScene,
 
                     firstUnixSeconds = queueEntry.firstUnixSeconds,
                     lastUnixSeconds = queueEntry.lastUnixSeconds,
@@ -183,8 +194,8 @@ namespace HKViz {
 
 
             void OnError(UnityWebRequest? req) {
-                queuedFiles.Remove(queueEntry);
                 failedUploads.Add(queueEntry);
+                queuedFiles.Remove(queueEntry);
                 uploadInProgress = false;
                 Log("Error while uploading to " + req.url);
                 Log($"{req.result}");
@@ -192,6 +203,8 @@ namespace HKViz {
 
             void OnSuccess() {
                 Log($"Successfully uploaded recording part {queueEntry.profileId} {queueEntry.partNumber}");
+                queueEntry.finishedUploadAtUnixSeconds = RecordingFileManager.Instance.GetUnixSeconds();
+                finishedUploadFiles.Add(queueEntry);
                 queuedFiles.Remove(queueEntry);
                 uploadInProgress = false;
             }

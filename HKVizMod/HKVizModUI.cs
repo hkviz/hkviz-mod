@@ -36,15 +36,19 @@ namespace HKViz {
                                 submitAction: (_) => HKVizAuthManager.Instance.Login()
                             );
 
-                AutoUploadOption = new HorizontalOption(
-                    name: "Auto upload",
-                    description: "Upload run data once going to the menu and every few minutes",
-                    values: new[] { "On", "Off" },
-                    applySetting: index => {
-                        GlobalSettingsManager.Settings.autoUpload = index == 0;
-                    },
-                    loadSetting: () => GlobalSettingsManager.Settings.autoUpload ? 0 : 1
-                );
+                // Disabled for now, since I did not fix all implications arising from this.
+                // The main one being that a runfile might be created in another session
+                // therefore variables stored from the beginning of the session would need to be remembered 
+                // over multiple sessions (currently this is the start time of a runfile)
+                //AutoUploadOption = new HorizontalOption(
+                //    name: "Auto upload",
+                //    description: "Upload run data once going to the menu and every few minutes",
+                //    values: new[] { "On", "Off" },
+                //    applySetting: index => {
+                //        GlobalSettingsManager.Settings.autoUpload = index == 0;
+                //    },
+                //    loadSetting: () => GlobalSettingsManager.Settings.autoUpload ? 0 : 1
+                //);
 
                 MainMenuLoginButtonOption = new HorizontalOption(
                     name: "Main Menu login button",
@@ -61,7 +65,7 @@ namespace HKViz {
                 MenuRef = new Menu(
                     name: "HKViz",
                     elements: new Element[] {
-                        AutoUploadOption,
+                        //AutoUploadOption,
                         MainMenuLoginButtonOption,
                         LoginButton,
                     }

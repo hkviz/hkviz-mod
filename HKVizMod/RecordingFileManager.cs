@@ -35,6 +35,8 @@ namespace HKViz {
         public string? localRunId;
         public int currentPart = 1;
 
+        public string? lastScene = null;
+
         private float lastPartCreatedTime = 0;
         private float switchFileAfterSeconds = 60 * 3; // 3 minutes
         private bool isRecording = false;
@@ -138,6 +140,11 @@ namespace HKViz {
                     killedVoidIdol = (pdBool("killedVoidIdol_1") ?? false) || (pdBool("killedVoidIdol_2") ?? false),
                     completionPercentage = pdInt("completionPercentage"),
                     unlockedCompletionRate = pdBool("unlockedCompletionRate"),
+
+
+
+                    dreamNailUpgraded = pdBool("dreamNailUpgraded"),
+                    lastScene = lastScene,
 
                     firstUnixSeconds = partFirstUnixMillis,
                     lastUnixSeconds = GetUnixSeconds(),
