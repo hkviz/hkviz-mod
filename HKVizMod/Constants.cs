@@ -10,11 +10,11 @@ namespace HKViz {
 
         // TODO add global config for server url
 
-        public static string API_URL = "https://hkviz.olii.dev/api/rest/";
-        public static string LOGIN_URL = "https://hkviz.olii.dev/ingameauth/";
+        //public static string API_URL = "https://hkviz.olii.dev/api/rest/";
+        //public static string LOGIN_URL = "https://hkviz.olii.dev/ingameauth/";
 
 
-        //public static string API_URL = "http://localhost:3000/api/rest/";
-        //public static string LOGIN_URL = "http://localhost:3000/ingameauth/";
+        public static string API_URL = "http://localhost:3000/api/rest/";
+        public static string LOGIN_URL = "http://localhost:3000/ingameauth/";
     }
 }

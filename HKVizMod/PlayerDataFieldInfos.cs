@@ -234,7 +234,7 @@ namespace HKViz {
                 name = "hazardRespawnLocation",
                 type = "Vector3",
                 shortCode = "12",
-                defaultValue = "0;0;0",
+                defaultValue = "0,0,0",
             },
             ["hazardRespawnFacingRight"] = new PlayerDataField {
                 name = "hazardRespawnFacingRight",
@@ -306,13 +306,13 @@ namespace HKViz {
                 name = "shadeMapPos",
                 type = "Vector3",
                 shortCode = "1E",
-                defaultValue = "0;0;0",
+                defaultValue = "0,0,0",
             },
             ["dreamgateMapPos"] = new PlayerDataField {
                 name = "dreamgateMapPos",
                 type = "Vector3",
                 shortCode = "1F",
-                defaultValue = "0;0;0",
+                defaultValue = "0,0,0",
             },
             ["geoPool"] = new PlayerDataField {
                 name = "geoPool",

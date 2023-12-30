@@ -90,6 +90,7 @@ namespace HKViz {
             EnemyWriter.Instance.ActiveSceneChanged(oldScene, newScene);
             if (newScene.name != "Menu_Title") {
                 recording.WriteEntry(RecordingPrefixes.SCENE_CHANGE, newScene.name);
+                RecordingFileManager.Instance.lastScene = newScene.name;
             }
         }
 
