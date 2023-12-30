@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace HKViz {
-    internal class BehaviourManager: MonoBehaviour {
+    internal class BehaviourManager : MonoBehaviour {
         private static BehaviourManager _instance;
 
         private bool callFocusNextFrame = false;
@@ -17,7 +12,7 @@ namespace HKViz {
 
         public static BehaviourManager Instance {
             get {
-                if ( _instance == null ) {
+                if (_instance == null) {
                     var foreverEmpty = new GameObject("HkViz Behviours");
                     UnityEngine.Object.DontDestroyOnLoad(foreverEmpty);
                     _instance = foreverEmpty.AddComponent<BehaviourManager>();
@@ -44,6 +39,6 @@ namespace HKViz {
     }
 
     internal static class CoroutineExtensions {
-        public static Coroutine StartGlobal(this System.Collections.IEnumerator coro) => BehaviourManager.Instance.StartCoroutine(coro); 
+        public static Coroutine StartGlobal(this System.Collections.IEnumerator coro) => BehaviourManager.Instance.StartCoroutine(coro);
     }
 }

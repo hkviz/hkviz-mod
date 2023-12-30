@@ -3,14 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace HKViz {
     internal record HeroControllerQueueValue(string fieldName, string valueString, float timestamp);
 
-    internal class HeroControllerWriter: Loggable {
+    internal class HeroControllerWriter : Loggable {
         private RecordingFileManager recording = RecordingFileManager.Instance;
 
         private static HeroControllerWriter? _instance;
@@ -25,10 +22,10 @@ namespace HKViz {
         private static FieldInfo[] stateFields = typeof(global::HeroControllerStates)
                 .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
-        public static HashSet<String> notLoggedStates = new() { 
-            "facingRight", 
-            "onGround", 
-            "falling", 
+        public static HashSet<String> notLoggedStates = new() {
+            "facingRight",
+            "onGround",
+            "falling",
             "touchingWall",
             "wallSliding",
             "transitioning",
@@ -63,7 +60,7 @@ namespace HKViz {
         internal void InitializeRun() {
             previousHeroControllerStates.Clear();
 
-            foreach(var stateField in stateFields) {
+            foreach (var stateField in stateFields) {
                 previousHeroControllerStates[stateField.Name] = false;
             }
         }

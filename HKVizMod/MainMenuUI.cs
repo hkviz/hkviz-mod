@@ -2,11 +2,7 @@
 using Satchel;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,12 +10,13 @@ using UnityEngine.UI;
 namespace HKViz {
     internal class MainMenuUI : Loggable {
         private static MainMenuUI? instance;
-        public static MainMenuUI Instance { get { 
+        public static MainMenuUI Instance {
+            get {
                 if (instance == null) {
                     instance = new MainMenuUI();
                 }
-                return instance; 
-            } 
+                return instance;
+            }
         }
 
         private UnityEngine.UI.Text? mainMenuLoginButtonText;
@@ -81,7 +78,7 @@ namespace HKViz {
 
                 var newEntries = Array.CreateInstance(entryType, entries.Count + 1);
                 entries.CopyTo(newEntries, 0);
-                newEntries.SetValue(entries[entries.Count - 1], newEntries.Length - 1); 
+                newEntries.SetValue(entries[entries.Count - 1], newEntries.Length - 1);
                 newEntries.SetValue(entry, newEntries.Length - 2);
 
                 self.SetFieldByReflection("entries", newEntries);
@@ -94,7 +91,7 @@ namespace HKViz {
         }
 
         private void CheckButtonVisibility() {
-            Log("Check visibility " +  HKVizAuthManager.Instance.State);
+            Log("Check visibility " + HKVizAuthManager.Instance.State);
             mainMenuLoginButton?.gameObject?.SetActive(
                 GlobalSettingsManager.Settings.showLoginButtonInMainMenu &&
                 HKVizAuthManager.Instance.State != HKVizAuthManager.LoginState.LOGGED_IN

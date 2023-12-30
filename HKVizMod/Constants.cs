@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HKViz {
+﻿namespace HKViz {
     internal class Constants {
         public static string WEBSITE_DISPLAY_LINK = "hkviz.olii.dev";
         public static string WEBSITE_LINK = "https://hkviz.olii.dev";

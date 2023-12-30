@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Modding.Converters;
 using UnityEngine;
 
 namespace HKViz.Converters {
     /// <inheritdoc />
-    public class Vector4Converter : Modding.Converters.JsonConverter<Vector4>
-    {
+    public class Vector4Converter : Modding.Converters.JsonConverter<Vector4> {
         /// <inheritdoc />
         public override Vector4 ReadJson(Dictionary<string, object> token, object existingValue) {
             float x = Convert.ToSingle(token["x"]);

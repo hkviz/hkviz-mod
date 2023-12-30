@@ -1,15 +1,7 @@
-﻿using HKViz.Converters;
-using MapChanger.MonoBehaviours;
-using Modding;
-using Modding.Converters;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using Modding;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using UnityEngine;
 
 namespace HKViz {
     [System.Serializable]
@@ -39,7 +31,7 @@ namespace HKViz {
                 .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                 .Select((it, index) => new HeroControllerStat {
                     name = it.Name,
-                    shortCode = BaseNConverter.ConvertToBase36(index+1),
+                    shortCode = BaseNConverter.ConvertToBase36(index + 1),
                     notPartOfLog = HeroControllerWriter.notLoggedStates.Contains(it.Name),
                     onlyTruthLogged = HeroControllerWriter.onlyTruthLoggedStates.Contains(it.Name),
                 })
@@ -51,7 +43,7 @@ namespace HKViz {
             }
 
             using (var writer = new StreamWriter(StoragePaths.GetUserFilePath("hero-controller-export-cs.txt"))) {
-                foreach(var field in fields) {
+                foreach (var field in fields) {
                     writer.WriteLine($$"""
                         ["{{field.Key}}"] = new HeroControllerStat {
                             name = "{{field.Value.name}}",

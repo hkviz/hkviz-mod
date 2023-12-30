@@ -3,10 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -41,7 +37,7 @@ namespace HKViz {
     }
 
 
-    internal class UploadManager: Loggable {
+    internal class UploadManager : Loggable {
         [Serializable]
         private class CreateUploadPartUrlRequest {
             public string ingameAuthId;
@@ -83,10 +79,10 @@ namespace HKViz {
         }
 
         private static UploadManager instance;
-        public static UploadManager Instance { 
-            get { 
+        public static UploadManager Instance {
+            get {
                 instance ??= new UploadManager();
-                return instance; 
+                return instance;
             }
         }
 
@@ -228,7 +224,7 @@ namespace HKViz {
                     File.Delete(path);
                     finishedUploadFiles.Remove(queueEntry);
                     QueuesChanged?.Invoke();
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     Log($"Could not delete already uploaded analytics file {path} {ex.Message}");
                 }
             }

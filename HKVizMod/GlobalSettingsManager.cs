@@ -1,10 +1,4 @@
-﻿using MapChanger;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static HKViz.UploadManager;
+﻿using System.Collections.Generic;
 
 namespace HKViz {
     public class GlobalSettings {

@@ -21,7 +21,7 @@ namespace HKViz {
         private RecordingFileManager recording = RecordingFileManager.Instance;
         private RecordingSerializer serializer = RecordingSerializer.Instance;
 
-        public bool ToggleButtonInsideMenu { get;  }
+        public bool ToggleButtonInsideMenu { get; }
 
         private int profileId = -1;
 
@@ -106,7 +106,7 @@ namespace HKViz {
             // recording.WriteEntry("profile-id", profileId.ToString());
             recording.WriteEntry(RecordingPrefixes.HZVIZ_MOD_VERSION, GetVersion());
             recording.WriteEntry(
-                RecordingPrefixes.MODDING_INFO, 
+                RecordingPrefixes.MODDING_INFO,
                 GameObject.FindObjectOfType<ModVersionDraw>().drawString
                     .ReplaceNewLines(";")
                     .Replace(" : ", ":")

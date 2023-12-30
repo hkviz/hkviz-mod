@@ -1,14 +1,9 @@
 ﻿using HKMirror.Reflection;
 using Modding;
-using Satchel.Futils.Serialiser;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static MapChanger.SpriteManager;
 
 namespace HKViz {
     internal class EnemyWriter : Loggable {
@@ -33,7 +28,7 @@ namespace HKViz {
         }
 
         public void WriteEnemyPositions(long unixMillis) {
-            for(int i = 0; i<existingHealthManagers.Count; i++) {
+            for (int i = 0; i < existingHealthManagers.Count; i++) {
                 var info = existingHealthManagers[i];
 
                 recording.WriteSep();
@@ -113,7 +108,7 @@ namespace HKViz {
         }
     }
 
-    public class HKVizHealthManagerInfo: MonoBehaviour {
+    public class HKVizHealthManagerInfo : MonoBehaviour {
         public string id;
         public HealthManager healthManager;
         public Transform trans;

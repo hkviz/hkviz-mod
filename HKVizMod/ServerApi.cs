@@ -1,15 +1,11 @@
 ﻿using Modding;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine.Networking;
 
 namespace HKViz {
-    internal class ServerApi: Loggable {
+    internal class ServerApi : Loggable {
         private static ServerApi? instance;
         public static ServerApi Instance {
             get {
@@ -64,7 +60,7 @@ namespace HKViz {
         }
 
         public IEnumerator R2Upload(string signedUploadUrl, string filePath, Action onSuccess, Action<UnityWebRequest> onError) {
-            using(var request = new UnityWebRequest(signedUploadUrl, UnityWebRequest.kHttpVerbPUT)) {
+            using (var request = new UnityWebRequest(signedUploadUrl, UnityWebRequest.kHttpVerbPUT)) {
                 request.uploadHandler = new UploadHandlerFile(filePath);
                 yield return request.SendWebRequest();
                 Log("r2 upload result " + request.result);
