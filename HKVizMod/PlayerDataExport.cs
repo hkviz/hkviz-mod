@@ -21,6 +21,13 @@ namespace HKViz {
         public bool notLogged;
     }
 
+    [System.Serializable]
+    public class EnemyInfo {
+        public string name;
+        public string shortCode;
+        public int neededForJournal;
+    }
+
     internal class PlayerDataExport : Loggable {
 
 
@@ -53,7 +60,6 @@ namespace HKViz {
                 })
                 .ToDictionary(it => it.name, it => it);
 
-
             var json = Json.Stringify(fields);
             using (var writer = new StreamWriter(StoragePaths.GetUserFilePath("player-data-export.txt"))) {
                 writer.Write(json);
@@ -68,6 +74,32 @@ namespace HKViz {
                             shortCode = "{{field.Value.shortCode}}",
                             defaultValue = "{{field.Value.defaultValue}}",
                             notLogged = {{field.Value.notLogged.ToString().ToLower()}}},
+                        """);
+                }
+            }
+
+            // enemies
+            var enemies = fields
+                .Where(it => it.Value.name.StartsWith("kills") && it.Value.type == "Int32")
+                .Select((it, index) => new EnemyInfo {
+                    name = it.Value.name.Replace("kills", ""),
+                    shortCode = BaseNConverter.ConvertToBase36(index + 1),
+                    neededForJournal = int.Parse(it.Value.defaultValue)
+                })
+                .ToDictionary(it => it.name, it => it);
+
+            var jsonEnemies = Json.Stringify(enemies);
+            using (var writer = new StreamWriter(StoragePaths.GetUserFilePath("enemies-export.txt"))) {
+                writer.Write(jsonEnemies);
+            }
+
+            using (var writer = new StreamWriter(StoragePaths.GetUserFilePath("enemies-export-cs.txt"))) {
+                foreach (var enemy in enemies) {
+                    writer.WriteLine($$"""
+                        ["{{enemy.Key}}"] = new EnemyInfo {
+                            name = "{{enemy.Value.name}}",  
+                            shortCode = "{{enemy.Value.shortCode}}",
+                            neededForJournal = {{enemy.Value.neededForJournal}}},
                         """);
                 }
             }

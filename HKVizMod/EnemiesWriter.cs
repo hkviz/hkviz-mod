@@ -88,10 +88,17 @@ namespace HKViz {
             info.id = (++previousEnemyId).ToString();
             info.trans = self.transform;
             existingHealthManagers.Add(info);
+
+            var name = deathEffects?.Reflect()?.playerDataName ?? "0" + self.gameObject.name;
+            string shortNameOrName = name;
+            if (EnemyInfos.enemies.TryGetValue(name, out var enemyInfo)) {
+                shortNameOrName = enemyInfo.shortCode;
+            }
+
             recording.WriteEntryPrefix(RecordingPrefixes.ENEMY_START);
             recording.Write(info.id);
             recording.WriteSep();
-            recording.Write(deathEffects?.Reflect()?.playerDataName ?? "0"+ self.gameObject.name);
+            recording.Write(shortNameOrName);
             recording.WriteSep();
             recording.Write(self.hp.ToString());
             recording.WriteNL();

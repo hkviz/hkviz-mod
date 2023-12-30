@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace HKViz {
-    internal class HeroControllerStateInfos {
+    internal static class HeroControllerStateInfos {
 
         public static readonly Dictionary<string, HeroControllerStat> stats = new() {
             ["facingRight"] = new HeroControllerStat {
