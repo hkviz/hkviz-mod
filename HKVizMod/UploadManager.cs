@@ -23,7 +23,7 @@ namespace HKViz {
         public int? mpReserveMax;
         public int? geo;
         public int? dreamOrbs;
-        public bool? permadeathMode;
+        public int? permadeathMode;
         public string? mapZone;
         public bool? killedHollowKnight;
         public bool? killedFinalBoss;
@@ -54,7 +54,7 @@ namespace HKViz {
             public int? mpReserveMax;
             public int? geo;
             public int? dreamOrbs;
-            public bool? permadeathMode;
+            public int? permadeathMode;
             public string? mapZone;
             public bool? killedHollowKnight;
             public bool? killedFinalBoss;
