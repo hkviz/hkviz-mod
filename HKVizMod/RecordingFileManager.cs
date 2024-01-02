@@ -31,7 +31,7 @@ namespace HKViz {
         public string? lastScene = null;
 
         private float lastPartCreatedTime = 0;
-        private float switchFileAfterSeconds = 60 * 3; // 3 minutes
+        private float switchFileAfterSeconds = 60 * 5; // 5 minutes
         public bool isRecording { get; private set; } = false;
 
         private long currentFileFirstUnixSeconds = 0;
