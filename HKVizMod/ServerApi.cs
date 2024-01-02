@@ -54,8 +54,8 @@ namespace HKViz {
                 onSuccess(result);
             }
 
-            request.uploadHandler.Dispose();
-            request.downloadHandler.Dispose();
+            request.uploadHandler?.Dispose();
+            request.downloadHandler?.Dispose();
             request.Dispose();
         }
 

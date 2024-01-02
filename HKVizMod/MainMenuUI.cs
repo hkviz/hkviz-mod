@@ -1,4 +1,5 @@
-﻿using Modding;
+﻿using HKMirror.Reflection;
+using Modding;
 using Satchel;
 using System;
 using System.Collections;
@@ -6,6 +7,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Linq;
 
 namespace HKViz {
     internal class MainMenuUI : Loggable {
@@ -21,7 +23,8 @@ namespace HKViz {
 
         private UnityEngine.UI.Text? mainMenuLoginButtonText;
         private MenuButton? mainMenuLoginButton;
-
+        private object? loginButtonMenuButtonListEntry;
+        private MenuButtonList mainMenuList;
 
         public void Initialize() {
             On.MenuButtonList.Start += MenuButtonList_Start;
@@ -32,76 +35,114 @@ namespace HKViz {
         }
 
         public void GlobalSettingsLoaded() {
-            CheckButtonVisibility();
+            mainMenuList?.Reflect()?.Start();
         }
 
         private void MenuButtonList_OnEnable(On.MenuButtonList.orig_OnEnable orig, MenuButtonList self) {
-            CheckButtonVisibility();
+            mainMenuList?.Reflect()?.Start();
         }
 
         private void AuthStateChanged(HKVizAuthManager.LoginState obj) {
             Log("Auth change " + obj + " b" + mainMenuLoginButton?.name);
-            var btnState = HKVizAuthManager.Instance.GetLoginButtonState(justTitle: true);
-            if (mainMenuLoginButtonText != null && !mainMenuLoginButtonText.IsDestroyed()) {
-                mainMenuLoginButtonText.text = btnState.name;
-            }
-            if (mainMenuLoginButton != null && !mainMenuLoginButton.IsDestroyed()) {
-                mainMenuLoginButton.submitAction = btnState.action;
-            }
-            CheckButtonVisibility();
+            mainMenuList?.Reflect()?.Start();
         }
 
         private void MenuButtonList_Start(On.MenuButtonList.orig_Start orig, MenuButtonList self) {
             if (self.gameObject.name == "MainMenuButtons") {
-                var loginButton = GameObject.Instantiate(self.transform.GetChild(0).gameObject, self.transform);
-                loginButton.RemoveComponent<AutoLocalizeTextUI>();
-                loginButton.transform.SetSiblingIndex(4);
-                loginButton.name = "Login Button";
-
-                mainMenuLoginButton = loginButton.GetComponent<MenuButton>();
-                mainMenuLoginButton.buttonType = MenuButton.MenuButtonType.CustomSubmit;
-                mainMenuLoginButton.proceed = false;
-                mainMenuLoginButton.flashEffect = null;
-                var eventTrigger = loginButton.GetComponent<EventTrigger>();
-                eventTrigger.triggers.Clear();
-
-                mainMenuLoginButtonText = loginButton.GetComponentInChildren<UnityEngine.UI.Text>();
-                mainMenuLoginButtonText.text = "Login";
+                mainMenuList = self;
+                CreateLoginButtonGOIfNeeded();
 
                 // changing entries of MenuButtons:
-                var entries = self.GetFieldByReflection("entries") as System.Collections.IList;
+                var entries = (Array)self.GetFieldByReflection("entries");
 
                 var entryType = typeof(MenuButtonList).GetNestedType("Entry", BindingFlags.NonPublic);
-                var entry = Activator.CreateInstance(entryType, true);
-                entry.SetFieldByReflection("selectable", mainMenuLoginButton.GetComponent<Selectable>());
+                if (loginButtonMenuButtonListEntry == null) {
+                    var entry = Activator.CreateInstance(entryType, true);
+                    loginButtonMenuButtonListEntry = entry;
+                }
+                loginButtonMenuButtonListEntry.SetFieldByReflection("selectable", mainMenuLoginButton.GetComponent<Selectable>());
 
+                var alreadyInList = entries.OfType<object>().Any(e => e == loginButtonMenuButtonListEntry);
+                var showButton = showLoginButtonInMainMenu();
 
-                var newEntries = Array.CreateInstance(entryType, entries.Count + 1);
-                entries.CopyTo(newEntries, 0);
-                newEntries.SetValue(entries[entries.Count - 1], newEntries.Length - 1);
-                newEntries.SetValue(entry, newEntries.Length - 2);
+                var newEntries = entries;
+
+                if (!alreadyInList && showButton) { 
+                    // add button
+                    newEntries = Array.CreateInstance(entryType, entries.Length + 1);
+                    entries.CopyTo(newEntries, 0);
+                    newEntries.SetValue((entries as IList)[entries.Length - 1], newEntries.Length - 1);
+                    newEntries.SetValue(loginButtonMenuButtonListEntry, newEntries.Length - 2);
+                } else if (alreadyInList && !showButton) {
+                    // remove button
+                    newEntries = Array.CreateInstance(entryType, entries.Length - 1);
+                    entries.OfType<object>()
+                        .Where(it => it != loginButtonMenuButtonListEntry)
+                        .ToArray()
+                        .CopyTo(newEntries, 0);
+                }
 
                 self.SetFieldByReflection("entries", newEntries);
 
-                AuthStateChanged(HKVizAuthManager.Instance.State);
-                CheckButtonVisibilityNextFrame().StartGlobal();
+                mainMenuLoginButton.gameObject.SetActive(showButton);
+
+                var btnState = HKVizAuthManager.Instance.GetLoginButtonState(justTitle: true);
+                if (mainMenuLoginButtonText != null && !mainMenuLoginButtonText.IsDestroyed()) {
+                    mainMenuLoginButtonText.text = btnState.name;
+                }
+                if (mainMenuLoginButton != null && !mainMenuLoginButton.IsDestroyed()) {
+                    mainMenuLoginButton.submitAction = btnState.action;
+                }
+
+                // hkvizMainMenuList.StartCoroutine(CheckButtonVisibilityNextFrame());
             }
 
             orig.Invoke(self);
         }
 
-        private void CheckButtonVisibility() {
-            Log("Check visibility " + HKVizAuthManager.Instance.State);
-            mainMenuLoginButton?.gameObject?.SetActive(
+        private void CreateLoginButtonGOIfNeeded() {
+            var hkvizMainMenuList = mainMenuList.GetComponent<HKVizMainMenuList>();
+            if (hkvizMainMenuList == null) {
+                hkvizMainMenuList = mainMenuList.gameObject.AddComponent<HKVizMainMenuList>();
+                hkvizMainMenuList.loginButton = GameObject.Instantiate(mainMenuList.transform.GetChild(0).gameObject, mainMenuList.transform);
+                hkvizMainMenuList.loginButton.RemoveComponent<AutoLocalizeTextUI>();
+                hkvizMainMenuList.loginButton.transform.SetSiblingIndex(4);
+                hkvizMainMenuList.loginButton.name = "Login Button";
+
+                mainMenuLoginButton = hkvizMainMenuList.loginButton.GetComponent<MenuButton>();
+                mainMenuLoginButton.buttonType = MenuButton.MenuButtonType.CustomSubmit;
+                mainMenuLoginButton.proceed = false;
+                mainMenuLoginButton.flashEffect = null;
+
+                var eventTrigger = hkvizMainMenuList.loginButton.GetComponent<EventTrigger>();
+                eventTrigger.triggers.Clear();
+
+                mainMenuLoginButtonText = hkvizMainMenuList.loginButton.GetComponentInChildren<UnityEngine.UI.Text>();
+                mainMenuLoginButtonText.text = "Login";
+            }
+        }
+
+        private bool showLoginButtonInMainMenu() => (
                 GlobalSettingsManager.Settings.showLoginButtonInMainMenu &&
                 HKVizAuthManager.Instance.State != HKVizAuthManager.LoginState.LOGGED_IN
             );
-        }
 
-        private IEnumerator CheckButtonVisibilityNextFrame() {
-            yield return null;
-            CheckButtonVisibility();
+        //private void CheckButtonVisibility() {
+        //    Log("Check visibility " + HKVizAuthManager.Instance.State);
+        //    mainMenuLoginButton?.gameObject?.SetActive(
+        //        GlobalSettingsManager.Settings.showLoginButtonInMainMenu &&
+        //        HKVizAuthManager.Instance.State != HKVizAuthManager.LoginState.LOGGED_IN
+        //    );
+        //}
 
+        //private IEnumerator CheckButtonVisibilityNextFrame() {
+        //    yield return null;
+        //    CheckButtonVisibility();
+
+        //}
+
+        private class HKVizMainMenuList : MonoBehaviour {
+            public GameObject loginButton;
         }
     }
 }
