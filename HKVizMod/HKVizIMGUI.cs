@@ -32,20 +32,33 @@ namespace HKViz {
             var failedCount = uploadManager.FailedUploadsQueueCount();
             var queuedFiles = uploadManager.QueuedFilesQueueCount();
 
-            var prevColor = GUI.color;
             //var prevSize = GUI.skin.label.fontSize;
             //GUI.skin.label.fontSize = (Screen.height / 1080) * 16;
 
             if (failedCount > 0) {
                 style.normal.textColor = Color.red;
                 var fileNr = failedCount == 1 ? "One HKViz file" : $"{failedCount} HKViz files";
-                GUILayout.Label($"{fileNr} could not be uploaded. You can retry them from the settings", style);
+                GUILayout.Label($"HKViz: {fileNr} could not be uploaded. You can retry them from the settings", style);
             }
             if (queuedFiles > 0) {
                 style.normal.textColor = Color.white;
-                GUILayout.Label(queuedFiles == 1 ? "HKViz upload in progress. One file left." : $"HKViz Upload in progress. {queuedFiles} files left", style);
+                GUILayout.Label(queuedFiles == 1 ? "HKViz: Upload in progress. One file left." : $"HKViz: Upload in progress. {queuedFiles} files left", style);
             }
-            GUI.color = prevColor;
+
+            var loginState = HKVizAuthManager.Instance.State;
+            if (loginState == HKVizAuthManager.LoginState.LOADING_LOGIN_URL) {
+                style.normal.textColor = Color.white;
+                GUILayout.Label($"HKViz: ...Loading login url...");
+            } else if (loginState == HKVizAuthManager.LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER) {
+                style.normal.textColor = Color.white;
+                GUILayout.Label($"HKViz: Please login inside the opened browser window");
+            }
+
+            if (HKVizAuthManager.Instance.ShowLoginSuccess) {
+                style.normal.textColor = Color.green;
+                GUILayout.Label($"HKViz: Login successful");
+            }
+
             //GUI.skin.label.fontSize = prevSize;
 
             GUILayout.EndArea();

@@ -55,7 +55,14 @@ namespace HKViz {
         public string? AuthId;
         public string? UserName;
 
+        private float loggedInAt = -100000;
+        private bool isUserTriggeredLoginFlow = false;
+        private float displayLoginSuccessForSeconds = 4;
+        public bool ShowLoginSuccess => (Time.unscaledTime - loggedInAt) < displayLoginSuccessForSeconds;
+
         private LoginState _state = LoginState.NOT_LOGGED_IN;
+
+
         public LoginState State {
             get {
                 return _state;
@@ -127,6 +134,7 @@ namespace HKViz {
                 onSuccess: data => {
                     AuthId = data.id;
                     Log("Got session token " + AuthId);
+                    isUserTriggeredLoginFlow = true;
                     Application.OpenURL(Constants.LOGIN_URL + data.urlId);
                     State = LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER;
                 },
@@ -154,6 +162,7 @@ namespace HKViz {
                     if (data.user != null) {
                         UserName = data.user.name;
                         State = LoginState.LOGGED_IN;
+                        loggedInAt = Time.unscaledTime;
                     } else if (fromSettings) {
                         State = LoginState.NOT_LOGGED_IN;
                     }
