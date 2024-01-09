@@ -156,7 +156,9 @@ namespace HKViz {
             writer = new StreamWriter(recordingPath, append: true);
             previousFullTimestampTime = -9999999999;
 
-            //if (!existed) {
+            // always write new line at beginning, bc last session might have failed finishing writing
+            // and we would just continue writing on the errored line.
+            WriteNL();
             WriteEntry(RecordingPrefixes.RECORDING_ID, localRunId);
             WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, RECORDER_FILE_VERSION);
             //}
