@@ -91,6 +91,8 @@ namespace HKViz {
             if (newScene.name != "Menu_Title") {
                 recording.WriteEntry(RecordingPrefixes.SCENE_CHANGE, newScene.name);
                 RecordingFileManager.Instance.lastScene = newScene.name;
+            } else {
+                UploadManager.Instance.RetryFailedUploads();
             }
         }
 

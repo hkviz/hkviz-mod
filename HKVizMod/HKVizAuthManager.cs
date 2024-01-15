@@ -5,6 +5,7 @@ using UnityEngine;
 namespace HKViz {
     [Serializable]
     internal class InitSessionBodyPayload {
+        public string modVersion;
     }
 
     [Serializable]
@@ -59,6 +60,9 @@ namespace HKViz {
         private bool isUserTriggeredLoginFlow = false;
         private float displayLoginSuccessForSeconds = 4;
         public bool ShowLoginSuccess => (Time.unscaledTime - loggedInAt) < displayLoginSuccessForSeconds;
+
+        public string GetVersion() => GetType().Assembly.GetName().Version.ToString();
+
 
         private LoginState _state = LoginState.NOT_LOGGED_IN;
 
@@ -130,6 +134,7 @@ namespace HKViz {
             ServerApi.Instance.ApiPost<InitSessionBodyPayload, InitSessionResult>(
                 path: "ingameauth/init",
                 body: new() {
+                    modVersion = GetVersion(),
                 },
                 onSuccess: data => {
                     AuthId = data.id;
@@ -162,6 +167,7 @@ namespace HKViz {
                     if (data.user != null) {
                         UserName = data.user.name;
                         State = LoginState.LOGGED_IN;
+                        UploadManager.Instance.RetryFailedUploads();
                         loggedInAt = Time.unscaledTime;
                     } else if (fromSettings) {
                         State = LoginState.NOT_LOGGED_IN;

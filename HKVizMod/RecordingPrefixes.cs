@@ -34,6 +34,9 @@
         public static readonly string ENEMY_START = "e";
         public static readonly string ENEMY_HEALTH = "E";
 
+        public static readonly string TAKE_DAMAGE_CALLED = "d";
+        public static readonly string TAKE_HEALTH_CALLED = "h";
+
         public static readonly string GAME_STATE = "gs";
         public static readonly string ACTIVE_INPUT_DEVICE = "aid";
     }

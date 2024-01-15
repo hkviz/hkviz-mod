@@ -28,7 +28,6 @@ namespace HKViz {
             "falling",
             "touchingWall",
             "wallSliding",
-            "transitioning",
             "lookingUp",
             "lookingDown",
             "recoilingRight",
@@ -66,7 +65,36 @@ namespace HKViz {
         }
 
         internal void SetupHooks() {
+            On.HeroController.TakeDamage += HeroController_TakeDamage;
             //On.HeroControllerStates.SetState += HeroControllerStates_SetState;
+        }
+
+        private void HeroController_TakeDamage(On.HeroController.orig_TakeDamage orig, HeroController self, UnityEngine.GameObject go, GlobalEnums.CollisionSide damageSide, int damageAmount, int hazardType) {
+            if (self != HeroController.instance) {
+                return;
+            }
+            
+            string name;
+            var healthManager = go.GetComponentInParent<HKVizHealthManagerInfo>() ?? go.GetComponentInChildren<HKVizHealthManagerInfo>();
+            if (healthManager != null) {
+                name = healthManager.id;
+            } else {
+                name = ":" + go?.name?.Replace(" ", "").Replace("(Clone)", "");
+            }
+
+            recording.WriteEntryPrefix(
+                RecordingPrefixes.TAKE_DAMAGE_CALLED
+            );
+            recording.Write(name);
+            recording.WriteSep();
+            recording.Write(damageAmount.ToString());
+            if (hazardType != 1) {
+                // almost always 1, therefore save a little storage
+                recording.WriteSep();
+                recording.Write(hazardType.ToString());
+            }
+            recording.WriteNL();
+            orig(self, go, damageSide, damageAmount, hazardType);
         }
 
         public void WriteChangedStates(long unixMillis) {

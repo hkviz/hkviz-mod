@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace HKViz {
     internal class RecordingFileManager : Loggable {
-        private static string RECORDER_FILE_VERSION = "1.1.0";
+        private static string RECORDER_FILE_VERSION = "1.4.0";
         private static RecordingFileManager? _instance;
         public static RecordingFileManager Instance {
             get {
@@ -58,6 +58,8 @@ namespace HKViz {
                 SwitchToNextPart();
             }
         }
+        public float GetNextPartInSeconds() => Math.Max(0, switchFileAfterSeconds - GetLastPartAgoSeconds());
+        public float GetLastPartAgoSeconds() => (Time.unscaledTime - lastPartCreatedTime);
 
         // called when a save state is loaded or a new game is started
         public void StartRecorder() {

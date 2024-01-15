@@ -97,7 +97,7 @@ namespace HKViz {
             ["transitioning"] = new HeroControllerStat {
                 name = "transitioning",
                 shortCode = "G",
-                notPartOfLog = true,
+                notPartOfLog = false,
                 onlyTruthLogged = false,
             },
             ["attacking"] = new HeroControllerStat {

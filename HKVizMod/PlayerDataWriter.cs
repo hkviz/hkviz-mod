@@ -57,6 +57,7 @@ namespace HKViz {
 
         internal void SetupHooks() {
             recording.BeforeCloseLastSessionFile += Recording_BeforeWriterClose;
+            On.PlayerData.TakeHealth += PlayerData_TakeHealth;
 
             // using Settings does sadly not work, since some vars are directly mutated. 
             // a bit to difficult to track. Now just chceking differences each frame.
@@ -78,6 +79,13 @@ namespace HKViz {
             On.PlayerData.SetVector3 += PlayerData_SetVector3;
             // On.PlayerData.SetVector3SwappedArgs
             */
+        }
+
+        private void PlayerData_TakeHealth(On.PlayerData.orig_TakeHealth orig, PlayerData self, int amount) {
+            if (self == PlayerData.instance) {
+                recording.WriteEntry(RecordingPrefixes.TAKE_HEALTH_CALLED, amount.ToString());
+            }
+            orig(self, amount);
         }
 
         private void Recording_BeforeWriterClose() {
