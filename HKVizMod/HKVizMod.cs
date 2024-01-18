@@ -107,13 +107,8 @@ namespace HKViz {
             // TODO instead log with playerData from start
             // recording.WriteEntry("profile-id", profileId.ToString());
             recording.WriteEntry(RecordingPrefixes.HZVIZ_MOD_VERSION, GetVersion());
-            recording.WriteEntry(
-                RecordingPrefixes.MODDING_INFO,
-                GameObject.FindObjectOfType<ModVersionDraw>().drawString
-                    .ReplaceNewLines(";")
-                    .Replace(" : ", ":")
-                    .Replace(": ", ":")
-            );
+            // also write when drawString changes
+            ModWriter.Instance.OnRecordingInit();
         }
 
 
@@ -258,6 +253,7 @@ namespace HKViz {
         private void HeroUpdateHook() {
             var unixMillis = recording.GetUnixMillis();
 
+            ModWriter.Instance.OnKnightUpdate();
             GameManagerWriter.Instance.WriteChangedFields(unixMillis);
             PlayerPositionWriter.Instance.WritePositionsIfNeeded(unixMillis);
             HeroControllerWriter.Instance.WriteChangedStates(unixMillis);
