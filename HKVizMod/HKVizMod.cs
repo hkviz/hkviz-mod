@@ -49,8 +49,6 @@ namespace HKViz {
             HeroControllerWriter.Instance.SetupHooks();
             PlayerPositionWriter.Instance.Ininitialize();
             EnemyWriter.Instance.SetupHooks();
-
-            InitFsm();
         }
 
         private System.Collections.IEnumerator GameManager_ReturnToMainMenu(On.GameManager.orig_ReturnToMainMenu orig, GameManager self, GameManager.ReturnToMainMenuSaveModes saveMode, System.Action<bool> callback) {
@@ -107,8 +105,10 @@ namespace HKViz {
             // TODO instead log with playerData from start
             // recording.WriteEntry("profile-id", profileId.ToString());
             recording.WriteEntry(RecordingPrefixes.HZVIZ_MOD_VERSION, GetVersion());
-            // also write when drawString changes
             ModWriter.Instance.OnRecordingInit();
+
+            // FSMs are initialized later, since otherwise the Decoration was not able to initialize
+            InitFsmIfNotAlreadyHappened();
         }
 
 
@@ -120,7 +120,13 @@ namespace HKViz {
             InitializeRecorder();
         }
 
-        private void InitFsm() {
+        private bool didInitFsm = false;
+        private void InitFsmIfNotAlreadyHappened() {
+            if (didInitFsm) {
+                return;
+            }
+            didInitFsm = true;
+            Log("Initializing FSMs");
             // ---- SPELLS ----
             // fireball
             Hooks.HookStateEntered(new FSMData(

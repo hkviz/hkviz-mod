@@ -64,7 +64,7 @@ namespace HKViz {
 
         public void OnKnightUpdate() {
             var currentGameState = GameManager.instance.gameState;
-            if (currentGameState != previousGameState && currentGameState == GameState.PAUSED) {
+            if (currentGameState != previousGameState && previousGameState == GameState.PAUSED) {
                 WriteModsIfChanged();
             }
             previousGameState = currentGameState;
@@ -104,7 +104,7 @@ namespace HKViz {
                 ));
             }
 
-            if (!newWriteStates.Equals(writtenStates)) {
+            if (!newWriteStates.SequenceEqual(writtenStates)) {
                 writtenStates = newWriteStates;
                 recording.WriteEntryPrefix(RecordingPrefixes.MODDING_INFO);
 
