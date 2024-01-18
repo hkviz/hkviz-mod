@@ -278,6 +278,7 @@ namespace HKViz {
 
             // put additional initialization logic here
             BehaviourManager.Instance.gameObject.AddComponent<HKVizIMGUI>();
+            HKVizVersionChecker.Instance.Init();
 
             Log("Initialized");
         }

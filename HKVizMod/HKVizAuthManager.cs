@@ -61,9 +61,6 @@ namespace HKViz {
         private float displayLoginSuccessForSeconds = 4;
         public bool ShowLoginSuccess => (Time.unscaledTime - loggedInAt) < displayLoginSuccessForSeconds;
 
-        public string GetVersion() => GetType().Assembly.GetName().Version.ToString();
-
-
         private LoginState _state = LoginState.NOT_LOGGED_IN;
 
 
@@ -134,7 +131,7 @@ namespace HKViz {
             ServerApi.Instance.ApiPost<InitSessionBodyPayload, InitSessionResult>(
                 path: "ingameauth/init",
                 body: new() {
-                    modVersion = GetVersion(),
+                    modVersion = Constants.GetVersion(),
                 },
                 onSuccess: data => {
                     AuthId = data.id;

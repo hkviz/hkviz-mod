@@ -83,6 +83,17 @@ namespace HKViz {
                 }
             }
 
+            if (HKVizVersionChecker.Instance.checkResponse?.show == true) {
+                style.normal.textColor = HKVizVersionChecker.Instance.checkResponse.color switch {
+                    "red" => Color.red,
+                    "blue" => Color.blue,
+                    "cyan" => Color.cyan,
+                    "green" => Color.green,
+                    _ => Color.white,
+                };
+                GUILayout.Label($"HKViz: {HKVizVersionChecker.Instance.checkResponse.message}", style);
+            }
+
             var loginState = HKVizAuthManager.Instance.State;
             if (loginState == HKVizAuthManager.LoginState.LOADING_LOGIN_URL) {
                 style.normal.textColor = Color.white;
