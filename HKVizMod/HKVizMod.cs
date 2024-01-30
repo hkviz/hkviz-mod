@@ -283,28 +283,42 @@ namespace HKViz {
             Log("Initialized");
         }
 
+        private LocalSettings loadedLocalSettings;
+
         void ILocalSettings<LocalSettings>.OnLoadLocal(LocalSettings s) {
+            loadedLocalSettings = s;
+
+            UserLocalSettings fromUser;
+            if (!s.perUser.TryGetValue(GameLauncherUser.Instance.GetUserId(), out fromUser)) {
+                fromUser = s.FromDeprecatedFields();
+                s.ResetDeprecatedSettings();
+            }
+
             // TODO for new game initialize with defaults from config.
-            Log("Loading local settings" + s);
-            PlayerDataWriter.Instance.InitFromLocalSave(s.previousPlayerData);
-            RecordingFileManager.Instance.InitFromLocalSave(s);
+            Log("Loading local settings" + fromUser);
+            PlayerDataWriter.Instance.InitFromLocalSave(fromUser.previousPlayerData);
+            RecordingFileManager.Instance.InitFromLocalSave(fromUser);
             GameManagerWriter.Instance.InitFromLocalSave();
             // InitializeRecorder();
         }
 
         LocalSettings ILocalSettings<LocalSettings>.OnSaveLocal() {
             Log("Save local settings");
-            return new LocalSettings {
+            var fromUser = new UserLocalSettings {
                 previousPlayerData = PlayerDataWriter.Instance.previousPlayerData,
                 currentPart = RecordingFileManager.Instance.currentPart,
                 localRunId = RecordingFileManager.Instance.localRunId
             };
+
+            loadedLocalSettings.perUser[GameLauncherUser.Instance.GetUserId()] = fromUser; 
+            return loadedLocalSettings;
         }
 
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
             => HKVizModUI.Instance.GetMenuScreen(modListMenu, toggleDelegates);
 
         public void OnLoadGlobal(GlobalSettings s) {
+            Log("Steam-user" + GameLauncherUser.Instance.GetUserId());
             GlobalSettingsManager.Instance.InitializeFromSavedSettings(s);
             HKVizAuthManager.Instance.GlobalSettingsLoaded();
             UploadManager.Instance.GlobalSettingsLoaded();

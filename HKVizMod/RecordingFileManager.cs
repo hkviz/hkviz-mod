@@ -83,7 +83,7 @@ namespace HKViz {
 
         }
 
-        public void InitFromLocalSave(LocalSettings localSettings) {
+        public void InitFromLocalSave(UserLocalSettings localSettings) {
             Log("Init from local save in reocding file managergerger");
             localRunId = localSettings.localRunId ?? Guid.NewGuid().ToString();
             currentPart = localSettings.currentPart;
@@ -116,7 +116,7 @@ namespace HKViz {
 
 
             writer?.Close();
-            if (GlobalSettingsManager.Settings.autoUpload) {
+            if (GlobalSettingsManager.SettingsOfCurrentUser.autoUpload) {
                 UploadManager.Instance.QueueFile(new UploadQueueEntry {
                     localRunId = localRunId,
                     partNumber = partNumber,
@@ -168,7 +168,7 @@ namespace HKViz {
         }
 
         public void SwitchToNextPart() {
-            if (!GlobalSettingsManager.Settings.autoUpload) {
+            if (!GlobalSettingsManager.SettingsOfCurrentUser.autoUpload) {
                 Log($"{nameof(SwitchToNextPart)} should not be called when autoUpload is not enabled");
             }
             var previousWriter = writer;

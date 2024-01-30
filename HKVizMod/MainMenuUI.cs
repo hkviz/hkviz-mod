@@ -123,7 +123,7 @@ namespace HKViz {
         }
 
         private bool showLoginButtonInMainMenu() => (
-                GlobalSettingsManager.Settings.showLoginButtonInMainMenu &&
+                GlobalSettingsManager.SettingsOfCurrentUser.showLoginButtonInMainMenu &&
                 HKVizAuthManager.Instance.State != HKVizAuthManager.LoginState.LOGGED_IN
             );
 

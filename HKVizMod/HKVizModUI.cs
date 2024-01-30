@@ -73,9 +73,9 @@ namespace HKViz {
                     description: "Display a login button in the main menu, when not signed in",
                     values: new[] { "On", "Off" },
                     applySetting: index => {
-                        GlobalSettingsManager.Settings.showLoginButtonInMainMenu = index == 0;
+                        GlobalSettingsManager.SettingsOfCurrentUser.showLoginButtonInMainMenu = index == 0;
                     },
-                    loadSetting: () => GlobalSettingsManager.Settings.showLoginButtonInMainMenu ? 0 : 1
+                    loadSetting: () => GlobalSettingsManager.SettingsOfCurrentUser.showLoginButtonInMainMenu ? 0 : 1
                 );
 
 

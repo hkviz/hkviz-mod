@@ -72,8 +72,8 @@ namespace HKViz {
                 _state = value;
 
                 //if (_state == LoginState.LOGGED_IN) {
-                GlobalSettingsManager.Settings.userName = UserName;
-                GlobalSettingsManager.Settings.authId = AuthId;
+                GlobalSettingsManager.SettingsOfCurrentUser.userName = UserName;
+                GlobalSettingsManager.SettingsOfCurrentUser.authId = AuthId;
                 //} else {
                 //    GlobalSettingsManager.Settings.userName = null;
                 //    GlobalSettingsManager.Settings.authId = null;
@@ -90,8 +90,8 @@ namespace HKViz {
         }
 
         public void GlobalSettingsLoaded() {
-            AuthId = GlobalSettingsManager.Settings.authId;
-            UserName = GlobalSettingsManager.Settings.userName;
+            AuthId = GlobalSettingsManager.SettingsOfCurrentUser.authId;
+            UserName = GlobalSettingsManager.SettingsOfCurrentUser.userName;
             CheckSessionState(fromSettings: true);
         }
 

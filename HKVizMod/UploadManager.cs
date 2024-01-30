@@ -104,16 +104,16 @@ namespace HKViz {
         }
 
         public void GlobalSettingsBeforeSave() {
-            GlobalSettingsManager.Settings.queuedUploadFiles = queuedFiles;
-            GlobalSettingsManager.Settings.failedUploadFiles = failedUploads;
-            GlobalSettingsManager.Settings.finishedUploadFiles = finishedUploadFiles;
+            GlobalSettingsManager.SettingsOfCurrentUser.queuedUploadFiles = queuedFiles;
+            GlobalSettingsManager.SettingsOfCurrentUser.failedUploadFiles = failedUploads;
+            GlobalSettingsManager.SettingsOfCurrentUser.finishedUploadFiles = finishedUploadFiles;
         }
 
         public void GlobalSettingsLoaded() {
-            Log("GS loaded upload manager" + (GlobalSettingsManager.Settings.queuedUploadFiles.Count + "-" + GlobalSettingsManager.Settings.failedUploadFiles.Count));
-            queuedFiles.AddRange(GlobalSettingsManager.Settings.queuedUploadFiles);
-            failedUploads.AddRange(GlobalSettingsManager.Settings.failedUploadFiles);
-            finishedUploadFiles.AddRange(GlobalSettingsManager.Settings.finishedUploadFiles);
+            Log("GS loaded upload manager" + (GlobalSettingsManager.SettingsOfCurrentUser.queuedUploadFiles.Count + "-" + GlobalSettingsManager.SettingsOfCurrentUser.failedUploadFiles.Count));
+            queuedFiles.AddRange(GlobalSettingsManager.SettingsOfCurrentUser.queuedUploadFiles);
+            failedUploads.AddRange(GlobalSettingsManager.SettingsOfCurrentUser.failedUploadFiles);
+            finishedUploadFiles.AddRange(GlobalSettingsManager.SettingsOfCurrentUser.finishedUploadFiles);
             QueuesChanged?.Invoke();
         }
 
