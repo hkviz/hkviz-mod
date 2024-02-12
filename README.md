@@ -33,3 +33,8 @@ Change the directory reference in the copied file to point to your HollowKnight 
 
 Install the `HK Modding Extensions` for VisualStudio, by searching `Manage Extensions` inside the VisualStudio search. 
 Inside the extensions panel search for HollowKnight and install the found extension.
+
+### The following programs might also be helpful when modding
+- [AssetRipper](https://assetripper.github.io/AssetRipper/articles/Downloads.html) to decompile a complete Unity project from HollowKnight. Mostly useful for c# scripts.
+- [AssetStudio](https://github.com/Perfare/AssetStudio) to extract assets from HollowKnight, like sprites and textures.
+- [FSMViewAvalonia](https://github.com/nesrak1/FSMViewAvalonia) to view FSMs.
