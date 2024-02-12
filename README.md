@@ -25,3 +25,11 @@ Best [open a issue](https://github.com/hkviz/hkviz-web/issues) in the [hkviz-web
 To get started recording your own gameplay analytics visit [hkviz.org](https://www.hkviz.org). If you already know how to install mods, you can also directly install the 'HKViz' mod with a mod installer of your choice.
 
 You can also view gameplays from other players, if they send you a link and have set their gameplay to 'public' or 'unlisted'.
+
+## Setup for development
+
+Clone this repo, and create copy the `LocalOverrides.targets.example` in the `HKVizMod` folder, and rename it to `LocalOverrides.targets`. 
+Change the directory reference in the copied file to point to your HollowKnight installation.
+
+Install the `HK Modding Extensions` for VisualStudio, by searching `Manage Extensions` inside the VisualStudio search. 
+Inside the extensions panel search for HollowKnight and install the found extension.
