@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace HKViz {
     internal class RecordingFileManager : Loggable {
-        private static string RECORDER_FILE_VERSION = "1.5.0";
+        private static string RECORDER_FILE_VERSION = "1.5.1";
         private static RecordingFileManager? _instance;
         public static RecordingFileManager Instance {
             get {
