@@ -38,23 +38,37 @@ namespace HKViz {
         public string sprite;
         public string? spriteRough;
         public bool hasRoughVersion;
+        public List<TextData> texts;
     }
 
     [System.Serializable]
-    public class ExportBounds {
-        public Vector3 min;
-        public Vector3 max;
+    public record TextData(
+        string objectPath,
+        string convoName,
+        string sheetName,
+        Vector3 position,
+        float fontSize,
+        float fontWeight,
+        ExportBounds bounds,
+        Vector4 origColor
+    );
 
+    [System.Serializable]
+    public record ExportBounds(
+        Vector3 min,
+        Vector3 max
+    ) {
         public static ExportBounds fromBounds(UnityEngine.Bounds bounds, UnityEngine.Vector3 substract) {
-            return new ExportBounds {
-                min = bounds.min - substract,
-                max = bounds.max - substract,
-            };
+            return new ExportBounds(
+                min: bounds.min - substract,
+                max: bounds.max - substract
+            );
         }
     }
 
     [System.Serializable]
-    public class MapData {
-        public List<MapRoomData> rooms;
-    }
+    public record MapData(
+        List<MapRoomData> rooms,
+        List<TextData> areaNames
+    );
 }

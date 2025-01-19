@@ -2,6 +2,7 @@
 using Modding;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -18,7 +19,18 @@ namespace HKViz {
             }
         }
 
-
+        private string getObjectPath(GameObject go, GameObject relativeToParent) {
+            var builder = new StringBuilder();
+            var current = go;
+            while (current != null && current != relativeToParent) {
+                if (go != current) {
+                    builder.Insert(0, "/");
+                }
+                builder.Insert(0, current.name);
+                current = current.transform.parent.gameObject;
+            }
+            return builder.ToString();
+        }
         public MapData Export() {
             Log("Started map export. This should run at the beginning of the game, after buying the first map, but before buying the quill");
 
@@ -29,9 +41,40 @@ namespace HKViz {
             var gameMapGO = GameObject.Find("Game_Map(Clone)");
             var gameMapPos = gameMapGO.transform.position;
 
-            foreach (var m in gameMapGO.GetComponentsInChildren<RoomSprite>(true)) {
-                var rsd = m.Rsd;
+            TextData textDataFromObjects(SetTextMeshProGameText it) {
+                var current = it.gameObject;
+                while (current != null) {
+                    current.SetActive(true);
+                    current = current.transform.parent?.gameObject;
+                }
+                var tmp = it.GetComponent<TMPro.TextMeshPro>();
+                tmp.ForceMeshUpdate(true);
+                return new TextData(
+                    objectPath: getObjectPath(it.gameObject, gameMapGO),
+                    convoName: it.convName,
+                    sheetName: it.sheetName,
+                    position: it.transform.position - gameMapPos,
+                    fontSize: tmp.fontSize,
+                    fontWeight: tmp.fontWeight,
+                    bounds: new ExportBounds(
+                        min: it.transform.TransformPoint(tmp.textBounds.min) - gameMapPos,
+                        max: it.transform.TransformPoint(tmp.textBounds.max) - gameMapPos
+                    ),
+                    origColor: tmp.color
+                );
+            }
 
+            var areaNames = gameMapGO.GetComponentsInChildren<AreaName>(true)
+                .Select(areaName => textDataFromObjects(areaName.GetComponent<SetTextMeshProGameText>()))
+                .ToList();
+
+            foreach (var m in gameMapGO.GetComponentsInChildren<RoomSprite>(true)) {
+                var roomSpriteDefinition = m.Rsd;
+
+                var textDatas = m.gameObject.GetComponentsInChildren<SetTextMeshProGameText>(true)
+                    //.Where(it => it.gameObject.name.Contains("Area Name"))
+                    .Select(it => textDataFromObjects(it))
+                    .ToList();
 
 
                 //Log(m.Rsd?.MapZone);
@@ -43,8 +86,8 @@ namespace HKViz {
                 //Log(spriteRenderer.bounds);
                 //Log(spriteRenderer.sprite.texture.GetPixels32());
 
-                var mapZone = rsd.MapZone.ToString();
-                var sceneName = rsd.SceneName;
+                var mapZone = roomSpriteDefinition.MapZone.ToString();
+                var sceneName = roomSpriteDefinition.SceneName;
                 var gameObjectName = m.name;
                 var roughMapRoom = m.GetComponent<RoughMapRoom>();
 
@@ -97,12 +140,14 @@ namespace HKViz {
                     // spriteRough = roughSpriteInfo != null ? $"IMPORT_STRING_START:{roughSpriteInfo.name?.ToLower()}:IMPORT_STRING_END" : null,
                     sprite = $"{spriteInfo.name}",
                     spriteRough = roughSpriteInfo != null ? $"{roughSpriteInfo.name}" : null,
+                    texts = textDatas
                 });
             }
 
-            var mapData = new MapData() {
-                rooms = rooms,
-            };
+            var mapData = new MapData(
+                rooms: rooms,
+                areaNames: areaNames
+            );
             var json = Json.Stringify(mapData);
             //var js = json
             //    .Replace("\"IMPORT_STRING_START:", "")
