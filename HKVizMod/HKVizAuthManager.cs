@@ -96,7 +96,7 @@ namespace HKViz {
         }
 
         private void Application_focusChanged(bool focused) {
-            Log("Focus changed");
+            // Log("Focus changed");
             if (focused && State == LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER) {
                 CheckSessionState(fromSettings: false);
             }

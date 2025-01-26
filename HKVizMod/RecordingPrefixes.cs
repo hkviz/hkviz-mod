@@ -21,6 +21,10 @@
         public static readonly string SPELL_UP = "sup";
         public static readonly string SPELL_DOWN = "sdn";
 
+        public static readonly string FOCUS_START = "f";
+        public static readonly string FOCUS_CANCELED = "Fc";
+        public static readonly string FOCUS_SUCCESS = "F";
+
         public static readonly string NAIL_ART_CYCLONE = "nc";
         public static readonly string NAIL_ART_D_SLASH = "nd";
         public static readonly string NAIL_ART_G_SLASH = "ng";
