@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace HKViz {
     internal class RecordingFileManager : Loggable {
-        private static string RECORDER_FILE_VERSION = "1.5.1";
         private static RecordingFileManager? _instance;
         public static RecordingFileManager Instance {
             get {
@@ -162,7 +161,7 @@ namespace HKViz {
             // and we would just continue writing on the errored line.
             WriteNL();
             WriteEntry(RecordingPrefixes.RECORDING_ID, localRunId);
-            WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, RECORDER_FILE_VERSION);
+            WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, Constants.RECORDER_FILE_VERSION);
             //}
             AfterSwitchedFile?.Invoke();
         }

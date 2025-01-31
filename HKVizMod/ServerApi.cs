@@ -16,7 +16,7 @@ namespace HKViz {
 
         public IEnumerator ApiPost<TBody, TResponse>(string path, TBody body, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
             var json = Json.Stringify(body);
-            var url = Constants.API_URL + path;
+            var url = Constants.API_URL + path + Constants.API_URL_SUFFIX;
 
             var request = new UnityWebRequest(url, "POST");
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -27,14 +27,14 @@ namespace HKViz {
         }
 
         public IEnumerator ApiGet<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
-            var url = Constants.API_URL + path;
+            var url = Constants.API_URL + path + Constants.API_URL_SUFFIX;
             Log(url);
             var request = UnityWebRequest.Get(url);
             return WrapWWW(request, onSuccess, onError);
         }
 
         public IEnumerator ApiDelete<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
-            var url = Constants.API_URL + path;
+            var url = Constants.API_URL + path + Constants.API_URL_SUFFIX;
             Log(url);
             var request = UnityWebRequest.Delete(url);
             return WrapWWW(request, onSuccess, onError);

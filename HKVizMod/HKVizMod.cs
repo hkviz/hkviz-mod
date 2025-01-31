@@ -162,6 +162,9 @@ namespace HKViz {
                 recording.WriteEntry(RecordingPrefixes.SPELL_UP);
             });
 
+            // ----- HEALING / FOCUSING -----
+            PlayerHealthWriter.Instance.InitFsm();
+
             // ----- NAIL ARTS -----
             // cyclone
             Hooks.HookStateEntered(new FSMData(
@@ -259,6 +262,7 @@ namespace HKViz {
         private void HeroUpdateHook() {
             var unixMillis = recording.GetUnixMillis();
 
+            KnightManager.Instance.UpdateKnight();
             ModWriter.Instance.OnKnightUpdate();
             GameManagerWriter.Instance.WriteChangedFields(unixMillis);
             PlayerPositionWriter.Instance.WritePositionsIfNeeded(unixMillis);
@@ -318,7 +322,7 @@ namespace HKViz {
             => HKVizModUI.Instance.GetMenuScreen(modListMenu, toggleDelegates);
 
         public void OnLoadGlobal(GlobalSettings s) {
-            Log("Steam-user" + GameLauncherUser.Instance.GetUserId());
+            //Log("Steam-user" + GameLauncherUser.Instance.GetUserId());
             GlobalSettingsManager.Instance.InitializeFromSavedSettings(s);
             HKVizAuthManager.Instance.GlobalSettingsLoaded();
             UploadManager.Instance.GlobalSettingsLoaded();

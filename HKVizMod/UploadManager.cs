@@ -40,6 +40,8 @@ namespace HKViz {
     internal class UploadManager : Loggable {
         [Serializable]
         private class CreateUploadPartUrlRequest {
+            public string modVersion;
+
             public string ingameAuthId;
             public string localRunId;
             public int partNumber;
@@ -69,6 +71,7 @@ namespace HKViz {
             public string fileId;
             public string runId;
             public string signedUploadUrl;
+            public bool alreadyFinished;
         }
 
         [Serializable]
@@ -137,6 +140,8 @@ namespace HKViz {
             ServerApi.Instance.ApiPost<CreateUploadPartUrlRequest, CreateUploadPartUrlResponse>(
                 path: "ingameupload/part/init",
                 body: new CreateUploadPartUrlRequest() {
+                    modVersion = Constants.GetVersion(),
+
                     ingameAuthId = authId,
                     localRunId = queueEntry.localRunId,
                     partNumber = queueEntry.partNumber,
@@ -162,31 +167,37 @@ namespace HKViz {
                     lastUnixSeconds = queueEntry.lastUnixSeconds,
                 },
                 onSuccess: initResponse => {
-                    try {
-                        ServerApi.Instance.R2Upload(
-                            initResponse.signedUploadUrl, StoragePaths.GetRecordingPath(
-                                partNumber: queueEntry.partNumber,
-                                localRunId: queueEntry.localRunId,
-                                profileId: queueEntry.profileId
-                            ),
-                            onSuccess: () => {
-                                ServerApi.Instance.ApiPost<MarkUploadPartFinishedRequest, Empty>(
-                                    path: "ingameupload/part/finish",
-                                    body: new MarkUploadPartFinishedRequest() {
-                                        ingameAuthId = authId,
-                                        localRunId = queueEntry.localRunId,
-                                        fileId = initResponse.fileId
-                                    },
-                                    onSuccess: response => OnSuccess(),
-                                    onError: OnError
-                                ).StartGlobal();
-                            },
-                            onError: OnError
-                        ).StartGlobal();
-                    } catch (Exception ex) {
-                        LogError("R2 upload failed");
-                        LogError(ex);
-                        OnError(null);
+                    if (initResponse.alreadyFinished) {
+                        Log("Upload was already marked complete in Backend. Will not try to upload again");
+                        OnSuccess();
+                    } else {
+
+                        try {
+                            ServerApi.Instance.R2Upload(
+                                initResponse.signedUploadUrl, StoragePaths.GetRecordingPath(
+                                    partNumber: queueEntry.partNumber,
+                                    localRunId: queueEntry.localRunId,
+                                    profileId: queueEntry.profileId
+                                ),
+                                onSuccess: () => {
+                                    ServerApi.Instance.ApiPost<MarkUploadPartFinishedRequest, Empty>(
+                                        path: "ingameupload/part/finish",
+                                        body: new MarkUploadPartFinishedRequest() {
+                                            ingameAuthId = authId,
+                                            localRunId = queueEntry.localRunId,
+                                            fileId = initResponse.fileId
+                                        },
+                                        onSuccess: response => OnSuccess(),
+                                        onError: OnError
+                                    ).StartGlobal();
+                                },
+                                onError: OnError
+                            ).StartGlobal();
+                        } catch (Exception ex) {
+                            LogError("R2 upload failed");
+                            LogError(ex);
+                            OnError(null);
+                        }
                     }
                 },
                 onError: OnError
