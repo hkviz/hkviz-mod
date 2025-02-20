@@ -1,4 +1,5 @@
-﻿using Modding;
+﻿using HKViz.Live;
+using Modding;
 using System;
 using System.Globalization;
 using System.IO;
@@ -6,6 +7,8 @@ using UnityEngine;
 
 namespace HKViz {
     internal class RecordingFileManager : Loggable {
+        private LiveDataBuffer liveDataBuffer = LiveDataBuffer.Instance;
+
         private static RecordingFileManager? _instance;
         public static RecordingFileManager Instance {
             get {
@@ -18,7 +21,9 @@ namespace HKViz {
         private RecordingSerializer serializer = RecordingSerializer.Instance;
 
         public event Action? BeforeCloseLastSessionFile;
+        public event Action? AfterCloseLastSessionFile;
         public event Action? AfterSwitchedFile;
+   
 
         private long previousUnixMillis = 0;
         private float previousFullTimestampTime = -9999999999;
@@ -75,6 +80,7 @@ namespace HKViz {
                     SwitchToNextPart();
                     BeforeCloseLastSessionFile?.Invoke();
                     WriteEntry(RecordingPrefixes.SESSION_END);
+                    AfterCloseLastSessionFile?.Invoke();
                 }
             } finally {
                 writer = null;
@@ -190,11 +196,11 @@ namespace HKViz {
 
             if ((unscaledTime - previousFullTimestampTime) > MAX_TIME_BETWEEN_FULL_TIME) {
                 previousFullTimestampTime = Time.unscaledTime;
-                writer?.Write("=");
-                writer?.Write(nowMillis.ToString());
+                Write("=");
+                Write(nowMillis.ToString());
             } else if (diff != 0) {
-                writer?.Write("+");
-                writer?.Write(diff.ToString());
+                Write("+");
+                Write(diff.ToString());
             }
 
             previousUnixMillis = nowMillis;
@@ -202,7 +208,7 @@ namespace HKViz {
 
 
         public void WriteEntryPrefix(string eventType, bool withSeperator = true, long? unixMillis = null) {
-            writer?.Write(eventType);
+            Write(eventType);
             WriteTimeInfo(unixMillis); // timeinfo contains = or + which is uses as seperator between eventType and time
             if (withSeperator) {
                 WriteSep();
@@ -219,14 +225,16 @@ namespace HKViz {
 
         public void Write(string content) {
             writer?.Write(content);
+            liveDataBuffer.Append(content);
         }
 
         public void WriteNL() {
             writer?.WriteLine();
+            liveDataBuffer.Append("\n");
         }
 
         public void WriteSep() {
-            writer?.Write(";");
+            Write(";");
         }
     }
 }

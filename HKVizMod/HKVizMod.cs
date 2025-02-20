@@ -1,5 +1,6 @@
 using Core.FsmUtil;
 using HKMirror.Reflection;
+using HKViz.Live;
 using Modding;
 using System;
 using UnityEngine;
@@ -109,6 +110,10 @@ namespace HKViz {
 
             // FSMs are initialized later, since otherwise the Decoration was not able to initialize
             InitFsmIfNotAlreadyHappened();
+
+
+            // TODO remove here:
+            HKVizLiveManager.Instance.StartStreaming();
         }
 
 
@@ -268,12 +273,15 @@ namespace HKViz {
             PlayerPositionWriter.Instance.WritePositionsIfNeeded(unixMillis);
             HeroControllerWriter.Instance.WriteChangedStates(unixMillis);
             PlayerDataWriter.Instance.WriteChangedValues(unixMillis);
+            HKVizLiveManager.Instance.AfterUpdate();
 
 
             //if (Input.GetKeyDown(KeyCode.J)) {
             //    MapExport.Instance.Export();
-            //    PlayerDataExport.Instance.Export();
-            //    HeroControllerExport.Instance.Export();
+                //PlayerDataExport.Instance.Export();
+                //HeroControllerExport.Instance.Export();
+                //EnemiesExport.Instance.Export();
+                //CharmsExport.Instance.Export();
             //}
         }
 
@@ -283,6 +291,7 @@ namespace HKViz {
             // put additional initialization logic here
             BehaviourManager.Instance.gameObject.AddComponent<HKVizIMGUI>();
             HKVizVersionChecker.Instance.Init();
+            HKVizLiveManager.Instance.Init();
 
             Log("Initialized");
         }

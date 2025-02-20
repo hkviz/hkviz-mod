@@ -97,6 +97,7 @@ namespace HKViz {
         private bool uploadInProgress = false;
 
         public event Action? QueuesChanged;
+        public event Action<int>? UploadPartFinished;
 
         public void Initialize() {
             UploadCoro().StartGlobal();
@@ -220,6 +221,7 @@ namespace HKViz {
                 queuedFiles.Remove(queueEntry);
                 uploadInProgress = false;
                 QueuesChanged?.Invoke();
+                UploadPartFinished?.Invoke(queueEntry.partNumber);
             }
         }
 
