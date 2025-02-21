@@ -22,6 +22,7 @@ namespace HKViz {
 
         public event Action? BeforeCloseLastSessionFile;
         public event Action? AfterCloseLastSessionFile;
+        public event Action? BeforeSwitchedFile;
         public event Action? AfterSwitchedFile;
    
 
@@ -154,6 +155,7 @@ namespace HKViz {
 
         public void StartPart() {
             Log("Start part" + currentPart);
+            BeforeSwitchedFile?.Invoke();
             currentFileFirstUnixSeconds = GetUnixSeconds();
             lastPartCreatedTime = Time.unscaledTime;
             var recordingPath = StoragePaths.GetRecordingPath(currentPart, localRunId: localRunId);

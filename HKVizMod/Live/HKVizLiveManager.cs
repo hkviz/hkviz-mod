@@ -21,7 +21,7 @@ namespace HKViz.Live {
         private WebSocket? websocket = null;
 
         private float lastWebsockerSendTime = 0;
-        private float websocketSendAfterSeconds = 10; // 5 minutes
+        private float websocketSendAfterSeconds = 5;
 
         public void Send<T> (T message) {
             if (websocket is null) {
@@ -42,8 +42,9 @@ namespace HKViz.Live {
             websocket.OnOpen += () =>
             {
                 Log("Connection open!");
-                Send(new HostSwitchFileMessage(recording.currentPart));
                 liveDataBuffer.IsLive = true;
+                // switch will indirectly also send switch message via BeforeSwitchedFile
+                recording.SwitchToNextPart();
 
 
                 // TODO either swap file or read to upload
@@ -75,7 +76,7 @@ namespace HKViz.Live {
 
         internal void Init() {
             Log("Init");
-            recording.AfterSwitchedFile += AfterSwitchedFile;
+            recording.BeforeSwitchedFile += BeforeSwitchedFile;
             recording.AfterCloseLastSessionFile += AfterCloseLastSessionFile;
             uploadManager.UploadPartFinished += UploadPartFinished;
         }
@@ -107,7 +108,7 @@ namespace HKViz.Live {
             StopStreaming();
         }
 
-        private void AfterSwitchedFile() {
+        private void BeforeSwitchedFile() {
             if (!doLiveWork()) return;
             var part = recording.currentPart;
             SendBufferContents();
