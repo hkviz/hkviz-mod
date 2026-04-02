@@ -203,7 +203,7 @@ namespace HKViz {
 
                 LoginState.LOADING_AUTH_STATE_FAILED => new(
                     "Login failed. Try again?",
-                    $"Could not load login status from ${Constants.WEBSITE_DISPLAY_LINK}",
+                    $"Could not load login status from {Constants.WEBSITE_DISPLAY_LINK}",
                     btn => Login()
                 ),
                 LoginState.LOGGED_IN => new(
