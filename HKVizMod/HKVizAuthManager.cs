@@ -180,33 +180,32 @@ namespace HKViz {
 
         public ButtonSimpleState GetLoginButtonState(bool justTitle) {
             ButtonSimpleState btnState = State switch {
-                LoginState.NOT_LOGGED_IN => new(
+                LoginState.NOT_LOGGED_IN => new ButtonSimpleState(
                     $"Login to HKViz",
                     "So analytics files can be uploaded automatically",
                     btn => Login()
                 ),
-                LoginState.LOADING_LOGIN_URL => new(
+                LoginState.LOADING_LOGIN_URL => new ButtonSimpleState(
                     "Cancel login",
                     $"Waiting for {Constants.WEBSITE_DISPLAY_LINK}",
                     btn => Logout()
                 ),
-                LoginState.LOADING_LOGIN_URL_FAILED => new(
+                LoginState.LOADING_LOGIN_URL_FAILED => new ButtonSimpleState(
                     "Login failed. Try again?",
                     "Could not initialize login flow",
                     btn => Login()
                 ),
-                LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER => new(
+                LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER => new ButtonSimpleState(
                     "Cancel login",
-                    "Please login inside the opened browser tab",
+                    "Login using the browser tab that opened.",
                      btn => Logout()
                 ),
-
-                LoginState.LOADING_AUTH_STATE_FAILED => new(
+                LoginState.LOADING_AUTH_STATE_FAILED => new ButtonSimpleState(
                     "Login failed. Try again?",
                     $"Could not load login status from {Constants.WEBSITE_DISPLAY_LINK}",
                     btn => Login()
                 ),
-                LoginState.LOGGED_IN => new(
+                LoginState.LOGGED_IN => new ButtonSimpleState(
                     justTitle ? "Logged in as " + UserName : "Logout",
                     "Logged in as " + UserName,
                     justTitle ? btn => { }

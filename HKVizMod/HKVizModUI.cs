@@ -81,8 +81,8 @@ namespace HKViz {
 
                 MenuRef = new Menu(
                     name: "HKViz",
-                    elements: new Element[] {
-                        
+                    elements: [
+
                         // Disabled for now, since I did not fix all implications arising from this.
                         // The main one being that a runfile might be created in another session
                         // therefore variables stored from the beginning of the session would need to be remembered 
@@ -93,7 +93,7 @@ namespace HKViz {
                         DeleteUploadedFilesButton,
                         LoginButton,
                         MainMenuLoginButtonOption,
-                    }
+                    ]
                 );
 
                 HKVizAuthManager.Instance.StateChanged += state => LoginStateChanged(state);
@@ -145,12 +145,11 @@ namespace HKViz {
                 MainMenuLoginButton.isVisible = state != HKVizAuthManager.LoginState.LOGGED_IN;
             }
 
-            if (update) {
-                LoginButton?.Update();
-                //AutoUploadOption?.Update();
-                MainMenuLoginButtonOption?.Update();
-                MenuRef?.Update();
-            }
+            if (!update) return;
+            LoginButton?.Update();
+            //AutoUploadOption?.Update();
+            MainMenuLoginButtonOption?.Update();
+            MenuRef?.Update();
         }
     }
 }
