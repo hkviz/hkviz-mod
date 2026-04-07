@@ -1,1 +1,33 @@
-/.vs
+# IDE and OS
+.DS_Store
+.vs/
+.idea/
+
+# Rider / ReSharper
+*.DotSettings.user
+_ReSharper*/
+
+# User-local files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Common build outputs
+**/[Bb]in/
+**/[Oo]bj/
+**/[Dd]ebug/
+**/[Rr]elease/
+
+# NuGet / local tool outputs
+/packages/
+artifacts/
+
+# Hollow local-only files
+HKViz.Hollow/HKViz.Hollow/LocalOverrides.targets
+
+# Silk local-only files
+HKViz.Silk/HKViz.Silk/SilksongPath.props
+HKViz.Silk/HKViz.Silk/thunderstore/temp/
+HKViz.Silk/HKViz.Silk/thunderstore/dist/

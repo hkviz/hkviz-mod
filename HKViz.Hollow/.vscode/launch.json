@@ -1,0 +1,61 @@
+// .vscode/launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+
+    // ────────────────────────────────────────────────
+    // 1) HKViz Mod (Windows Profile)
+    // ────────────────────────────────────────────────
+    {
+      "name": "HKViz Mod (Windows Profile)",
+      "type": "coreclr",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/src/HKVizMod",
+      "launchSettingsFilePath": "${workspaceFolder}/src/HKVizMod/Properties/launchSettings.json",
+      "launchSettingsProfile": "HKViz Mod",
+      "preLaunchTask": "Build HKViz Mod (Windows)"
+    },
+
+    // ────────────────────────────────────────────────
+    // 2) HKViz Mod (macOS Profile)
+    // ────────────────────────────────────────────────
+    {
+      "name": "HKViz Mod (macOS Profile)",
+      "type": "coreclr",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/src/HKVizMod",
+      "launchSettingsFilePath": "${workspaceFolder}/src/HKVizMod/Properties/launchSettings.json",
+      "launchSettingsProfile": "HKViz Mod",
+      "preLaunchTask": "Build HKViz Mod (macOS)"
+    },
+
+    // ────────────────────────────────────────────────
+    // 3) Hollow Knight (Steam - Windows)
+    // ────────────────────────────────────────────────
+    {
+      "name": "Hollow Knight (Steam - Windows)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Hollow Knight\\hollow_knight.exe",
+      "cwd": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Hollow Knight",
+      "stopAtEntry": false,
+      "console": "externalConsole"
+    },
+
+    // ────────────────────────────────────────────────
+    // 4) Hollow Knight (macOS)
+    // ────────────────────────────────────────────────
+    {
+      "name": "Hollow Knight (macOS)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${env:HOME}/Library/Application Support/Steam/steamapps/common/Hollow Knight/Hollow Knight.app/Contents/MacOS/Hollow Knight",
+      "cwd": "${env:HOME}/Library/Application Support/Steam/steamapps/common/Hollow Knight",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "MIMode": "lldb",
+      "miDebuggerPath": "/usr/bin/lldb"
+    }
+
+  ]
+}

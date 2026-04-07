@@ -1,6 +1,21 @@
 version: 2
 updates:
+  - package-ecosystem: nuget
+    directory: /
+    ignore:
+      - dependency-name: BepInEx.Core
+      - dependency-name: HarmonyX
+      - dependency-name: UnityEngine.Modules
+    schedule:
+      interval: daily
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: daily
+    groups:
+      artifacts:
+        patterns:
+          - actions/upload-artifact
+          - actions/download-artifact
+

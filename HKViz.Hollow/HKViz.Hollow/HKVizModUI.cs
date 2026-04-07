@@ -71,7 +71,7 @@ namespace HKViz {
                 MainMenuLoginButtonOption = new HorizontalOption(
                     name: "Main Menu login button",
                     description: "Display a login button in the main menu, when not signed in",
-                    values: new[] { "On", "Off" },
+                    values: ["On", "Off"],
                     applySetting: index => {
                         GlobalSettingsManager.SettingsOfCurrentUser.showLoginButtonInMainMenu = index == 0;
                     },
@@ -82,7 +82,6 @@ namespace HKViz {
                 MenuRef = new Menu(
                     name: "HKViz",
                     elements: [
-
                         // Disabled for now, since I did not fix all implications arising from this.
                         // The main one being that a runfile might be created in another session
                         // therefore variables stored from the beginning of the session would need to be remembered 

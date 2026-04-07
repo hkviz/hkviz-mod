@@ -9,11 +9,11 @@
         public static string API_URL_SUFFIX = "";
 
         // ----- LOCAL -----
-        //public static string API_URL = "http://localhost:3000/api/rest/";
-        //public static string LOGIN_URL = "http://localhost:3000/ingameauth/";
-        //public static string API_URL_SUFFIX = "";
+        // public static string API_URL = "http://localhost:3000/api/rest/";
+        // public static string LOGIN_URL = "http://localhost:3000/ingameauth/";
+        // public static string API_URL_SUFFIX = "";
 
-        public static string RECORDER_FILE_VERSION = "1.6.0";
+        public static string RECORDER_FILE_VERSION = "1.6.1";
 
         public static string GetVersion() => typeof(Constants).Assembly.GetName().Version.ToString();
     }

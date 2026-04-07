@@ -1,0 +1,90 @@
+name: Hollow Build
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'HKViz.Hollow/**'
+      - 'HKViz.Shared/**'
+      - 'HKViz.sln'
+      - 'scripts/build-hollow.sh'
+      - '.github/workflows/hollow-build-release.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'HKViz.Hollow/**'
+      - 'HKViz.Shared/**'
+      - 'HKViz.sln'
+      - 'scripts/build-hollow.sh'
+      - '.github/workflows/hollow-build-release.yml'
+  workflow_dispatch:
+    inputs:
+      should_release:
+        description: "Create release?"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MAPI
+        uses: BadMagic100/setup-hk@v2
+        with:
+          apiPath: HKViz.Hollow/API
+          dependencyFilePath: HKViz.Hollow/HKViz.Hollow/ModDependencies.txt
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+
+      - name: Install dependencies
+        run: dotnet restore HKViz.Hollow/HKViz.Hollow/HKViz.Hollow.csproj
+
+      - name: Build
+        run: dotnet build HKViz.Hollow/HKViz.Hollow/HKViz.Hollow.csproj -c Release
+
+      - name: Prepare artifacts for release
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hollow-Publish
+          path: HKViz.Hollow/HKViz.Hollow/bin/Publish
+
+  release:
+    needs:
+      - build
+    runs-on: windows-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.should_release == 'true'
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Get build details
+        id: details
+        run: |
+          $sha = Get-Content artifacts/Hollow-Publish/SHA.txt
+          $ver = Get-Content artifacts/Hollow-Publish/VERSION.txt
+          echo "archiveHash=$sha" >> $env:GITHUB_OUTPUT
+          echo "buildVersion=$ver" >> $env:GITHUB_OUTPUT
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          tag_name: hollow-v${{ steps.details.outputs.buildVersion }}
+          body: |
+            SHA256: ${{ steps.details.outputs.archiveHash }}
+          files: |
+            artifacts/Hollow-Publish/HKViz.zip
+
