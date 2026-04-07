@@ -1,32 +1,46 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.7.34202.233
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HKVizMod", "HKVizMod\HKVizMod.csproj", "{0BD72E82-2144-415A-91B9-0EE4680DB50C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HKViz.Hollow", "HKViz.Hollow\HKViz.Hollow\HKViz.Hollow.csproj", "{C3592B8C-61FB-400E-AE2A-4C852B95309E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{C873E01A-7496-4DED-A530-5B0EDBF7B651}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HKViz.Silk", "HKViz.Silk\HKViz.Silk\HKViz.Silk.csproj", "{8295D968-1579-4E63-94E4-0498A5B40FBF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HKViz.Shared", "HKViz.Shared", "{CA491DF7-D3CE-42A3-BB5C-3DA27A212875}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\build.yml = .github\workflows\build.yml
-		.github\dependabot.yml = .github\dependabot.yml
+		HKViz.Shared\PlatformFlavor.cs = HKViz.Shared\PlatformFlavor.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{811F55CB-0932-4590-88AE-B0755284F234}"
+	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Hollow|Any CPU = Hollow|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Silk|Any CPU = Silk|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0BD72E82-2144-415A-91B9-0EE4680DB50C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0BD72E82-2144-415A-91B9-0EE4680DB50C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0BD72E82-2144-415A-91B9-0EE4680DB50C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0BD72E82-2144-415A-91B9-0EE4680DB50C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3592B8C-61FB-400E-AE2A-4C852B95309E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3592B8C-61FB-400E-AE2A-4C852B95309E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3592B8C-61FB-400E-AE2A-4C852B95309E}.Hollow|Any CPU.ActiveCfg = Release|Any CPU
+		{C3592B8C-61FB-400E-AE2A-4C852B95309E}.Hollow|Any CPU.Build.0 = Release|Any CPU
+		{C3592B8C-61FB-400E-AE2A-4C852B95309E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3592B8C-61FB-400E-AE2A-4C852B95309E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3592B8C-61FB-400E-AE2A-4C852B95309E}.Silk|Any CPU.ActiveCfg = Release|Any CPU
+		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Hollow|Any CPU.ActiveCfg = Release|Any CPU
+		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Silk|Any CPU.ActiveCfg = Release|Any CPU
+		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Silk|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {B362619B-EB27-47F4-A437-F9781F79E8B8}
 	EndGlobalSection
 EndGlobal

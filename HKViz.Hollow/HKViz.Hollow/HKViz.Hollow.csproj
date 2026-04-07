@@ -10,13 +10,15 @@
     <Copyright>Copyright © Oliver Grack 2024</Copyright>
     <Authors>Oliver Grack</Authors>
     <NoWarn>7035</NoWarn>
-    <AssemblyVersion>1.6.0</AssemblyVersion>
+    <AssemblyVersion>1.6.1</AssemblyVersion>
     <Deterministic>false</Deterministic>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <HollowKnightRefs>..\API</HollowKnightRefs>
     <ExportDir>bin\Publish</ExportDir>
+    <DefineConstants>$(DefineConstants);MOD_HOLLOW</DefineConstants>
+    <HkvizReadmePath>$(MSBuildProjectDirectory)\..\README.md</HkvizReadmePath>
   </PropertyGroup>
   <Import Project="LocalOverrides.targets" Condition="Exists('LocalOverrides.targets')" />
   <Target Name="CopyMod" AfterTargets="PostBuildEvent">
@@ -26,7 +28,8 @@
     <MakeDir Condition="!Exists('$(HollowKnightRefs)/Mods/$(TargetName)/')" Directories="$(HollowKnightRefs)/Mods/$(TargetName)/" />
     <Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)/" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExportDir)/" />
-    <Copy SourceFiles="$(SolutionDir)/README.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ExportDir)/zip/" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ExportDir)/zip/" />
+    <Copy Condition="Exists('$(HkvizReadmePath)')" SourceFiles="$(HkvizReadmePath)" DestinationFolder="$(ExportDir)/zip/" />
     <ZipDirectory SourceDirectory="$(ExportDir)/zip/" DestinationFile="$(ExportDir)/$(TargetName).zip" />
     <RemoveDir Directories="$(ExportDir)/zip/" />
     <GetFileHash Files="$(ExportDir)/$(TargetName).zip" Algorithm="SHA256">
@@ -52,6 +55,9 @@
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>$(HollowKnightRefs)/Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="com.rlabrecque.steamworks.net">
+      <HintPath>..\..\..\Library\Application Support\Steam\steamapps\common\Hollow Knight\hollow_knight.app\Contents\Resources\Data\Managed\com.rlabrecque.steamworks.net.dll</HintPath>
     </Reference>
     <Reference Include="Core_FsmUtil">
       <HintPath>$(HollowKnightRefs)/Mods/Core.FsmUtil/Core_FsmUtil.dll</HintPath>
@@ -331,7 +337,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include=".gitignore" />
     <None Include="LocalOverrides.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\HKViz.Shared\**\*.cs" LinkBase="HKViz.Shared" />
   </ItemGroup>
 </Project>
