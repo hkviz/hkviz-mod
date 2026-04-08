@@ -1,5 +1,6 @@
 using System;
 using BepInEx;
+using HKViz.Shared;
 using HKViz.Silk.Extraction;
 using HKViz.Silk.Recording;
 using HKViz.Silk.SaveData;
@@ -14,10 +15,13 @@ namespace HKViz.Silk;
 public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun> {
     private Extractor _extractor;
 
+    private ServerApi _serverApi;
+
     private RunWriter? CurrentRunWriter { get; set; }
-
-
+    
     private void Awake() {
+        _serverApi = new ServerApi(Logger.LogInfo);
+        
         _extractor = new Extractor(Logger);
         SceneManager.sceneLoaded += HandleSceneLoaded;
 

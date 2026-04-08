@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using HKViz.Shared;
+using HKViz.Shared.Json;
 using UnityEngine;
 
 namespace HKViz {
@@ -148,7 +150,7 @@ namespace HKViz {
                 rooms: rooms,
                 areaNames: areaNames
             );
-            var json = Json.Stringify(mapData);
+            var json = HkVizJson.Stringify(mapData);
             //var js = json
             //    .Replace("\"IMPORT_STRING_START:", "")
             //    .Replace(":IMPORT_STRING_END\"", "")

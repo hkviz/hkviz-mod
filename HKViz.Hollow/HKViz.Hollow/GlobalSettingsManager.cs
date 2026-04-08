@@ -9,9 +9,9 @@ namespace HKViz {
         public string? userName = null;
         public bool autoUpload = true;
         public bool showLoginButtonInMainMenu = true;
-        public List<UploadQueueEntry> queuedUploadFiles = new List<UploadQueueEntry>();
-        public List<UploadQueueEntry> failedUploadFiles = new List<UploadQueueEntry>();
-        public List<UploadQueueEntry> finishedUploadFiles = new List<UploadQueueEntry>();
+        public List<UploadQueueEntry> queuedUploadFiles = [];
+        public List<UploadQueueEntry> failedUploadFiles = [];
+        public List<UploadQueueEntry> finishedUploadFiles = [];
     }
 
     // inherits from userGlobal settings, for backwards compatibility to mod versions <= 1.5 where steam users where not considered
@@ -71,9 +71,9 @@ namespace HKViz {
                 _settings.userName = null;
                 _settings.autoUpload = true;
                 _settings.showLoginButtonInMainMenu = true;
-                _settings.queuedUploadFiles = new List<UploadQueueEntry>();
-                _settings.failedUploadFiles = new List<UploadQueueEntry>();
-                _settings.finishedUploadFiles = new List<UploadQueueEntry>();
+                _settings.queuedUploadFiles = [];
+                _settings.failedUploadFiles = [];
+                _settings.finishedUploadFiles = [];
             }
         }
     }

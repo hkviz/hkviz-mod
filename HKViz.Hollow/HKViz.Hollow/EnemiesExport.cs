@@ -1,10 +1,8 @@
-﻿using Modding;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HKViz.Shared;
+using HKViz.Shared.Json;
+using Modding;
 using UnityEngine;
 
 namespace HKViz {
@@ -49,7 +47,7 @@ namespace HKViz {
             }).ToList();
 
 
-            var json = Json.Stringify(enemies);
+            var json = HkVizJson.Stringify(enemies);
             using (var writer = new StreamWriter(StoragePaths.GetUserFilePath("enemies-journal-export.txt"))) {
                 writer.Write(json);
             }

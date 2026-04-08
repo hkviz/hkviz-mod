@@ -110,16 +110,16 @@ namespace HKViz {
                 GUILayout.Label($"<b>HKViz</b>: {HKVizVersionChecker.Instance.checkResponse.message}", style);
             }
 
-            var loginState = HKVizAuthManager.Instance.State;
-            if (loginState == HKVizAuthManager.LoginState.LOADING_LOGIN_URL) {
+            var loginState = HkVizAuthManager.Instance.State;
+            if (loginState == HkVizAuthManager.LoginState.LOADING_LOGIN_URL) {
                 style.normal.textColor = MutedWhite;
                 GUILayout.Label($"<b>HKViz</b>: ...Loading login url...", style);
-            } else if (loginState == HKVizAuthManager.LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER) {
+            } else if (loginState == HkVizAuthManager.LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER) {
                 style.normal.textColor = MutedWhite;
                 GUILayout.Label($"<b>HKViz</b>: Please login inside the opened browser window", style);
             }
 
-            if (HKVizAuthManager.Instance.ShowLoginSuccess) {
+            if (HkVizAuthManager.Instance.ShowLoginSuccess) {
                 style.normal.textColor = MutedGreen;
                 GUILayout.Label($"<b>HKViz</b>: Login successful", style);
             }

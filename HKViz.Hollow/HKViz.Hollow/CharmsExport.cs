@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HKViz.Shared;
+using HKViz.Shared.Json;
 using UnityEngine;
 
 namespace HKViz {
@@ -38,7 +40,7 @@ namespace HKViz {
 
             Debug.Log("infos" + infos.Count);
 
-            var json = Json.Stringify(infos);
+            var json = HkVizJson.Stringify(infos);
             using (var writer = new StreamWriter(StoragePaths.GetUserFilePath("charms-inventory-export.txt"))) {
                 writer.Write(json);
             }

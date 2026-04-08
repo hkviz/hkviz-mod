@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static HKViz.HKVizAuthManager;
+using HKViz.Shared;
+using static HKViz.HkVizAuthManager;
 using UnityEngine;
 using Modding;
 
@@ -19,6 +20,7 @@ namespace HKViz {
             }
         }
 
+        private readonly ServerApi serverApi = HkVizInstances.Instance.serverApi;
         public VersionCheckResponse? checkResponse = null;
 
         public class VersionCheckResponse {
@@ -28,8 +30,8 @@ namespace HKViz {
         }
 
         public void Init() {
-            ServerApi.Instance.ApiGet<VersionCheckResponse>(
-                path: "modversioncheck/" + Constants.GetVersion(),
+            serverApi.ApiGet<VersionCheckResponse>(
+                path: "modversioncheck/" + HkVizHollowConstants.GetVersion(),
                 onSuccess: data => {
                     checkResponse = data;
                 },

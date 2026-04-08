@@ -30,7 +30,7 @@ namespace HKViz {
             On.MenuButtonList.Start += MenuButtonList_Start;
             On.MenuButtonList.OnEnable += MenuButtonList_OnEnable;
 
-            HKVizAuthManager.Instance.StateChanged += AuthStateChanged;
+            HkVizAuthManager.Instance.StateChanged += AuthStateChanged;
             Log("main menu init");
         }
 
@@ -42,7 +42,7 @@ namespace HKViz {
             mainMenuList?.Reflect()?.Start();
         }
 
-        private void AuthStateChanged(HKVizAuthManager.LoginState obj) {
+        private void AuthStateChanged(HkVizAuthManager.LoginState obj) {
             Log("Auth change " + obj + " b" + mainMenuLoginButton?.name);
             mainMenuList?.Reflect()?.Start();
         }
@@ -86,7 +86,7 @@ namespace HKViz {
 
                 mainMenuLoginButton.gameObject.SetActive(showButton);
 
-                var btnState = HKVizAuthManager.Instance.GetLoginButtonState(justTitle: true);
+                var btnState = HkVizAuthManager.Instance.GetLoginButtonState(justTitle: true);
                 if (mainMenuLoginButtonText != null && !mainMenuLoginButtonText.IsDestroyed()) {
                     mainMenuLoginButtonText.text = btnState.name;
                 }
@@ -124,7 +124,7 @@ namespace HKViz {
 
         private bool showLoginButtonInMainMenu() => (
                 GlobalSettingsManager.SettingsOfCurrentUser.showLoginButtonInMainMenu &&
-                HKVizAuthManager.Instance.State != HKVizAuthManager.LoginState.LOGGED_IN
+                HkVizAuthManager.Instance.State != HkVizAuthManager.LoginState.LOGGED_IN
             );
 
         //private void CheckButtonVisibility() {

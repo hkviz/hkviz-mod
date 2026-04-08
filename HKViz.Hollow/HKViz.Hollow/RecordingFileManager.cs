@@ -161,7 +161,7 @@ namespace HKViz {
             // and we would just continue writing on the errored line.
             WriteNL();
             WriteEntry(RecordingPrefixes.RECORDING_ID, localRunId);
-            WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, Constants.RECORDER_FILE_VERSION);
+            WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, HkVizHollowConstants.RECORDER_FILE_VERSION);
             //}
             AfterSwitchedFile?.Invoke();
         }

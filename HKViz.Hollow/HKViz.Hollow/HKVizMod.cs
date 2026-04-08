@@ -325,7 +325,7 @@ namespace HKViz
         {
             //Log("Steam-user" + GameLauncherUser.Instance.GetUserId());
             GlobalSettingsManager.Instance.InitializeFromSavedSettings(s);
-            HKVizAuthManager.Instance.GlobalSettingsLoaded();
+            HkVizAuthManager.Instance.GlobalSettingsLoaded();
             UploadManager.Instance.GlobalSettingsLoaded();
             MainMenuUI.Instance.GlobalSettingsLoaded();
         }

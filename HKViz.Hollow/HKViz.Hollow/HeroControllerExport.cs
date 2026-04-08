@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using HKViz.Shared;
+using HKViz.Shared.Json;
 
 namespace HKViz {
     [System.Serializable]
@@ -37,7 +39,7 @@ namespace HKViz {
                 })
                 .ToDictionary(it => it.name, it => it);
 
-            var json = Json.Stringify(fields);
+            var json = HkVizJson.Stringify(fields);
             using (var writer = new StreamWriter(StoragePaths.GetUserFilePath("hero-controller-export.txt"))) {
                 writer.Write(json);
             }

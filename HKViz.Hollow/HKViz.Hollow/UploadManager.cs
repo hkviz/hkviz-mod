@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using HKViz.Shared;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -81,18 +82,20 @@ namespace HKViz {
             public string fileId;
         }
 
-        private static UploadManager instance;
+        private static UploadManager? instance;
         public static UploadManager Instance {
             get {
                 instance ??= new UploadManager();
                 return instance;
             }
         }
+        
+        private readonly ServerApi serverApi = HkVizInstances.Instance.serverApi;
 
-        private List<UploadQueueEntry> queuedFiles = new List<UploadQueueEntry>();
-        private List<UploadQueueEntry> failedUploads = new List<UploadQueueEntry>();
-        private List<UploadQueueEntry> finishedUploadFiles = new List<UploadQueueEntry>();
-        private WaitForSeconds WAIT_1SEC = new WaitForSeconds(1);
+        private readonly List<UploadQueueEntry> queuedFiles = [];
+        private readonly List<UploadQueueEntry> failedUploads = [];
+        private readonly List<UploadQueueEntry> finishedUploadFiles = [];
+        private readonly WaitForSeconds WAIT_1SEC = new (1);
 
         private bool uploadInProgress = false;
 
@@ -124,7 +127,7 @@ namespace HKViz {
             while (true) {
                 yield return WAIT_1SEC;
 
-                var authId = HKVizAuthManager.Instance.AuthId;
+                var authId = HkVizAuthManager.Instance.AuthId;
                 if (!uploadInProgress && authId != null && queuedFiles.Count > 0) {
                     UploadFirstFileInQueue();
                 }
@@ -134,13 +137,13 @@ namespace HKViz {
         private void UploadFirstFileInQueue() {
             // some nested callbacks ahead :)
             uploadInProgress = true;
-            var authId = HKVizAuthManager.Instance.AuthId;
+            var authId = HkVizAuthManager.Instance.AuthId;
             var queueEntry = queuedFiles[0];
             var request =
-            ServerApi.Instance.ApiPost<CreateUploadPartUrlRequest, CreateUploadPartUrlResponse>(
+            serverApi.ApiPost<CreateUploadPartUrlRequest, CreateUploadPartUrlResponse>(
                 path: "ingameupload/part/init",
                 body: new CreateUploadPartUrlRequest() {
-                    modVersion = Constants.GetVersion(),
+                    modVersion = HkVizHollowConstants.GetVersion(),
 
                     ingameAuthId = authId,
                     localRunId = queueEntry.localRunId,
@@ -173,14 +176,14 @@ namespace HKViz {
                     } else {
 
                         try {
-                            ServerApi.Instance.R2Upload(
+                            serverApi.R2Upload(
                                 initResponse.signedUploadUrl, StoragePaths.GetRecordingPath(
                                     partNumber: queueEntry.partNumber,
                                     localRunId: queueEntry.localRunId,
                                     profileId: queueEntry.profileId
                                 ),
                                 onSuccess: () => {
-                                    ServerApi.Instance.ApiPost<MarkUploadPartFinishedRequest, Empty>(
+                                    serverApi.ApiPost<MarkUploadPartFinishedRequest, Empty>(
                                         path: "ingameupload/part/finish",
                                         body: new MarkUploadPartFinishedRequest() {
                                             ingameAuthId = authId,

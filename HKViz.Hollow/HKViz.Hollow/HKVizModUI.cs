@@ -1,6 +1,7 @@
 ﻿using Modding;
 using Satchel.BetterMenus;
 using System;
+using HKViz.Shared;
 
 namespace HKViz {
     internal class HKVizModUI : Loggable {
@@ -32,18 +33,18 @@ namespace HKViz {
                 LoginButton = new MenuButton(
                                 name: "Login to HKViz",
                                 description: "So analytics files can be uploaded automatically",
-                                submitAction: (_) => HKVizAuthManager.Instance.Login()
+                                submitAction: (_) => HkVizAuthManager.Instance.Login()
                             );
 
                 OpenHKVIzButton = new MenuButton(
-                    name: $"Open {Constants.WEBSITE_DISPLAY_LINK}",
+                    name: $"Open {HkVizSharedConstants.WEBSITE_DISPLAY_LINK}",
                     description: "View your gameplay analytics in your browser",
-                    submitAction: (_) => UnityEngine.Application.OpenURL(Constants.WEBSITE_LINK)
+                    submitAction: (_) => UnityEngine.Application.OpenURL(HkVizSharedConstants.WEBSITE_LINK)
                 );
 
                 DeleteUploadedFilesButton = new MenuButton(
                     name: $"Delete already uploaded analytics files",
-                    description: $"No data is lost, since it is already stored on {Constants.WEBSITE_DISPLAY_LINK}",
+                    description: $"No data is lost, since it is already stored on {HkVizSharedConstants.WEBSITE_DISPLAY_LINK}",
                     submitAction: (_) => {
                         UploadManager.Instance.DeleteAlreadyUploadedFiles();
                     }
@@ -95,9 +96,9 @@ namespace HKViz {
                     ]
                 );
 
-                HKVizAuthManager.Instance.StateChanged += state => LoginStateChanged(state);
+                HkVizAuthManager.Instance.StateChanged += state => LoginStateChanged(state);
                 UploadManager.Instance.QueuesChanged += Instance_FinishedQueuesChanged;
-                LoginStateChanged(HKVizAuthManager.Instance.State, update: false);
+                LoginStateChanged(HkVizAuthManager.Instance.State, update: false);
                 UpdateQueueButtons(update: false);
             }
 
@@ -117,15 +118,14 @@ namespace HKViz {
                 DeleteUploadedFilesButton.isVisible = UploadManager.Instance.FinishedUploadFilesQueueCount() > 0;
             }
 
-            if (update) {
-                RetryUploadsButton?.Update();
-                DeleteUploadedFilesButton?.Update();
-                MenuRef?.Update();
-            }
+            if (!update) return;
+            RetryUploadsButton?.Update();
+            DeleteUploadedFilesButton?.Update();
+            MenuRef?.Update();
         }
 
-        private void LoginStateChanged(HKVizAuthManager.LoginState state, bool update = true) {
-            var btnState = HKVizAuthManager.Instance.GetLoginButtonState(justTitle: false);
+        private void LoginStateChanged(HkVizAuthManager.LoginState state, bool update = true) {
+            var btnState = HkVizAuthManager.Instance.GetLoginButtonState(justTitle: false);
 
             if (LoginButton != null) {
                 LoginButton.Name = btnState.name;
@@ -141,7 +141,7 @@ namespace HKViz {
             //}
 
             if (MainMenuLoginButton != null) {
-                MainMenuLoginButton.isVisible = state != HKVizAuthManager.LoginState.LOGGED_IN;
+                MainMenuLoginButton.isVisible = state != HkVizAuthManager.LoginState.LOGGED_IN;
             }
 
             if (!update) return;
