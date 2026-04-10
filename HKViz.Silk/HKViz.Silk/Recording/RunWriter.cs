@@ -1,5 +1,6 @@
 using BepInEx.Logging;
 using HKViz.Shared.Upload;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace HKViz.Silk.Recording;
@@ -17,12 +18,20 @@ public class RunWriter {
         this.logger = logger;
         runFiles = new RunFiles(localRunId, nextRunPart, uploadManager, logger);
         heroLocationWriter = new HeroLocationWriter(runFiles);
+
+        GameMapLevelReadyPatch.OnGameMapLevelReady += OnGameMapLevelReady;
     }
 
     public void Close() {
         if (isClosed) return;
         isClosed = true;
         runFiles.Close();
+        GameMapLevelReadyPatch.OnGameMapLevelReady -= OnGameMapLevelReady;
+    }
+
+    private void OnGameMapLevelReady(Vector2 size) {
+        if (isClosed) return;
+        runFiles.WriteSceneBoundary(size);
     }
 
     public void HandleSceneChange(Scene scene, LoadSceneMode mode) {
@@ -41,7 +50,7 @@ public class RunWriter {
     public void Update() {
         if (isClosed) return;
         var gm = GameManager._instance;
-        if (!gm || !gm.IsGamePaused()) return;
+        if (!gm || gm.IsGamePaused()) return;
         heroLocationWriter.Update();
     }
 }

@@ -11,6 +11,7 @@ using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using HarmonyLib;
 
 namespace HKViz.Silk;
 
@@ -35,6 +36,10 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
             HkVizSharedInstances.CreateInstance(sharedInstances);
             HkVizSharedInstances.Instance!.Initialize();
             menuScreen = new HkVizMenuScreen(sharedInstances.authManager, sharedInstances.uploadManager);
+
+            // I think I should not have to call this given auto plugin
+            // but does not run otherwise.
+            new Harmony(Id).PatchAll();
 
             _extractor = new Extractor(Logger);
             SceneManager.sceneLoaded += HandleSceneLoaded;

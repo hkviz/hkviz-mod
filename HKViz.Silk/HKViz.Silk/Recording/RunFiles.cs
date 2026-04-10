@@ -127,8 +127,20 @@ public class RunFiles(string localRunId, long currentRunPart, UploadManager uplo
             logger.LogDebug("Tried to write hero location but writer is null");
             return;
         }
-        
+
         writer.Write(WriteEntryType.HeroLocation);
         writer.WriteVector2(pos);
+        
+    }
+
+    public void WriteSceneBoundary(Vector2 size) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write scene boundary but writer is null");
+            return;
+        }
+        logger.LogDebug("Write scene size" + size);
+        writer.Write(WriteEntryType.SceneBoundary);
+        writer.WriteVector2(size);
     }
 }
