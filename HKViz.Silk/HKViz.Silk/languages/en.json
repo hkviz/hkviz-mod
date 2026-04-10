@@ -1,3 +1,4 @@
 {
-  "LOGIN_BUTTON_TEXT": "HKViz Login"
+  "LOGIN_BUTTON_TEXT": "HKViz Login",
+  "RETRY_UPLOADS_BUTTON_TEXT": "Retry failed uploads"
 }

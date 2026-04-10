@@ -26,19 +26,24 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
     private HkVizSharedInstances sharedInstances;
 
     private void Awake() {
-        sharedInstances = new HkVizSharedInstances(
-            new SilkLogger(Logger),
-            new SilkUploadPathResolver(),
-            this
-        );
-        HkVizSharedInstances.CreateInstance(sharedInstances);
-        HkVizSharedInstances.Instance!.Initialize();
-        menuScreen = new HkVizMenuScreen(sharedInstances.authManager);
+        try {
+            sharedInstances = new HkVizSharedInstances(
+                new SilkLogger(Logger),
+                new SilkUploadPathResolver(),
+                this
+            );
+            HkVizSharedInstances.CreateInstance(sharedInstances);
+            HkVizSharedInstances.Instance!.Initialize();
+            menuScreen = new HkVizMenuScreen(sharedInstances.authManager, sharedInstances.uploadManager);
 
-        _extractor = new Extractor(Logger);
-        SceneManager.sceneLoaded += HandleSceneLoaded;
+            _extractor = new Extractor(Logger);
+            SceneManager.sceneLoaded += HandleSceneLoaded;
 
-        Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
+            Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
+        } catch (Exception ex) {
+            Logger.LogError($"Error during {Name} ({Id}) initialization:");
+            Logger.LogError(ex.ToString());
+        }
     }
 
     private void Update() {
@@ -76,7 +81,7 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
             CurrentRunWriter?.Close();
             string localRunId = value == null ? Guid.NewGuid().ToString() : value.LocalRunId;
             long nextRunPart = value?.NextRunPart ?? 0L;
-            CurrentRunWriter = new RunWriter(localRunId, nextRunPart, Logger);
+            CurrentRunWriter = new RunWriter(localRunId, nextRunPart, sharedInstances.uploadManager, Logger);
         }
     }
 

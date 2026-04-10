@@ -5,6 +5,7 @@ namespace HKViz.Shared.Upload;
 [Serializable]
 internal class CreateUploadPartUrlRequest {
     public string modVersion;
+    public string game = GameFlavor.GAME_ID;
 
     public string ingameAuthId;
     public string localRunId;

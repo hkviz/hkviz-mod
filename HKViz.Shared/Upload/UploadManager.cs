@@ -62,6 +62,11 @@ public class UploadManager {
         // some nested callbacks ahead :)
         uploadInProgress = true;
         var authId = authManager.AuthId;
+        if (authId == null) {
+            _logger.LogError("AuthId is null, cannot upload");
+            uploadInProgress = false;
+            return;
+        }
         var queueEntry = queuedFiles[0];
         var request =
         serverApi.ApiPost<CreateUploadPartUrlRequest, CreateUploadPartUrlResponse>(
@@ -100,9 +105,26 @@ public class UploadManager {
                 } else {
 
                     try {
+                        var uploadUrl = initResponse.signedUploadUrl;
+                        if (uploadUrl == null) {
+                            _logger.LogError("Signed upload URL is null");
+                            OnError(null);
+                            return;
+                        }
+                        var filePath = uploadPathResolver.GetPath(queueEntry);
+                        if (filePath == null) {
+                            _logger.LogError("Upload file path is null");
+                            OnError(null);
+                            return;
+                        }
+                        if (!File.Exists(filePath)) {
+                            _logger.LogError($"Upload file does not exist: {filePath}");
+                            OnError(null);
+                            return;
+                        }
                         serverApi.R2Upload(
-                            initResponse.signedUploadUrl, 
-                            uploadPathResolver.GetPath(queueEntry),
+                            uploadUrl, 
+                            filePath,
                             onSuccess: () => {
                                 serverApi.ApiPost<MarkUploadPartFinishedRequest, Empty>(
                                     path: "ingameupload/part/finish",
@@ -132,8 +154,8 @@ public class UploadManager {
             failedUploads.Add(queueEntry);
             queuedFiles.Remove(queueEntry);
             uploadInProgress = false;
-            _logger.LogInfo("Error while uploading to " + req.url);
-            _logger.LogInfo($"{req.result}");
+            _logger.LogInfo("Error while uploading to " + (req?.url ?? "unknown URL"));
+            _logger.LogInfo($"{req?.result}");
             QueuesChanged?.Invoke();
         }
 
@@ -151,6 +173,16 @@ public class UploadManager {
         for (int i = finishedUploadFiles.Count - 1; i >= 0; i--) {
             var queueEntry = finishedUploadFiles[i];
             var path = uploadPathResolver.GetPath(queueEntry);
+            if (path == null) {
+                _logger.LogError("Upload file path is null for finished upload entry");
+                finishedUploadFiles.Remove(queueEntry);
+                QueuesChanged?.Invoke();
+                continue;
+            }
+            if (!File.Exists(path)) {
+                _logger.LogError($"Upload file does not exist at path: {path}. It may have been already deleted or moved.");
+                continue;
+            }
             try {
                 File.Delete(path);
                 finishedUploadFiles.Remove(queueEntry);

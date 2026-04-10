@@ -7,7 +7,8 @@ public class SilkUploadPathResolver: IUploadPathResolver {
     public string GetPath(UploadQueueEntry entry) {
         return RunFilePaths.GetRecordingPath(
             partNumber: entry.partNumber,
-            localRunId: entry.localRunId
+            localRunId: entry.localRunId,
+            profileId: entry.profileId
         );
     }
 }

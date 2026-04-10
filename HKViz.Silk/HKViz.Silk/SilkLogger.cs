@@ -15,5 +15,6 @@ public class SilkLogger(ManualLogSource logger): IHkVizLogger {
 
     public void LogError(Exception ex) {
         logger.LogError(ex);
+        logger.LogError(ex.StackTrace);
     }
 }

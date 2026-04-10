@@ -66,7 +66,7 @@
         </PropertyGroup>
         <Copy
                 SourceFiles="@(Binaries)"
-                DestinationFolder="$(SilksongFolder)/BepInEx/plugins/ThunderstoreUserName-$(AssemblyTitle)/%(Binaries.LocalDir)"
+                DestinationFolder="$(SilksongFolder)/BepInEx/plugins/hkviz-$(AssemblyTitle)/%(Binaries.LocalDir)"
                 Condition="'$(SilksongFolder)' != '' And Exists('$(SilksongFolder)')"
         />
         <RemoveDir Directories="$(ThunderstoreDir)/temp;$(ThunderstoreDir)/dist" />

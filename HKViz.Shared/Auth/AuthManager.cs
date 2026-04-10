@@ -107,7 +107,7 @@ public class AuthManager {
             path: "ingameauth/" + AuthId,
             onSuccess: data => {
                 AuthId = data.id;
-                _logger.LogInfo("Got session info " + data.id + " " + data.user?.id + " " + data.user?.name);
+                _logger.LogInfo("Got session info " + data.user?.id + " " + data.user?.name);
                 //Application.OpenURL(Constants.LOGIN_URL + sessionId);
                 if (data.user != null) {
                     UserName = data.user.name;

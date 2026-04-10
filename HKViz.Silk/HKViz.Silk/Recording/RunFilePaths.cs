@@ -8,9 +8,9 @@ public static class RunFilePaths {
         return Path.Combine(DataPaths.GlobalDataDir, "org.hkviz.silk.recordings");
     }
 
-    public static string GetRecordingPath(string localRunId, long partNumber) {
+    public static string GetRecordingPath(string localRunId, long partNumber, int profileId) {
         var folder = MakeAndGetRunFolderIfNotExist();
-        return Path.Combine(folder, $"user{GameManager.instance.profileID}.id_{localRunId}.part{partNumber}.hkviz-silk");
+        return Path.Combine(folder, $"user{profileId}.id_{localRunId}.part{partNumber}.hkviz-silk");
     }
 
     private static string MakeAndGetRunFolderIfNotExist() {
