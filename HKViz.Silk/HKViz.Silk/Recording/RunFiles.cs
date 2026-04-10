@@ -22,6 +22,8 @@ public class RunFiles(string localRunId, long currentRunPart, ManualLogSource lo
             NextFile();
         }
     }
+    
+    public float NextPartInSeconds => SwitchFileAfterSeconds - (Time.unscaledTime - _lastPartCreatedTime);
 
     public void NextFile() {
         if (_isClosed) return;

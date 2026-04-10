@@ -1,5 +1,8 @@
 ﻿namespace HKViz.Shared;
 
+#if MOD_SILK
+using HKViz.Silk;
+#endif
 
 internal static class HkVizSharedConstants {
     public static string WEBSITE_DISPLAY_LINK = "hkviz.org";
@@ -14,4 +17,10 @@ internal static class HkVizSharedConstants {
     // public static string API_URL = "http://localhost:3000/api/rest/";
     // public static string LOGIN_URL = "http://localhost:3000/ingameauth/";
     // public static string API_URL_SUFFIX = "";
+    
+    #if MOD_SILK
+    public static string GetModVersion() => HkVizSilkPlugin.Version;
+    #elif MOD_HOLLOW
+    public static string GetModVersion() => typeof(HkVizSharedConstants).Assembly.GetName().Version.ToString();
+    #endif
 }

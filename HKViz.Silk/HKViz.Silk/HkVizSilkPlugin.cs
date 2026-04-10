@@ -1,10 +1,14 @@
 using System;
 using BepInEx;
-using HKViz.Shared;
+using HKViz.Shared.Recording;
 using HKViz.Silk.Extraction;
 using HKViz.Silk.Recording;
 using HKViz.Silk.SaveData;
+using HKViz.Silk.UI;
+using HKViz.Silk.Upload;
 using Silksong.DataManager;
+using Silksong.ModMenu.Plugin;
+using Silksong.ModMenu.Screens;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,16 +16,24 @@ namespace HKViz.Silk;
 
 [BepInAutoPlugin(id: "org.hkviz.silk")]
 [BepInDependency("org.silksong-modding.datamanager")]
-public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun> {
+[BepInDependency("org.silksong-modding.i18n")]
+[BepInDependency(Silksong.ModMenu.ModMenuPlugin.Id)]
+public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun>, IRecordingManager, IModMenuCustomMenu {
     private Extractor _extractor;
 
-    private ServerApi _serverApi;
-
     private RunWriter? CurrentRunWriter { get; set; }
-    
+    private HkVizMenuScreen menuScreen;
+
     private void Awake() {
-        _serverApi = new ServerApi(Logger.LogInfo);
-        
+        var sharedInstances = new HkVizSharedInstances(
+            new SilkLogger(Logger),
+            new SilkUploadPathResolver(),
+            this
+        );
+        HkVizSharedInstances.CreateInstance(sharedInstances);
+        HkVizSharedInstances.Instance!.Initialize();
+        menuScreen = new HkVizMenuScreen(sharedInstances.authManager);
+
         _extractor = new Extractor(Logger);
         SceneManager.sceneLoaded += HandleSceneLoaded;
 
@@ -65,5 +77,15 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
             long nextRunPart = value?.NextRunPart ?? 0L;
             CurrentRunWriter = new RunWriter(localRunId, nextRunPart, Logger);
         }
+    }
+
+    public bool IsRecording => CurrentRunWriter != null;
+    public float NextPartInSeconds => CurrentRunWriter?.NextPartInSeconds ?? 0f;
+    public string ModMenuName() {
+        return "HKViz";
+    }
+
+    public AbstractMenuScreen BuildCustomMenu() {
+        return menuScreen.BuildCustomMenu();
     }
 }

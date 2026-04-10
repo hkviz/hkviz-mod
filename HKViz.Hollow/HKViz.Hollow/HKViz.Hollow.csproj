@@ -339,7 +339,5 @@
   <ItemGroup>
     <None Include="LocalOverrides.targets" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\..\HKViz.Shared\**\*.cs" LinkBase="HKViz.Shared" />
-  </ItemGroup>
+  <Import Project="..\..\HKViz.Shared\HKViz.Shared.projitems" Label="Shared" />
 </Project>

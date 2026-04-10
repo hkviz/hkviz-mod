@@ -8,15 +8,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Linq;
+using HKViz.Shared.Auth;
 
 namespace HKViz {
     internal class MainMenuUI : Loggable {
         private static MainMenuUI? instance;
         public static MainMenuUI Instance {
             get {
-                if (instance == null) {
-                    instance = new MainMenuUI();
-                }
+                instance ??= new MainMenuUI();
                 return instance;
             }
         }
@@ -24,13 +23,12 @@ namespace HKViz {
         private UnityEngine.UI.Text? mainMenuLoginButtonText;
         private MenuButton? mainMenuLoginButton;
         private object? loginButtonMenuButtonListEntry;
-        private MenuButtonList mainMenuList;
+        private MenuButtonList? mainMenuList;
 
         public void Initialize() {
             On.MenuButtonList.Start += MenuButtonList_Start;
             On.MenuButtonList.OnEnable += MenuButtonList_OnEnable;
-
-            HkVizAuthManager.Instance.StateChanged += AuthStateChanged;
+            HkVizSharedInstances.Instance!.authManager.StateChanged += AuthStateChanged;
             Log("main menu init");
         }
 
@@ -42,7 +40,7 @@ namespace HKViz {
             mainMenuList?.Reflect()?.Start();
         }
 
-        private void AuthStateChanged(HkVizAuthManager.LoginState obj) {
+        private void AuthStateChanged(LoginState obj) {
             Log("Auth change " + obj + " b" + mainMenuLoginButton?.name);
             mainMenuList?.Reflect()?.Start();
         }
@@ -86,12 +84,12 @@ namespace HKViz {
 
                 mainMenuLoginButton.gameObject.SetActive(showButton);
 
-                var btnState = HkVizAuthManager.Instance.GetLoginButtonState(justTitle: true);
+                var btnState = HkVizSharedInstances.Instance!.authManager.GetLoginButtonState(justTitle: true);
                 if (mainMenuLoginButtonText != null && !mainMenuLoginButtonText.IsDestroyed()) {
                     mainMenuLoginButtonText.text = btnState.name;
                 }
                 if (mainMenuLoginButton != null && !mainMenuLoginButton.IsDestroyed()) {
-                    mainMenuLoginButton.submitAction = btnState.action;
+                    mainMenuLoginButton.submitAction = _ => btnState.action();
                 }
 
                 // hkvizMainMenuList.StartCoroutine(CheckButtonVisibilityNextFrame());
@@ -124,7 +122,7 @@ namespace HKViz {
 
         private bool showLoginButtonInMainMenu() => (
                 GlobalSettingsManager.SettingsOfCurrentUser.showLoginButtonInMainMenu &&
-                HkVizAuthManager.Instance.State != HkVizAuthManager.LoginState.LOGGED_IN
+                HkVizSharedInstances.Instance!.authManager.State != LoginState.LOGGED_IN
             );
 
         //private void CheckButtonVisibility() {

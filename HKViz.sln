@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HKViz.Hollow", "HKViz.Hollo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HKViz.Silk", "HKViz.Silk\HKViz.Silk\HKViz.Silk.csproj", "{8295D968-1579-4E63-94E4-0498A5B40FBF}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "HKViz.Shared", "HKViz.Shared\HKViz.Shared.shproj", "{9E8C5D3F-8A7D-4B2E-9F1A-7C2E4D5B6A9F}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{811F55CB-0932-4590-88AE-B0755284F234}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
@@ -34,6 +36,13 @@ Global
 		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Silk|Any CPU.ActiveCfg = Release|Any CPU
 		{8295D968-1579-4E63-94E4-0498A5B40FBF}.Silk|Any CPU.Build.0 = Release|Any CPU
+		{9E8C5D3F-8A7D-4B2E-9F1A-7C2E4D5B6A9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E8C5D3F-8A7D-4B2E-9F1A-7C2E4D5B6A9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E8C5D3F-8A7D-4B2E-9F1A-7C2E4D5B6A9F}.Hollow|Any CPU.ActiveCfg = Release|Any CPU
+		{9E8C5D3F-8A7D-4B2E-9F1A-7C2E4D5B6A9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E8C5D3F-8A7D-4B2E-9F1A-7C2E4D5B6A9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E8C5D3F-8A7D-4B2E-9F1A-7C2E4D5B6A9F}.Silk|Any CPU.ActiveCfg = Release|Any CPU
+		{9E8C5D3F-8A7D-4B2E-9F1A-7C2E4D5B6A9F}.Silk|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

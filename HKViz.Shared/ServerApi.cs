@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 namespace HKViz.Shared;
 
 public class ServerApi(
-    Action<string> log
+    IHkVizLogger logger
 ) {
 
     public IEnumerator ApiPost<TBody, TResponse>(string path, TBody body, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
@@ -24,14 +24,14 @@ public class ServerApi(
 
     public IEnumerator ApiGet<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
         var url = HkVizSharedConstants.API_URL + path + HkVizSharedConstants.API_URL_SUFFIX;
-        log(url);
+        logger.LogInfo(url);
         var request = UnityWebRequest.Get(url);
         return WrapWWW(request, onSuccess, onError);
     }
 
     public IEnumerator ApiDelete<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
         var url = HkVizSharedConstants.API_URL + path + HkVizSharedConstants.API_URL_SUFFIX;
-        log(url);
+        logger.LogInfo(url);
         var request = UnityWebRequest.Delete(url);
         return WrapWWW(request, onSuccess, onError);
     }
@@ -39,11 +39,11 @@ public class ServerApi(
 
     private IEnumerator WrapWWW<TResponse>(UnityWebRequest request, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
         yield return request.SendWebRequest();
-        log("Status Code: " + request.responseCode);
+        logger.LogInfo("Status Code: " + request.responseCode);
 
         if (request.result != UnityWebRequest.Result.Success) {
-            log(request.error);
-            log(request.downloadHandler.text);
+            logger.LogInfo(request.error);
+            logger.LogInfo(request.downloadHandler.text);
             onError(request);
         } else {
             var result = HkVizJson.Parse<TResponse>(request.downloadHandler.text) ?? throw new Exception("No response data");
@@ -59,7 +59,7 @@ public class ServerApi(
         using (var request = new UnityWebRequest(signedUploadUrl, UnityWebRequest.kHttpVerbPUT)) {
             request.uploadHandler = new UploadHandlerFile(filePath);
             yield return request.SendWebRequest();
-            log("r2 upload result " + request.result);
+            logger.LogInfo("r2 upload result " + request.result);
             if (request.result == UnityWebRequest.Result.Success) {
                 onSuccess();
             } else {

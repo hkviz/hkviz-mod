@@ -23,6 +23,8 @@ public class RunWriter(string localRunId, long nextRunPart, ManualLogSource logg
         runFiles.NextFileIfNeeded();
         runFiles.WriteSceneChange(scene, mode);
     }
+    
+    public float NextPartInSeconds => runFiles.NextPartInSeconds;
 
     public long GetNextRunPart() {
         return runFiles.CurrentRunPart + 1L;

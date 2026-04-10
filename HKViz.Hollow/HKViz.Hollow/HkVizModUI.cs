@@ -2,20 +2,22 @@
 using Satchel.BetterMenus;
 using System;
 using HKViz.Shared;
+using HKViz.Shared.Auth;
+using HKViz.Shared.Upload;
 
 namespace HKViz {
-    internal class HKVizModUI : Loggable {
-        private static HKVizModUI instance;
+    internal class HkVizModUI : Loggable {
+        private static HkVizModUI? instance;
 
-        public static HKVizModUI Instance {
+        public static HkVizModUI Instance {
             get {
-                if (instance == null) {
-                    instance = new HKVizModUI();
-                }
+                instance ??= new HkVizModUI();
                 return instance;
             }
         }
 
+        private AuthManager authManager = HkVizSharedInstances.Instance!.authManager;
+        private UploadManager uploadManager = HkVizSharedInstances.Instance.uploadManager;
 
         private Menu? MenuRef;
         private MenuButton? LoginButton;
@@ -33,7 +35,7 @@ namespace HKViz {
                 LoginButton = new MenuButton(
                                 name: "Login to HKViz",
                                 description: "So analytics files can be uploaded automatically",
-                                submitAction: (_) => HkVizAuthManager.Instance.Login()
+                                submitAction: (_) => authManager.Login()
                             );
 
                 OpenHKVIzButton = new MenuButton(
@@ -46,7 +48,7 @@ namespace HKViz {
                     name: $"Delete already uploaded analytics files",
                     description: $"No data is lost, since it is already stored on {HkVizSharedConstants.WEBSITE_DISPLAY_LINK}",
                     submitAction: (_) => {
-                        UploadManager.Instance.DeleteAlreadyUploadedFiles();
+                        uploadManager.DeleteAlreadyUploadedFiles();
                     }
                 );
 
@@ -54,7 +56,7 @@ namespace HKViz {
                     name: $"Retry failed uploads",
                     description: $"",
                     submitAction: (_) => {
-                        UploadManager.Instance.RetryFailedUploads();
+                        uploadManager.RetryFailedUploads();
                     }
                 );
 
@@ -96,9 +98,9 @@ namespace HKViz {
                     ]
                 );
 
-                HkVizAuthManager.Instance.StateChanged += state => LoginStateChanged(state);
-                UploadManager.Instance.QueuesChanged += Instance_FinishedQueuesChanged;
-                LoginStateChanged(HkVizAuthManager.Instance.State, update: false);
+                authManager.StateChanged += state => LoginStateChanged(state);
+                uploadManager.QueuesChanged += Instance_FinishedQueuesChanged;
+                LoginStateChanged(authManager.State, update: false);
                 UpdateQueueButtons(update: false);
             }
 
@@ -111,11 +113,11 @@ namespace HKViz {
 
         private void UpdateQueueButtons(bool update = true) {
             if (RetryUploadsButton != null) {
-                RetryUploadsButton.isVisible = UploadManager.Instance.FailedUploadsQueueCount() > 0;
-                RetryUploadsButton.Description = $"Retry {UploadManager.Instance.FailedUploadsQueueCount()} failed upload files";
+                RetryUploadsButton.isVisible = uploadManager.FailedUploadsQueueCount() > 0;
+                RetryUploadsButton.Description = $"Retry {uploadManager.FailedUploadsQueueCount()} failed upload files";
             }
             if (DeleteUploadedFilesButton != null) {
-                DeleteUploadedFilesButton.isVisible = UploadManager.Instance.FinishedUploadFilesQueueCount() > 0;
+                DeleteUploadedFilesButton.isVisible = uploadManager.FinishedUploadFilesQueueCount() > 0;
             }
 
             if (!update) return;
@@ -124,15 +126,15 @@ namespace HKViz {
             MenuRef?.Update();
         }
 
-        private void LoginStateChanged(HkVizAuthManager.LoginState state, bool update = true) {
-            var btnState = HkVizAuthManager.Instance.GetLoginButtonState(justTitle: false);
+        private void LoginStateChanged(LoginState state, bool update = true) {
+            var btnState = authManager.GetLoginButtonState(justTitle: false);
 
             if (LoginButton != null) {
                 LoginButton.Name = btnState.name;
                 LoginButton.Description = btnState.description;
-                LoginButton.SubmitAction = btn => {
+                LoginButton.SubmitAction = _ => {
                     Log("Auth button clicked");
-                    btnState.action(btn);
+                    btnState.action();
                 };
             }
 
@@ -141,7 +143,7 @@ namespace HKViz {
             //}
 
             if (MainMenuLoginButton != null) {
-                MainMenuLoginButton.isVisible = state != HkVizAuthManager.LoginState.LOGGED_IN;
+                MainMenuLoginButton.isVisible = state != LoginState.LOGGED_IN;
             }
 
             if (!update) return;

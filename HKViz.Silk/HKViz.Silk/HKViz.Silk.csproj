@@ -23,6 +23,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <RepositoryUrl>https://github.com/hkviz/HKViz</RepositoryUrl>
         <DefineConstants>$(DefineConstants);MOD_SILK</DefineConstants>
+        <NeutralLanguage>EN</NeutralLanguage>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all"/>
@@ -32,6 +33,7 @@
         <PackageReference Include="Hamunii.BepInEx.AutoPlugin" Version="2.0.1" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.25.0" PrivateAssets="all"/>
         <PackageReference Include="Silksong.DataManager" Version="1.2.1" />
+        <PackageReference Include="Silksong.ModMenu" Version="0.4.5" />
         <PackageReference
                 Include="UnityEngine.Modules"
                 Version="6000.0.50"
@@ -50,34 +52,30 @@
         <None Include="README.md" Pack="True" PackagePath="README.md"/>
         <None Include="thunderstore/icon.png" Pack="True" PackagePath="icon.png"/>
     </ItemGroup>
-    <ItemGroup>
-        <Compile Include="..\..\HKViz.Shared\**\*.cs" LinkBase="HKViz.Shared" />
-    </ItemGroup>
+
+    <Import Project="..\..\HKViz.Shared\HKViz.Shared.projitems" Label="Shared" />
 
     <Target Name="CopyAndPackageMod" AfterTargets="PostBuildEvent">
         <ItemGroup>
-            <Binaries Include="$(TargetPath)" LocalDir="/" PackDir="/"/>
-            <Binaries Include="$(TargetDir)/$(TargetName).pdb" LocalDir="/" PackDir="/"/>
+            <Binaries Include="$(TargetPath)" LocalDir="/" PackDir="plugins" />
+            <Binaries Include="$(TargetDir)/$(TargetName).pdb" LocalDir="/" PackDir="plugins" />
+            <Binaries Include="languages/*.json" LocalDir="languages" PackDir="plugins/languages" />
         </ItemGroup>
         <PropertyGroup>
             <ThunderstoreDir>$(ProjectDir)/thunderstore</ThunderstoreDir>
         </PropertyGroup>
-
-        <!-- Local install -->
         <Copy
                 SourceFiles="@(Binaries)"
-                DestinationFolder="$(SilksongPluginsFolder)/hkviz-$(AssemblyTitle)/%(Binaries.LocalDir)"
-                Condition="'$(SilksongPluginsFolder)' != '' And Exists('$(SilksongPluginsFolder)')"
+                DestinationFolder="$(SilksongFolder)/BepInEx/plugins/ThunderstoreUserName-$(AssemblyTitle)/%(Binaries.LocalDir)"
+                Condition="'$(SilksongFolder)' != '' And Exists('$(SilksongFolder)')"
         />
-
-        <!-- Thunderstore packaging -->
-        <RemoveDir Directories="$(ThunderstoreDir)/temp;$(ThunderstoreDir)/dist"/>
-        <MakeDir Directories="$(ThunderstoreDir)/temp"/>
+        <RemoveDir Directories="$(ThunderstoreDir)/temp;$(ThunderstoreDir)/dist" />
+        <MakeDir Directories="$(ThunderstoreDir)/temp" />
         <Copy
                 SourceFiles="@(Binaries)"
                 DestinationFolder="$(ThunderstoreDir)/temp/%(Binaries.PackDir)"
         />
-        <Exec Command="dotnet tool restore"/>
+        <Exec Command="dotnet tool restore" />
         <Exec
                 Command="dotnet tcli build --config-path &quot;$(ThunderstoreDir)/thunderstore.toml&quot; --package-name &quot;$(AssemblyTitle)&quot; --package-version $(Version)"
                 StandardOutputImportance="High"
