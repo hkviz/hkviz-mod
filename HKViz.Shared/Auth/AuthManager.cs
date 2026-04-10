@@ -113,6 +113,10 @@ public class AuthManager {
                     UserName = data.user.name;
                     State = LoginState.LOGGED_IN;
                     loggedInAt = Time.unscaledTime;
+                    if (fromSettings) {
+                        // not showing success message on game load
+                        displayLoginSuccessForSeconds = -1000;
+                    }
                 } else if (fromSettings) {
                     State = LoginState.NOT_LOGGED_IN;
                 }

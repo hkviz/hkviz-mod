@@ -18,14 +18,15 @@ namespace HKViz.Silk;
 [BepInDependency("org.silksong-modding.datamanager")]
 [BepInDependency("org.silksong-modding.i18n")]
 [BepInDependency(Silksong.ModMenu.ModMenuPlugin.Id)]
-public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun>, IRecordingManager, IModMenuCustomMenu {
+public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun>, IGlobalDataMod<SaveDataGlobal>, IRecordingManager, IModMenuCustomMenu {
     private Extractor _extractor;
 
     private RunWriter? CurrentRunWriter { get; set; }
     private HkVizMenuScreen menuScreen;
+    private HkVizSharedInstances sharedInstances;
 
     private void Awake() {
-        var sharedInstances = new HkVizSharedInstances(
+        sharedInstances = new HkVizSharedInstances(
             new SilkLogger(Logger),
             new SilkUploadPathResolver(),
             this
@@ -87,5 +88,26 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
 
     public AbstractMenuScreen BuildCustomMenu() {
         return menuScreen.BuildCustomMenu();
+    }
+
+    public SaveDataGlobal? GlobalData {
+        get =>
+            new(
+                authId: sharedInstances.authManager.AuthId,
+                userName: sharedInstances.authManager.UserName,
+                autoUpload: true,
+                showLoginButtonInMainMenu: true,
+                queuedUploadFiles: sharedInstances.uploadManager.queuedFiles,
+                failedUploadFiles: sharedInstances.uploadManager.failedUploads,
+                finishedUploadFiles: sharedInstances.uploadManager.finishedUploadFiles
+            );
+        set {
+            sharedInstances.authManager.InitializeFromGlobalSettings(value?.authId, value?.userName);
+            sharedInstances.uploadManager.AddUploadEntries(
+                value?.queuedUploadFiles,
+                value?.failedUploadFiles,
+                value?.finishedUploadFiles
+            );
+        }
     }
 }
