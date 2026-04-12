@@ -301,6 +301,14 @@ static bool IsSupported(TypeReference type, string fieldName) {
         return true;
     }
 
+    if (IsListOf(type, "System.Int32") || IsListOf(type, "System.String")) {
+        return true;
+    }
+
+    if (IsSetOf(type, "System.String")) {
+        return true;
+    }
+
     if (fullName == "System.Byte[]" && fieldName.EndsWith("Guid", StringComparison.Ordinal)) {
         return true;
     }
@@ -355,8 +363,29 @@ static string GetTypeName(TypeReference type, string fieldName) {
         "System.Int32[]" => "int[]",
         "System.String" => "string",
         "System.Guid" => "guid",
+        _ when IsListOf(type, "System.Int32") => "list<int>",
+        _ when IsListOf(type, "System.String") => "list<string>",
+        _ when IsSetOf(type, "System.String") => "hashset<string>",
         _ => type.FullName,
     };
+}
+
+static bool IsListOf(TypeReference type, string elementFullName) {
+    if (type is not GenericInstanceType { ElementType.FullName: "System.Collections.Generic.List`1" } genericType) {
+        return false;
+    }
+
+    return genericType.GenericArguments.Count == 1
+           && genericType.GenericArguments[0].FullName == elementFullName;
+}
+
+static bool IsSetOf(TypeReference type, string elementFullName) {
+    if (type is not GenericInstanceType { ElementType.FullName: "System.Collections.Generic.HashSet`1" } genericType) {
+        return false;
+    }
+
+    return genericType.GenericArguments.Count == 1
+           && genericType.GenericArguments[0].FullName == elementFullName;
 }
 
 static bool TryFitsIntoByte(object? value, out string valueText) {

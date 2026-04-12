@@ -29,6 +29,10 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
     private const byte IntArrayModeFull = 0;
     private const byte IntArrayModeDelta = 1;
+    private const byte StringCollectionModeFull = 0;
+    private const byte StringCollectionModeDelta = 1;
+    private const byte StringSetModeFull = 0;
+    private const byte StringSetModeDelta = 1;
 
     public void NextFileIfNeeded() {
         if (_isClosed) return;
@@ -304,12 +308,34 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
         int[] values = value ?? Array.Empty<int>();
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataIntArray);
+        writer.WriteEntryType(WriteEntryType.PlayerDataIntList);
         writer.Write(fieldId);
         writer.Write(IntArrayModeFull);
         writer.Write(values.Length);
         for (int i = 0; i < values.Length; i++) {
             writer.Write(values[i]);
+        }
+    }
+
+    public void WritePlayerDataIntListFullChange(ushort fieldId, System.Collections.Generic.IReadOnlyList<int>? value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data int list full but writer is null");
+            return;
+        }
+
+        int count = value?.Count ?? 0;
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataIntList);
+        writer.Write(fieldId);
+        writer.Write(IntArrayModeFull);
+        writer.Write(count);
+        if (value == null) {
+            return;
+        }
+
+        for (int i = 0; i < count; i++) {
+            writer.Write(value[i]);
         }
     }
 
@@ -326,7 +352,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataIntArray);
+        writer.WriteEntryType(WriteEntryType.PlayerDataIntList);
         writer.Write(fieldId);
         writer.Write(IntArrayModeDelta);
         writer.Write(arrayLength);
@@ -334,6 +360,95 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         for (int i = 0; i < changedIndices.Length; i++) {
             writer.Write(changedIndices[i]);
             writer.Write(changedValues[i]);
+        }
+    }
+
+    public void WritePlayerDataStringCollectionFullChange(ushort fieldId, string[] values) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data string collection full but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStringList);
+        writer.Write(fieldId);
+        writer.Write(StringCollectionModeFull);
+        writer.WriteStringArray(values);
+    }
+
+    public void WritePlayerDataStringCollectionDeltaChange(
+        ushort fieldId,
+        int collectionLength,
+        int[] changedIndices,
+        string[] changedValues
+    ) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data string collection delta but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStringList);
+        writer.Write(fieldId);
+        writer.Write(StringCollectionModeDelta);
+        writer.Write(collectionLength);
+        writer.Write(changedIndices.Length);
+        for (int i = 0; i < changedIndices.Length; i++) {
+            writer.Write(changedIndices[i]);
+            writer.WriteStringCompat(changedValues[i] ?? string.Empty);
+        }
+    }
+
+    public void WritePlayerDataStringSetDeltaChange(
+        ushort fieldId,
+        System.Collections.Generic.List<string> added,
+        System.Collections.Generic.List<string> removed
+    ) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data string set delta but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStringSet);
+        writer.Write(fieldId);
+        writer.Write(StringSetModeDelta);
+        writer.Write(added.Count);
+        for (int i = 0; i < added.Count; i++) {
+            writer.WriteStringCompat(added[i] ?? string.Empty);
+        }
+        writer.Write(removed.Count);
+        for (int i = 0; i < removed.Count; i++) {
+            writer.WriteStringCompat(removed[i] ?? string.Empty);
+        }
+    }
+
+    public void WritePlayerDataStringSetFullChange(
+        ushort fieldId,
+        System.Collections.Generic.ICollection<string>? values
+    ) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data string set full but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStringSet);
+        writer.Write(fieldId);
+        writer.Write(StringSetModeFull);
+
+        int count = values?.Count ?? 0;
+        writer.Write(count);
+        if (values == null) {
+            return;
+        }
+
+        foreach (string value in values) {
+            writer.WriteStringCompat(value ?? string.Empty);
         }
     }
 

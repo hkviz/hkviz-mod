@@ -284,11 +284,19 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     source.AppendLine(");");
                     break;
                 case FieldKind.IntArray:
-                    source.Append("        runFiles.WritePlayerDataIntArrayFullChange(FieldIds.");
-                    source.Append(field.FieldIdName);
-                    source.Append(", ");
-                    source.Append(field.CurrentName);
-                    source.AppendLine(");");
+                    if (IsIntList(field.Symbol)) {
+                        source.Append("        runFiles.WritePlayerDataIntListFullChange(FieldIds.");
+                        source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append(field.CurrentName);
+                        source.AppendLine(");");
+                    } else {
+                        source.Append("        runFiles.WritePlayerDataIntArrayFullChange(FieldIds.");
+                        source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append(field.CurrentName);
+                        source.AppendLine(");");
+                    }
                     break;
                 case FieldKind.Float:
                     source.Append("        runFiles.WritePlayerDataFloatChange(FieldIds.");
@@ -297,13 +305,30 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     source.Append(field.CurrentName);
                     source.AppendLine(");");
                     break;
-                case FieldKind.String:
+                 case FieldKind.String:
                     source.Append("        runFiles.WritePlayerDataStringChange(FieldIds.");
                     source.Append(field.FieldIdName);
                     source.Append(", ");
                     source.Append(field.CurrentName);
                     source.Append(" ?? string.Empty");
                     source.AppendLine(");");
+                    break;
+                case FieldKind.StringCollection:
+                    if (IsStringSet(field.Symbol)) {
+                        source.Append("        runFiles.WritePlayerDataStringSetFullChange(FieldIds.");
+                        source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append(field.CurrentName);
+                        source.AppendLine(");");
+                    } else {
+                        source.Append("        runFiles.WritePlayerDataStringCollectionFullChange(FieldIds.");
+                        source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append(field.CurrentName);
+                        source.Append(" == null ? new string[0] : ");
+                        source.Append(field.CurrentName);
+                        source.AppendLine(".ToArray());");
+                    }
                     break;
                 case FieldKind.Guid:
                     source.Append("        runFiles.WritePlayerDataGuidChange(FieldIds.");
@@ -314,19 +339,12 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     break;
             }
 
-            if (field.Kind == FieldKind.IntArray) {
-                source.Append("        UpdateIntArraySnapshot(ref ");
-                source.Append(field.PreviousName);
-                source.Append(", ");
-                source.Append(field.CurrentName);
-                source.AppendLine(");");
-            } else {
-                source.Append("        ");
-                source.Append(field.PreviousName);
-                source.Append(" = ");
-                source.Append(GetPreviousAssignmentExpression(field, field.CurrentName));
-                source.AppendLine(";");
-            }
+            // All fields use the same assignment pattern now
+            source.Append("        ");
+            source.Append(field.PreviousName);
+            source.Append(" = ");
+            source.Append(GetPreviousAssignmentExpression(field, field.CurrentName));
+            source.AppendLine(";");
             source.AppendLine();
         }
 
@@ -343,19 +361,11 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         source.AppendLine();
         source.AppendLine("        if (!_hasPreviousPlayerDataValues) {");
         foreach (ObservedField field in supportedFields) {
-            if (field.Kind == FieldKind.IntArray) {
-                source.Append("            UpdateIntArraySnapshot(ref ");
-                source.Append(field.PreviousName);
-                source.Append(", ");
-                source.Append(GetReadExpression(field, "playerData"));
-                source.AppendLine(");");
-            } else {
-                source.Append("            ");
-                source.Append(field.PreviousName);
-                source.Append(" = ");
-                source.Append(GetPreviousAssignmentExpression(field, GetReadExpression(field, "playerData")));
-                source.AppendLine(";");
-            }
+            source.Append("            ");
+            source.Append(field.PreviousName);
+            source.Append(" = ");
+            source.Append(GetPreviousAssignmentExpression(field, GetReadExpression(field, "playerData")));
+            source.AppendLine(";");
         }
         source.AppendLine("            _hasPreviousPlayerDataValues = true;");
         source.AppendLine("            return;");
@@ -426,14 +436,26 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     source.Append(field.CurrentName);
                     source.AppendLine(");");
                     break;
-                case FieldKind.IntArray:
-                    source.Append("        WriteIntArrayIfChanged(FieldIds.");
-                    source.Append(field.FieldIdName);
-                    source.Append(", ref ");
-                    source.Append(field.PreviousName);
-                    source.Append(", ");
-                    source.Append(field.CurrentName);
-                    source.AppendLine(");");
+                 case FieldKind.IntArray:
+                    if (IsIntList(field.Symbol)) {
+                        source.Append("        WriteIntListIfChanged(FieldIds.");
+                        source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append("ref ");
+                        source.Append(field.PreviousName);
+                        source.Append(", ");
+                        source.Append(field.CurrentName);
+                        source.AppendLine(");");
+                    } else {
+                        source.Append("        WriteIntArrayIfChanged(FieldIds.");
+                        source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append("ref ");
+                        source.Append(field.PreviousName);
+                        source.Append(", ");
+                        source.Append(field.CurrentName);
+                        source.AppendLine(");");
+                    }
                     break;
                 case FieldKind.Float:
                     source.Append("        WriteFloatIfChanged(FieldIds.");
@@ -444,7 +466,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     source.Append(field.CurrentName);
                     source.AppendLine(");");
                     break;
-                case FieldKind.String:
+                 case FieldKind.String:
                     source.Append("        WriteStringIfChanged(FieldIds.");
                     source.Append(field.FieldIdName);
                     source.Append(", ");
@@ -452,6 +474,27 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     source.Append(", ");
                     source.Append(field.CurrentName);
                     source.AppendLine(");");
+                    break;
+                case FieldKind.StringCollection:
+                    if (IsStringSet(field.Symbol)) {
+                        source.Append("        WriteStringSetIfChanged(FieldIds.");
+                        source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append("ref ");
+                        source.Append(field.PreviousName);
+                        source.Append(", ");
+                        source.Append(field.CurrentName);
+                        source.AppendLine(");");
+                    } else {
+                        source.Append("        WriteStringListIfChanged(FieldIds.");
+                        source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append("ref ");
+                        source.Append(field.PreviousName);
+                        source.Append(", ");
+                        source.Append(field.CurrentName);
+                        source.AppendLine(");");
+                    }
                     break;
                 case FieldKind.Guid:
                     source.Append("        WriteGuidIfChanged(FieldIds.");
@@ -464,11 +507,13 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     break;
             }
 
-            source.Append("        ");
-            source.Append(field.PreviousName);
-            source.Append(" = ");
-            source.Append(GetPreviousAssignmentExpression(field, field.CurrentName));
-            source.AppendLine(";");
+            if (field.Kind != FieldKind.IntArray && field.Kind != FieldKind.StringCollection) {
+                source.Append("        ");
+                source.Append(field.PreviousName);
+                source.Append(" = ");
+                source.Append(GetPreviousAssignmentExpression(field, field.CurrentName));
+                source.AppendLine(";");
+            }
             source.AppendLine();
         }
 
@@ -521,8 +566,29 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         source.AppendLine("        return value is { Length: 16 } ? new global::System.Guid(value) : global::System.Guid.Empty;");
         source.AppendLine("    }");
         source.AppendLine();
+        source.AppendLine("    private static global::System.Collections.Generic.List<int>? CopyIntList(global::System.Collections.Generic.List<int>? value) {");
+        source.AppendLine("        if (value is null || value.Count == 0) {");
+        source.AppendLine("            return null;");
+        source.AppendLine("        }");
+        source.AppendLine("        return new global::System.Collections.Generic.List<int>(value);");
+        source.AppendLine("    }");
+        source.AppendLine();
+        source.AppendLine("    private static global::System.Collections.Generic.List<string>? CopyStringList(global::System.Collections.Generic.List<string>? value) {");
+        source.AppendLine("        if (value is null || value.Count == 0) {");
+        source.AppendLine("            return null;");
+        source.AppendLine("        }");
+        source.AppendLine("        return new global::System.Collections.Generic.List<string>(value);");
+        source.AppendLine("    }");
+        source.AppendLine();
+        source.AppendLine("    private static global::System.Collections.Generic.HashSet<string>? CopyStringSet(global::System.Collections.Generic.HashSet<string>? value) {");
+        source.AppendLine("        if (value is null || value.Count == 0) {");
+        source.AppendLine("            return null;");
+        source.AppendLine("        }");
+        source.AppendLine("        return new global::System.Collections.Generic.HashSet<string>(value, global::System.StringComparer.Ordinal);");
+        source.AppendLine("    }");
+        source.AppendLine();
         source.AppendLine("}");
-
+        source.AppendLine();
         context.AddSource("PlayerDataWriter.generated.cs", SourceText.From(source.ToString(), Encoding.UTF8));
     }
 
@@ -711,6 +777,18 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             return "ushort";
         }
 
+        if (field.Kind == FieldKind.IntArray && IsIntList(field.Symbol)) {
+            return "global::System.Collections.Generic.List<int>";
+        }
+
+        if (field.Kind == FieldKind.StringCollection && IsStringList(field.Symbol)) {
+            return "global::System.Collections.Generic.List<string>";
+        }
+
+        if (field.Kind == FieldKind.StringCollection && IsStringSet(field.Symbol)) {
+            return "global::System.Collections.Generic.HashSet<string>";
+        }
+
         if (IsGuidByteArray(field.Symbol)) {
             return "global::System.Guid";
         }
@@ -723,6 +801,18 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             return field.EnumMapperName + "(" + instanceName + "." + field.Symbol.Name + ")";
         }
 
+        if (IsIntList(field.Symbol)) {
+            return instanceName + "." + field.Symbol.Name;
+        }
+
+        if (IsStringList(field.Symbol)) {
+            return instanceName + "." + field.Symbol.Name;
+        }
+
+        if (IsStringSet(field.Symbol)) {
+            return instanceName + "." + field.Symbol.Name;
+        }
+
         if (IsGuidByteArray(field.Symbol)) {
             return "GuidFromBytesOrEmpty(" + instanceName + "." + field.Symbol.Name + ")";
         }
@@ -731,6 +821,17 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     }
 
     private static string GetPreviousAssignmentExpression(ObservedField field, string valueExpression) {
+        if (field.Kind == FieldKind.IntArray && IsIntList(field.Symbol)) {
+            return "CopyIntList(" + valueExpression + ")";
+        }
+
+        if (field.Kind == FieldKind.StringCollection && IsStringList(field.Symbol)) {
+            return "CopyStringList(" + valueExpression + ")";
+        }
+
+        if (field.Kind == FieldKind.StringCollection && IsStringSet(field.Symbol)) {
+            return "CopyStringSet(" + valueExpression + ")";
+        }
 
         return valueExpression;
     }
@@ -754,6 +855,9 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             SpecialType.System_UInt64 => "ulong",
             SpecialType.System_Single => "float",
             SpecialType.System_String => "string",
+            _ when IsIntList(field) => "list<int>",
+            _ when IsStringList(field) => "list<string>",
+            _ when IsStringSet(field) => "hashset<string>",
             _ when IsIntArray(field) => "int[]",
             _ when field.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::UnityEngine.Vector2" => "vector2",
             _ when field.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::UnityEngine.Vector3" => "vector3",
@@ -774,6 +878,18 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
 
         if (IsIntArray(field)) {
             return FieldKind.IntArray;
+        }
+
+        if (IsIntList(field)) {
+            return FieldKind.IntArray;
+        }
+
+        if (IsStringList(field)) {
+            return FieldKind.StringCollection;
+        }
+
+        if (IsStringSet(field)) {
+            return FieldKind.StringCollection;
         }
 
         return symbol.SpecialType switch {
@@ -804,6 +920,36 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                && arrayType.ElementType.SpecialType == SpecialType.System_Int32;
     }
 
+    private static bool IsIntList(IFieldSymbol field) {
+        return field.Type is INamedTypeSymbol {
+            IsGenericType: true,
+            Name: "List",
+            TypeArguments.Length: 1,
+        } namedType
+               && namedType.ContainingNamespace.ToDisplayString() == "System.Collections.Generic"
+               && namedType.TypeArguments[0].SpecialType == SpecialType.System_Int32;
+    }
+
+    private static bool IsStringList(IFieldSymbol field) {
+        return field.Type is INamedTypeSymbol {
+            IsGenericType: true,
+            Name: "List",
+            TypeArguments.Length: 1,
+        } namedType
+               && namedType.ContainingNamespace.ToDisplayString() == "System.Collections.Generic"
+               && namedType.TypeArguments[0].SpecialType == SpecialType.System_String;
+    }
+
+    private static bool IsStringSet(IFieldSymbol field) {
+        return field.Type is INamedTypeSymbol {
+            IsGenericType: true,
+            Name: "HashSet",
+            TypeArguments.Length: 1,
+        } namedType
+               && namedType.ContainingNamespace.ToDisplayString() == "System.Collections.Generic"
+               && namedType.TypeArguments[0].SpecialType == SpecialType.System_String;
+    }
+
     private static string GetEnumTypeKey(ITypeSymbol enumSymbol) {
         return enumSymbol.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
     }
@@ -820,6 +966,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         Float,
         String,
         Guid,
+        StringCollection,  // List<string> or HashSet<string>
     }
 
     private readonly struct FieldSchema {

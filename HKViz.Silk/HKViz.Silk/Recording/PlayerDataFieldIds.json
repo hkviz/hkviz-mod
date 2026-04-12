@@ -5291,6 +5291,34 @@
     "mossBerryValueList": {
       "id": 1323,
       "type": "int[]"
+    },
+    "BelltownCouriersGenericQuests": {
+      "id": 1324,
+      "type": "list\u003Cstring\u003E"
+    },
+    "FleasCollectedTargetOrder": {
+      "id": 1325,
+      "type": "list\u003Cint\u003E"
+    },
+    "unlockedBossScenes": {
+      "id": 1326,
+      "type": "list\u003Cstring\u003E"
+    },
+    "scenesEncounteredBench": {
+      "id": 1327,
+      "type": "hashset\u003Cstring\u003E"
+    },
+    "scenesEncounteredCocoon": {
+      "id": 1328,
+      "type": "hashset\u003Cstring\u003E"
+    },
+    "scenesMapped": {
+      "id": 1329,
+      "type": "hashset\u003Cstring\u003E"
+    },
+    "scenesVisited": {
+      "id": 1330,
+      "type": "hashset\u003Cstring\u003E"
     }
   },
   "enums": {

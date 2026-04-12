@@ -22,6 +22,13 @@ public static class BinaryWriterExtensions {
         writer.Write(bytes);
     }
 
+    public static void WriteStringArray(this BinaryWriter writer, string[] values) {
+        writer.Write(values.Length);
+        for (int i = 0; i < values.Length; i++) {
+            writer.WriteStringCompat(values[i] ?? string.Empty);
+        }
+    }
+
     public static void WriteEntryType(this BinaryWriter writer, WriteEntryType value) {
         writer.Write((byte)value);
     }

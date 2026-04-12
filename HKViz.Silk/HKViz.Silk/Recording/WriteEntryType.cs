@@ -21,14 +21,16 @@ public enum WriteEntryType : byte {
     // TODO
     
     // PlayerData
-    PlayerDataBool       = 0x11,
-    PlayerDataInt        = 0x12,
-    PlayerDataFloat      = 0x13,
-    PlayerDataString     = 0x14,
-    PlayerDataGuid       = 0x15,
-    PlayerDataEnum       = 0x16,
-    PlayerDataULong      = 0x17,
-    PlayerDataVector3    = 0x18,
-    PlayerDataVector2    = 0x19,
-    PlayerDataIntArray   = 0x1A,
+    PlayerDataBool       = 0x0A,
+    PlayerDataInt        = 0x0B,
+    PlayerDataFloat      = 0x0C,
+    PlayerDataString     = 0x0D,
+    PlayerDataGuid       = 0x0E,
+    PlayerDataEnum       = 0x0F,
+    PlayerDataULong      = 0x11,
+    PlayerDataVector3    = 0x12,
+    PlayerDataVector2    = 0x13,
+    PlayerDataIntList   = 0x14,
+    PlayerDataStringList = 0x15, // used for lists and arrays
+    PlayerDataStringSet  = 0x16,
 }
