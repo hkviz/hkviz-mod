@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace HKViz.Silk.Recording.DataHelpers;
 
 public static class StoryEventInfoDataHelper {
@@ -10,10 +8,5 @@ public static class StoryEventInfoDataHelper {
 
     public static PlayerStory.EventInfo Copy(PlayerStory.EventInfo value) => value;
 
-    public static void Write(BinaryWriter writer, PlayerStory.EventInfo value) {
-        writer.Write((int)value.EventType);
-        writer.WriteStringCompat(value.SceneName);
-        writer.Write(value.PlayTime);
-    }
 }
 

@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace HKViz.Silk.Recording.DataHelpers;
 
 public static class QuestRumourDataHelper {
@@ -8,10 +6,6 @@ public static class QuestRumourDataHelper {
 
     public static QuestRumourData.Data Copy(QuestRumourData.Data value) => value;
 
-    public static void Write(BinaryWriter writer, QuestRumourData.Data value) {
-        writer.Write(value.HasBeenSeen);
-        writer.Write(value.IsAccepted);
-    }
 }
 
 

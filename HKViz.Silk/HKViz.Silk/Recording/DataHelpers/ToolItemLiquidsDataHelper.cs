@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace HKViz.Silk.Recording.DataHelpers;
 
 public static class ToolItemLiquidsDataHelper {
@@ -8,10 +6,5 @@ public static class ToolItemLiquidsDataHelper {
 
 	public static ToolItemLiquidsData.Data Copy(ToolItemLiquidsData.Data value) => value;
 
-	public static void Write(BinaryWriter writer, ToolItemLiquidsData.Data value) {
-		writer.Write(value.RefillsLeft);
-		writer.Write(value.SeenEmptyState);
-		writer.Write(value.UsedExtra);
-	}
 }
 

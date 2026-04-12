@@ -344,6 +344,10 @@ static bool IsSupported(TypeReference type, string fieldName) {
         return true;
     }
 
+    if (IsNamedMapType(type)) {
+        return true;
+    }
+
     if (IsListOf(type, "System.Int32") || IsListOf(type, "System.String")) {
         return true;
     }
@@ -516,6 +520,21 @@ static bool IsSteelQuestSpotArray(TypeReference type) {
 
 static bool IsWrappedVector2ListArray(TypeReference type) {
     return type is ArrayType { ElementType.FullName: "WrappedVector2List" };
+}
+
+static bool IsNamedMapType(TypeReference type) {
+    string fullName = type.FullName;
+    return fullName is
+        "CollectableItemsData"
+        or "CollectableRelicsData"
+        or "CollectableMementosData"
+        or "QuestRumourData"
+        or "QuestCompletionData"
+        or "MateriumItemsData"
+        or "ToolItemLiquidsData"
+        or "ToolItemsData"
+        or "ToolCrestsData"
+        or "EnemyJournalKillData";
 }
 
 static bool TryFitsIntoByte(object? value, out string valueText) {

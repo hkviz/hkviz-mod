@@ -515,7 +515,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         for (int i = 0; i < count; i++) {
-            StoryEventInfoDataHelper.Write(writer, values[i]);
+            writer.WriteStoryEventInfoData(values[i]);
         }
     }
 
@@ -538,7 +538,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         writer.Write(changedIndices.Length);
         for (int i = 0; i < changedIndices.Length; i++) {
             writer.Write(changedIndices[i]);
-            StoryEventInfoDataHelper.Write(writer, changedValues[i]);
+            writer.WriteStoryEventInfoData(changedValues[i]);
         }
     }
 
@@ -555,7 +555,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         writer.Write(fieldId);
         writer.Write(data.Length);
         for (int i = 0; i < data.Length; i++) {
-            WrappedVector2ListDataHelper.Write(writer, data[i]);
+            writer.WriteWrappedVector2List(data[i]);
         }
     }
 
@@ -578,7 +578,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         writer.Write(changedIndices.Length);
         for (int i = 0; i < changedIndices.Length; i++) {
             writer.Write(changedIndices[i]);
-            WrappedVector2ListDataHelper.Write(writer, changedValues[i]);
+            writer.WriteWrappedVector2List(changedValues[i]);
         }
     }
 
@@ -595,7 +595,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         writer.Write(oldLength);
         writer.Write(appendedValues.Length);
         for (int i = 0; i < appendedValues.Length; i++) {
-            WrappedVector2ListDataHelper.Write(writer, appendedValues[i]);
+            writer.WriteWrappedVector2List(appendedValues[i]);
         }
     }
 

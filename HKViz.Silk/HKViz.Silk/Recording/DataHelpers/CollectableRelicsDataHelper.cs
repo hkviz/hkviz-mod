@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace HKViz.Silk.Recording.DataHelpers;
 
 public static class CollectableRelicsDataHelper {
@@ -8,11 +6,6 @@ public static class CollectableRelicsDataHelper {
 
     public static CollectableRelicsData.Data Copy(CollectableRelicsData.Data value) => value;
 
-    public static void Write(BinaryWriter writer, CollectableRelicsData.Data value) {
-        writer.Write(value.IsCollected);
-        writer.Write(value.IsDeposited);
-        writer.Write(value.HasSeenInRelicBoard);
-    }
 }
 
 

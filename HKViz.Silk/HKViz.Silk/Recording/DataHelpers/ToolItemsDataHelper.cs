@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace HKViz.Silk.Recording.DataHelpers;
 
 public static class ToolItemsDataHelper {
@@ -8,13 +6,6 @@ public static class ToolItemsDataHelper {
 
     public static ToolItemsData.Data Copy(ToolItemsData.Data value) => value;
 
-    public static void Write(BinaryWriter writer, ToolItemsData.Data value) {
-        writer.Write(value.IsUnlocked);
-        writer.Write(value.IsHidden);
-        writer.Write(value.HasBeenSeen);
-        writer.Write(value.HasBeenSelected);
-        writer.Write(value.AmountLeft);
-    }
 }
 
 

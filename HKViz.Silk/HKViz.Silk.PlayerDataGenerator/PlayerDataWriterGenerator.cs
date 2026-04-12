@@ -31,12 +31,12 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         isEnabledByDefault: true
     );
 
-    private static readonly DiagnosticDescriptor AssignedNewIds = new(
+    private static readonly DiagnosticDescriptor MissingFieldId = new(
         id: "HKVIZSILK002",
-        title: "New PlayerData fields received IDs",
-        messageFormat: "Assigned new PlayerData field ids: {0}. The sync target should persist these in PlayerDataFieldIds.json",
+        title: "Missing PlayerData field id",
+        messageFormat: "PlayerData field '{0}' is missing an id in PlayerDataFieldIds.json",
         category: "HKViz.Silk.Generator",
-        defaultSeverity: DiagnosticSeverity.Info,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true
     );
 
@@ -49,12 +49,12 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         isEnabledByDefault: true
     );
 
-    private static readonly DiagnosticDescriptor AssignedNewEnumMemberIds = new(
+    private static readonly DiagnosticDescriptor MissingEnumMemberId = new(
         id: "HKVIZSILK004",
-        title: "New enum member ids assigned",
-        messageFormat: "Assigned new enum member ids: {0}. The sync target should persist these in PlayerDataFieldIds.json",
+        title: "Missing enum member id",
+        messageFormat: "Enum member id for '{0}.{1}' is missing in PlayerDataFieldIds.json",
         category: "HKViz.Silk.Generator",
-        defaultSeverity: DiagnosticSeverity.Info,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true
     );
 
@@ -128,60 +128,71 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             .Where(static field => field.Kind != FieldKind.Unsupported)
             .ToList();
 
-        ushort nextFieldId = fieldSchemaMap.Count == 0 ? (ushort)1 : (ushort)(fieldSchemaMap.Values.Max(static value => value.Id) + 1);
-        List<string> newFieldAssignments = [];
+        List<string> missingFieldIds = [];
 
         foreach (ObservedField field in supportedFields) {
             bool isEnumField = field.Kind == FieldKind.EnumId;
             string expectedTypeName = isEnumField ? "enum" : GetTypeName(field);
             string expectedEnumType = isEnumField ? GetEnumTypeKey(field.FieldType) : string.Empty;
 
-            if (fieldSchemaMap.TryGetValue(field.FieldName, out FieldSchema existingSchema)) {
-                if (isEnumField) {
-                    string normalizedEnumType = string.IsNullOrWhiteSpace(existingSchema.EnumType) ? expectedEnumType : existingSchema.EnumType;
-                    fieldSchemaMap[field.FieldName] = new FieldSchema(existingSchema.Id, "enum", normalizedEnumType);
-                } else {
-                    string normalizedType = string.IsNullOrWhiteSpace(existingSchema.Type) ? expectedTypeName : existingSchema.Type;
-                    fieldSchemaMap[field.FieldName] = new FieldSchema(existingSchema.Id, normalizedType, string.Empty);
-                }
+            if (!fieldSchemaMap.TryGetValue(field.FieldName, out FieldSchema existingSchema) || existingSchema.Id == 0) {
+                missingFieldIds.Add(field.FieldName);
                 continue;
             }
 
-            fieldSchemaMap[field.FieldName] = new FieldSchema(nextFieldId, expectedTypeName, expectedEnumType);
-            newFieldAssignments.Add($"{field.FieldName}:{nextFieldId}");
-            nextFieldId++;
+            if (isEnumField) {
+                string normalizedEnumType = !string.IsNullOrWhiteSpace(existingSchema.EnumType)
+                    ? existingSchema.EnumType
+                    : string.Equals(existingSchema.Type, "enum", StringComparison.OrdinalIgnoreCase)
+                        ? expectedEnumType
+                        : string.IsNullOrWhiteSpace(existingSchema.Type)
+                            ? expectedEnumType
+                            : existingSchema.Type;
+                fieldSchemaMap[field.FieldName] = new FieldSchema(existingSchema.Id, "enum", normalizedEnumType);
+            } else {
+                string normalizedType = string.IsNullOrWhiteSpace(existingSchema.Type) ? expectedTypeName : existingSchema.Type;
+                fieldSchemaMap[field.FieldName] = new FieldSchema(existingSchema.Id, normalizedType, string.Empty);
+            }
         }
 
-        if (newFieldAssignments.Count > 0) {
-            context.ReportDiagnostic(Diagnostic.Create(AssignedNewIds, Location.None, string.Join(", ", newFieldAssignments)));
+        if (missingFieldIds.Count > 0) {
+            foreach (string fieldName in missingFieldIds.OrderBy(static name => name, StringComparer.Ordinal)) {
+                context.ReportDiagnostic(Diagnostic.Create(MissingFieldId, Location.None, fieldName));
+            }
+
+            return;
         }
 
         Dictionary<string, EnumTypeInfo> enumTypeInfos = BuildEnumTypeInfos(supportedFields);
-        List<string> newEnumMemberAssignments = [];
+        List<(string EnumType, string Member)> missingEnumMemberIds = [];
 
         foreach (KeyValuePair<string, EnumTypeInfo> enumTypeEntry in enumTypeInfos.OrderBy(static kv => kv.Key, StringComparer.Ordinal)) {
             string enumTypeKey = enumTypeEntry.Key;
             EnumTypeInfo enumInfo = enumTypeEntry.Value;
 
             if (!enumMemberMapByType.TryGetValue(enumTypeKey, out Dictionary<string, ushort>? memberMap)) {
-                memberMap = new Dictionary<string, ushort>(StringComparer.Ordinal);
-                enumMemberMapByType[enumTypeKey] = memberMap;
-            }
-
-            ushort nextMemberId = memberMap.Count == 0 ? (ushort)1 : (ushort)(memberMap.Values.Max() + 1);
-            foreach (string memberName in enumInfo.MemberNames.OrderBy(static name => name, StringComparer.Ordinal)) {
-                if (memberMap.ContainsKey(memberName)) {
-                    continue;
+                foreach (string memberName in enumInfo.MemberNames.OrderBy(static name => name, StringComparer.Ordinal)) {
+                    missingEnumMemberIds.Add((enumTypeKey, memberName));
                 }
 
-                memberMap[memberName] = nextMemberId;
-                newEnumMemberAssignments.Add($"{enumTypeKey}.{memberName}:{nextMemberId}");
-                nextMemberId++;
+                continue;
+            }
+
+            foreach (string memberName in enumInfo.MemberNames.OrderBy(static name => name, StringComparer.Ordinal)) {
+                if (!memberMap.ContainsKey(memberName)) {
+                    missingEnumMemberIds.Add((enumTypeKey, memberName));
+                }
             }
         }
 
-        if (newEnumMemberAssignments.Count > 0) {
-            context.ReportDiagnostic(Diagnostic.Create(AssignedNewEnumMemberIds, Location.None, string.Join(", ", newEnumMemberAssignments)));
+        if (missingEnumMemberIds.Count > 0) {
+            foreach ((string enumType, string member) in missingEnumMemberIds
+                         .OrderBy(static item => item.EnumType, StringComparer.Ordinal)
+                         .ThenBy(static item => item.Member, StringComparer.Ordinal)) {
+                context.ReportDiagnostic(Diagnostic.Create(MissingEnumMemberId, Location.None, enumType, member));
+            }
+
+            return;
         }
 
         HashSet<string> usedIdentifiers = new(StringComparer.Ordinal);
@@ -1006,12 +1017,12 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
 
      private static bool TryGetNamedMapInfo(ITypeSymbol type, out NamedMapInfo info) {
          if (IsSteelQuestSpotArray(type)) {
-             info = new NamedMapInfo("bool", ".EnumerateBySceneName()", "BoolDataHelper.Equals", "BoolDataHelper.Copy", "BoolDataHelper.Write");
+             info = new NamedMapInfo("bool", ".EnumerateBySceneName()", "BoolDataHelper.Equals", "BoolDataHelper.Copy", "BinaryWriterExtensions.WriteBool");
              return true;
          }
 
          if (IsStringIntDictionary(type)) {
-             info = new NamedMapInfo("int", string.Empty, "IntDataHelper.Equals", "IntDataHelper.Copy", "IntDataHelper.Write");
+             info = new NamedMapInfo("int", string.Empty, "IntDataHelper.Equals", "IntDataHelper.Copy", "BinaryWriterExtensions.WriteInt");
              return true;
          }
 
@@ -1022,17 +1033,17 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
 
          string typeName = namedType.Name;
          info = typeName switch {
-             "CollectableItemsData" => new NamedMapInfo("global::CollectableItemsData.Data", ".Enumerate()", "CollectableItemsDataHelper.Equals", "CollectableItemsDataHelper.Copy", "CollectableItemsDataHelper.Write"),
-             "CollectableRelicsData" => new NamedMapInfo("global::CollectableRelicsData.Data", ".Enumerate()", "CollectableRelicsDataHelper.Equals", "CollectableRelicsDataHelper.Copy", "CollectableRelicsDataHelper.Write"),
-             "CollectableMementosData" => new NamedMapInfo("global::CollectableMementosData.Data", ".Enumerate()", "CollectableMementosDataHelper.Equals", "CollectableMementosDataHelper.Copy", "CollectableMementosDataHelper.Write"),
-             "MateriumItemsData" => new NamedMapInfo("global::MateriumItemsData.Data", ".Enumerate()", "MateriumItemsDataHelper.Equals", "MateriumItemsDataHelper.Copy", "MateriumItemsDataHelper.Write"),
-             "QuestCompletionData" => new NamedMapInfo("global::QuestCompletionData.Completion", ".Enumerate()", "QuestCompletionDataHelper.Equals", "QuestCompletionDataHelper.Copy", "QuestCompletionDataHelper.Write"),
-             "QuestRumourData" => new NamedMapInfo("global::QuestRumourData.Data", ".Enumerate()", "QuestRumourDataHelper.Equals", "QuestRumourDataHelper.Copy", "QuestRumourDataHelper.Write"),
-             "ToolItemLiquidsData" => new NamedMapInfo("global::ToolItemLiquidsData.Data", ".Enumerate()", "ToolItemLiquidsDataHelper.Equals", "ToolItemLiquidsDataHelper.Copy", "ToolItemLiquidsDataHelper.Write"),
-             "ToolItemsData" => new NamedMapInfo("global::ToolItemsData.Data", ".Enumerate()", "ToolItemsDataHelper.Equals", "ToolItemsDataHelper.Copy", "ToolItemsDataHelper.Write"),
-             "ToolCrestsData" => new NamedMapInfo("global::ToolCrestsData.Data", ".Enumerate()", "ToolCrestsDataHelper.Equals", "ToolCrestsDataHelper.Copy", "ToolCrestsDataHelper.Write"),
-             "FloatingCrestSlotsData" => new NamedMapInfo("global::ToolCrestsData.SlotData", ".Enumerate()", "ToolCrestsDataHelper.EqualsSlotData", "ToolCrestsDataHelper.CopySlotData", "ToolCrestsDataHelper.WriteSlotData"),
-             "EnemyJournalKillData" => new NamedMapInfo("global::EnemyJournalKillData.KillData", ".Dictionary", "EnemyJournalKillDataHelper.Equals", "EnemyJournalKillDataHelper.Copy", "EnemyJournalKillDataHelper.Write"),
+             "CollectableItemsData" => new NamedMapInfo("global::CollectableItemsData.Data", ".Enumerate()", "CollectableItemsDataHelper.Equals", "CollectableItemsDataHelper.Copy", "BinaryWriterExtensions.WriteCollectableItemsData"),
+             "CollectableRelicsData" => new NamedMapInfo("global::CollectableRelicsData.Data", ".Enumerate()", "CollectableRelicsDataHelper.Equals", "CollectableRelicsDataHelper.Copy", "BinaryWriterExtensions.WriteCollectableRelicsData"),
+             "CollectableMementosData" => new NamedMapInfo("global::CollectableMementosData.Data", ".Enumerate()", "CollectableMementosDataHelper.Equals", "CollectableMementosDataHelper.Copy", "BinaryWriterExtensions.WriteCollectableMementosData"),
+             "MateriumItemsData" => new NamedMapInfo("global::MateriumItemsData.Data", ".Enumerate()", "MateriumItemsDataHelper.Equals", "MateriumItemsDataHelper.Copy", "BinaryWriterExtensions.WriteMateriumItemsData"),
+             "QuestCompletionData" => new NamedMapInfo("global::QuestCompletionData.Completion", ".Enumerate()", "QuestCompletionDataHelper.Equals", "QuestCompletionDataHelper.Copy", "BinaryWriterExtensions.WriteQuestCompletionData"),
+             "QuestRumourData" => new NamedMapInfo("global::QuestRumourData.Data", ".Enumerate()", "QuestRumourDataHelper.Equals", "QuestRumourDataHelper.Copy", "BinaryWriterExtensions.WriteQuestRumourData"),
+             "ToolItemLiquidsData" => new NamedMapInfo("global::ToolItemLiquidsData.Data", ".Enumerate()", "ToolItemLiquidsDataHelper.Equals", "ToolItemLiquidsDataHelper.Copy", "BinaryWriterExtensions.WriteToolItemLiquidsData"),
+             "ToolItemsData" => new NamedMapInfo("global::ToolItemsData.Data", ".Enumerate()", "ToolItemsDataHelper.Equals", "ToolItemsDataHelper.Copy", "BinaryWriterExtensions.WriteToolItemsData"),
+             "ToolCrestsData" => new NamedMapInfo("global::ToolCrestsData.Data", ".Enumerate()", "ToolCrestsDataHelper.Equals", "ToolCrestsDataHelper.Copy", "BinaryWriterExtensions.WriteToolCrestsData"),
+             "FloatingCrestSlotsData" => new NamedMapInfo("global::ToolCrestsData.SlotData", ".Enumerate()", "ToolCrestsDataHelper.EqualsSlotData", "ToolCrestsDataHelper.CopySlotData", "BinaryWriterExtensions.WriteToolCrestsSlotData"),
+             "EnemyJournalKillData" => new NamedMapInfo("global::EnemyJournalKillData.KillData", ".Dictionary", "EnemyJournalKillDataHelper.Equals", "EnemyJournalKillDataHelper.Copy", "BinaryWriterExtensions.WriteEnemyJournalKillData"),
              _ => default,
          };
 

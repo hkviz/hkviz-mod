@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace HKViz.Silk.Recording.DataHelpers;
 
 public static class CollectableItemsDataHelper {
@@ -8,11 +6,6 @@ public static class CollectableItemsDataHelper {
 
     public static CollectableItemsData.Data Copy(CollectableItemsData.Data value) => value;
 
-    public static void Write(BinaryWriter writer, CollectableItemsData.Data value) {
-        writer.Write(value.Amount);
-        writer.Write(value.IsSeenMask);
-        writer.Write(value.AmountWhileHidden);
-    }
 }
 
 

@@ -380,70 +380,70 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         ref Dictionary<string, CollectableItemsData.Data>? oldValue,
         IEnumerable<KeyValuePair<string, CollectableItemsData.Data>> newValues,
         Action<BinaryWriter, CollectableItemsData.Data> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableItemsDataHelper.Equals, CollectableItemsDataHelper.Copy, writeValue ?? CollectableItemsDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableItemsDataHelper.Equals, CollectableItemsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteCollectableItemsData);
 
     public void WriteNamedMapIfChanged(
         ushort fieldId,
         ref Dictionary<string, CollectableRelicsData.Data>? oldValue,
         IEnumerable<KeyValuePair<string, CollectableRelicsData.Data>> newValues,
         Action<BinaryWriter, CollectableRelicsData.Data> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableRelicsDataHelper.Equals, CollectableRelicsDataHelper.Copy, writeValue ?? CollectableRelicsDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableRelicsDataHelper.Equals, CollectableRelicsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteCollectableRelicsData);
 
     public void WriteNamedMapIfChanged(
         ushort fieldId,
         ref Dictionary<string, CollectableMementosData.Data>? oldValue,
         IEnumerable<KeyValuePair<string, CollectableMementosData.Data>> newValues,
         Action<BinaryWriter, CollectableMementosData.Data> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableMementosDataHelper.Equals, CollectableMementosDataHelper.Copy, writeValue ?? CollectableMementosDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableMementosDataHelper.Equals, CollectableMementosDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteCollectableMementosData);
 
     public void WriteNamedMapIfChanged(
         ushort fieldId,
         ref Dictionary<string, MateriumItemsData.Data>? oldValue,
         IEnumerable<KeyValuePair<string, MateriumItemsData.Data>> newValues,
         Action<BinaryWriter, MateriumItemsData.Data> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, MateriumItemsDataHelper.Equals, MateriumItemsDataHelper.Copy, writeValue ?? MateriumItemsDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, MateriumItemsDataHelper.Equals, MateriumItemsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteMateriumItemsData);
 
     public void WriteNamedMapIfChanged(
         ushort fieldId,
         ref Dictionary<string, QuestCompletionData.Completion>? oldValue,
         IEnumerable<KeyValuePair<string, QuestCompletionData.Completion>> newValues,
         Action<BinaryWriter, QuestCompletionData.Completion> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, QuestCompletionDataHelper.Equals, QuestCompletionDataHelper.Copy, writeValue ?? QuestCompletionDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, QuestCompletionDataHelper.Equals, QuestCompletionDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteQuestCompletionData);
 
     public void WriteNamedMapIfChanged(
         ushort fieldId,
         ref Dictionary<string, QuestRumourData.Data>? oldValue,
         IEnumerable<KeyValuePair<string, QuestRumourData.Data>> newValues,
         Action<BinaryWriter, QuestRumourData.Data> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, QuestRumourDataHelper.Equals, QuestRumourDataHelper.Copy, writeValue ?? QuestRumourDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, QuestRumourDataHelper.Equals, QuestRumourDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteQuestRumourData);
 
     public void WriteNamedMapIfChanged(
         ushort fieldId,
         ref Dictionary<string, ToolItemsData.Data>? oldValue,
         IEnumerable<KeyValuePair<string, ToolItemsData.Data>> newValues,
         Action<BinaryWriter, ToolItemsData.Data> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolItemsDataHelper.Equals, ToolItemsDataHelper.Copy, writeValue ?? ToolItemsDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolItemsDataHelper.Equals, ToolItemsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteToolItemsData);
 
     public void WriteNamedMapIfChanged(
         ushort fieldId,
         ref Dictionary<string, ToolItemLiquidsData.Data>? oldValue,
         IEnumerable<KeyValuePair<string, ToolItemLiquidsData.Data>> newValues,
         Action<BinaryWriter, ToolItemLiquidsData.Data> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolItemLiquidsDataHelper.Equals, ToolItemLiquidsDataHelper.Copy, writeValue ?? ToolItemLiquidsDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolItemLiquidsDataHelper.Equals, ToolItemLiquidsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteToolItemLiquidsData);
 
     public void WriteNamedMapIfChanged(
         ushort fieldId,
         ref Dictionary<string, ToolCrestsData.Data>? oldValue,
         IEnumerable<KeyValuePair<string, ToolCrestsData.Data>> newValues,
         Action<BinaryWriter, ToolCrestsData.Data> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolCrestsDataHelper.Equals, ToolCrestsDataHelper.Copy, writeValue ?? ToolCrestsDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolCrestsDataHelper.Equals, ToolCrestsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteToolCrestsData);
 
     public void WriteNamedMapIfChanged(
         ushort fieldId,
         ref Dictionary<string, EnemyJournalKillData.KillData>? oldValue,
         IEnumerable<KeyValuePair<string, EnemyJournalKillData.KillData>> newValues,
         Action<BinaryWriter, EnemyJournalKillData.KillData> writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, EnemyJournalKillDataHelper.Equals, EnemyJournalKillDataHelper.Copy, writeValue ?? EnemyJournalKillDataHelper.Write);
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, EnemyJournalKillDataHelper.Equals, EnemyJournalKillDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteEnemyJournalKillData);
 
     private static void UpdateIntArraySnapshot(ref int[]? oldValue, int[]? newValue) {
         if (newValue is null) {

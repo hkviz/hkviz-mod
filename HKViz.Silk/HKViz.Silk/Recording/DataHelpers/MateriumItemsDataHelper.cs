@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace HKViz.Silk.Recording.DataHelpers;
 
 public static class MateriumItemsDataHelper {
@@ -8,9 +6,5 @@ public static class MateriumItemsDataHelper {
 
 	public static MateriumItemsData.Data Copy(MateriumItemsData.Data value) => value;
 
-	public static void Write(BinaryWriter writer, MateriumItemsData.Data value) {
-		writer.Write(value.IsCollected);
-		writer.Write(value.HasSeenInRelicBoard);
-	}
 }
 

@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using UnityEngine;
 
 namespace HKViz.Silk.Recording.DataHelpers;
@@ -57,18 +56,6 @@ public static class WrappedVector2ListDataHelper {
         return copy;
     }
 
-    public static void Write(BinaryWriter writer, WrappedVector2List? value) {
-        var items = value?.List;
-        int count = items?.Count ?? 0;
-        writer.Write(count);
-        if (count == 0) {
-            return;
-        }
-
-        for (int i = 0; i < count; i++) {
-            writer.WriteVector2(items![i]);
-        }
-    }
 }
 
 
