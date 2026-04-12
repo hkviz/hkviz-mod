@@ -12,6 +12,7 @@ public class RunWriter {
     private bool isClosed = false;
     private readonly RunFiles runFiles;
     private readonly HeroLocationWriter heroLocationWriter;
+    private readonly PlayerDataWriter playerDataWriter;
     private readonly ManualLogSource logger;
     
     public RunWriter(Guid localRunId, long nextRunPart, UploadManager uploadManager, ManualLogSource logger) {
@@ -19,6 +20,8 @@ public class RunWriter {
         this.logger = logger;
         runFiles = new RunFiles(localRunId, nextRunPart, uploadManager, logger);
         heroLocationWriter = new HeroLocationWriter(runFiles);
+        playerDataWriter = new PlayerDataWriter(runFiles);
+        runFiles.OnNewFileCreated += playerDataWriter.WriteAll;
 
         GameMapLevelReadyPatch.OnGameMapLevelReady += OnGameMapLevelReady;
     }
@@ -27,6 +30,7 @@ public class RunWriter {
         if (isClosed) return;
         isClosed = true;
         runFiles.Close();
+        runFiles.OnNewFileCreated -= playerDataWriter.WriteAll;
         GameMapLevelReadyPatch.OnGameMapLevelReady -= OnGameMapLevelReady;
     }
 
@@ -54,5 +58,6 @@ public class RunWriter {
         if (!gm || gm.IsGamePaused()) return;
         runFiles.Update();
         heroLocationWriter.Update();
+        playerDataWriter.WriteChanged();
     }
 }

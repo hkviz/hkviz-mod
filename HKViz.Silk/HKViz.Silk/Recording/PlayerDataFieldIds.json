@@ -1,0 +1,5463 @@
+{
+  "fields": {
+    "AbyssBellSeenDocks": {
+      "id": 1,
+      "type": "bool"
+    },
+    "AbyssBellSeenDocksRepaired": {
+      "id": 2,
+      "type": "bool"
+    },
+    "ArchitectLeft": {
+      "id": 3,
+      "type": "bool"
+    },
+    "ArchitectMelodyGainSeen": {
+      "id": 4,
+      "type": "bool"
+    },
+    "ArchitectMelodyReturnQueued": {
+      "id": 5,
+      "type": "bool"
+    },
+    "ArchitectMelodyReturnSeen": {
+      "id": 6,
+      "type": "bool"
+    },
+    "ArchitectMentionedCogHeart": {
+      "id": 7,
+      "type": "bool"
+    },
+    "ArchitectMentionedMelody": {
+      "id": 8,
+      "type": "bool"
+    },
+    "ArchitectMentionedWebShot": {
+      "id": 9,
+      "type": "bool"
+    },
+    "ArchitectTalkedCrest": {
+      "id": 10,
+      "type": "bool"
+    },
+    "ArchitectWillLeave": {
+      "id": 11,
+      "type": "bool"
+    },
+    "BallowGivenKey": {
+      "id": 12,
+      "type": "bool"
+    },
+    "BallowInSauna": {
+      "id": 13,
+      "type": "bool"
+    },
+    "BallowLeftSauna": {
+      "id": 14,
+      "type": "bool"
+    },
+    "BallowMovedToDivingBell": {
+      "id": 15,
+      "type": "bool"
+    },
+    "BallowSeenInSauna": {
+      "id": 16,
+      "type": "bool"
+    },
+    "BallowTalkedPostRepair": {
+      "id": 17,
+      "type": "bool"
+    },
+    "BallowTalkedPostRepairGramaphone": {
+      "id": 18,
+      "type": "bool"
+    },
+    "BelltownBagpipersOfferedQuest": {
+      "id": 19,
+      "type": "bool"
+    },
+    "BelltownCouriersBrokenDlg": {
+      "id": 20,
+      "type": "bool"
+    },
+    "BelltownCouriersBrokenDlgQueued": {
+      "id": 21,
+      "type": "bool"
+    },
+    "BelltownCouriersFirstBeginDlg": {
+      "id": 22,
+      "type": "bool"
+    },
+    "BelltownCouriersGourmandHint": {
+      "id": 23,
+      "type": "bool"
+    },
+    "BelltownCouriersLastCompletedQuest": {
+      "id": 24,
+      "type": "string"
+    },
+    "BelltownCouriersMet": {
+      "id": 25,
+      "type": "bool"
+    },
+    "BelltownCouriersMetAct3": {
+      "id": 26,
+      "type": "bool"
+    },
+    "BelltownCouriersNotPurchasedDlg": {
+      "id": 27,
+      "type": "bool"
+    },
+    "BelltownCouriersPurchasedDlgBitmask": {
+      "id": 28,
+      "type": "int"
+    },
+    "BelltownCouriersTalkedCursed": {
+      "id": 29,
+      "type": "bool"
+    },
+    "BelltownCouriersTalkedGourmand": {
+      "id": 30,
+      "type": "bool"
+    },
+    "BelltownDoctorConvo": {
+      "id": 31,
+      "type": "int"
+    },
+    "BelltownDoctorCuredCurse": {
+      "id": 32,
+      "type": "bool"
+    },
+    "BelltownDoctorFixOffered": {
+      "id": 33,
+      "type": "bool"
+    },
+    "BelltownDoctorLifebloodSpoke": {
+      "id": 34,
+      "type": "bool"
+    },
+    "BelltownDoctorMaggotSpoke": {
+      "id": 35,
+      "type": "bool"
+    },
+    "BelltownDoctorQuestOffered": {
+      "id": 36,
+      "type": "bool"
+    },
+    "BelltownFurnishingDesk": {
+      "id": 37,
+      "type": "bool"
+    },
+    "BelltownFurnishingFairyLights": {
+      "id": 38,
+      "type": "bool"
+    },
+    "BelltownFurnishingGramaphone": {
+      "id": 39,
+      "type": "bool"
+    },
+    "BelltownFurnishingSpa": {
+      "id": 40,
+      "type": "bool"
+    },
+    "BelltownFurnishingSpaAvailable": {
+      "id": 41,
+      "type": "bool"
+    },
+    "BelltownGreetCursedConvo": {
+      "id": 42,
+      "type": "bool"
+    },
+    "BelltownGreeterConvo": {
+      "id": 43,
+      "type": "int"
+    },
+    "BelltownGreeterFurnishingDlg": {
+      "id": 44,
+      "type": "bool"
+    },
+    "BelltownGreeterHouseFullDlg": {
+      "id": 45,
+      "type": "bool"
+    },
+    "BelltownGreeterHouseHalfDlg": {
+      "id": 46,
+      "type": "bool"
+    },
+    "BelltownGreeterMetTimePassed": {
+      "id": 47,
+      "type": "bool"
+    },
+    "BelltownGreeterTwistedBudDlg": {
+      "id": 48,
+      "type": "bool"
+    },
+    "BelltownHermitConvoCooldown": {
+      "id": 49,
+      "type": "bool"
+    },
+    "BelltownHermitCursedConvo": {
+      "id": 50,
+      "type": "bool"
+    },
+    "BelltownHermitEnslavedConvo": {
+      "id": 51,
+      "type": "int"
+    },
+    "BelltownHermitMet": {
+      "id": 52,
+      "type": "bool"
+    },
+    "BelltownHermitSavedConvo": {
+      "id": 53,
+      "type": "int"
+    },
+    "BelltownHouseColour": {
+      "id": 54,
+      "type": "GlobalEnums.BellhomePaintColours"
+    },
+    "BelltownHousePaintComplete": {
+      "id": 55,
+      "type": "bool"
+    },
+    "BelltownHouseState": {
+      "id": 56,
+      "type": "GlobalEnums.BelltownHouseStates"
+    },
+    "BelltownHouseUnlocked": {
+      "id": 57,
+      "type": "bool"
+    },
+    "BelltownRelicDealerCylinderConvo": {
+      "id": 58,
+      "type": "bool"
+    },
+    "BelltownRelicDealerGaveRelic": {
+      "id": 59,
+      "type": "bool"
+    },
+    "BelltownRelicDealerOutroConvo": {
+      "id": 60,
+      "type": "bool"
+    },
+    "BelltownRelicDealerOutroConvoAllComplete": {
+      "id": 61,
+      "type": "bool"
+    },
+    "BelltownShopkeepAct3Convo": {
+      "id": 62,
+      "type": "bool"
+    },
+    "BelltownShopkeepCourierConvo1Accepted": {
+      "id": 63,
+      "type": "bool"
+    },
+    "BelltownShopkeepCourierConvo1Completed": {
+      "id": 64,
+      "type": "bool"
+    },
+    "BelltownShopkeepCursedConvo": {
+      "id": 65,
+      "type": "bool"
+    },
+    "BelltownShopkeepHouseConvo": {
+      "id": 66,
+      "type": "bool"
+    },
+    "BlueAssistantBloodCount": {
+      "id": 67,
+      "type": "int"
+    },
+    "BlueAssistantCorpseFound": {
+      "id": 68,
+      "type": "bool"
+    },
+    "BlueAssistantEnemyEncountered": {
+      "id": 69,
+      "type": "bool"
+    },
+    "BlueScientistDead": {
+      "id": 70,
+      "type": "bool"
+    },
+    "BlueScientistInfectedMet": {
+      "id": 71,
+      "type": "bool"
+    },
+    "BlueScientistInfectedSeen": {
+      "id": 72,
+      "type": "bool"
+    },
+    "BlueScientistMet": {
+      "id": 73,
+      "type": "bool"
+    },
+    "BlueScientistPreQuest2Convo": {
+      "id": 74,
+      "type": "bool"
+    },
+    "BlueScientistQuest2Offered": {
+      "id": 75,
+      "type": "bool"
+    },
+    "BlueScientistQuest3Offered": {
+      "id": 76,
+      "type": "bool"
+    },
+    "BlueScientistQuestOffered": {
+      "id": 77,
+      "type": "bool"
+    },
+    "BlueScientistSceneryPustulesGrown": {
+      "id": 78,
+      "type": "bool"
+    },
+    "BlueScientistTalkedCorpse": {
+      "id": 79,
+      "type": "bool"
+    },
+    "BoneBottomShellFrag1": {
+      "id": 80,
+      "type": "bool"
+    },
+    "BoneBottomShopKeepLeft": {
+      "id": 81,
+      "type": "bool"
+    },
+    "BoneBottomShopKeepWillLeave": {
+      "id": 82,
+      "type": "bool"
+    },
+    "BonePlazaOpened": {
+      "id": 83,
+      "type": "bool"
+    },
+    "Bone_East_04b_ExplodeWall": {
+      "id": 84,
+      "type": "bool"
+    },
+    "BonebottomBellwayPilgrimLeft": {
+      "id": 85,
+      "type": "bool"
+    },
+    "BonebottomBellwayPilgrimScared": {
+      "id": 86,
+      "type": "bool"
+    },
+    "BonebottomBellwayPilgrimState": {
+      "id": 87,
+      "type": "int"
+    },
+    "CaravanHauntedBellhartConvo_TroupeLeader": {
+      "id": 88,
+      "type": "bool"
+    },
+    "CaravanLechAct3Convo": {
+      "id": 89,
+      "type": "bool"
+    },
+    "CaravanLechMet": {
+      "id": 90,
+      "type": "bool"
+    },
+    "CaravanLechReturnedToCaravan": {
+      "id": 91,
+      "type": "bool"
+    },
+    "CaravanLechSaved": {
+      "id": 92,
+      "type": "bool"
+    },
+    "CaravanLechSpaAcceptState": {
+      "id": 93,
+      "type": "bool"
+    },
+    "CaravanLechSpaAttacked": {
+      "id": 94,
+      "type": "bool"
+    },
+    "CaravanLechWoundedSpoken": {
+      "id": 95,
+      "type": "bool"
+    },
+    "CaravanPilgrimAttackComplete": {
+      "id": 96,
+      "type": "bool"
+    },
+    "CaravanSpiderPaidExtraBellhart": {
+      "id": 97,
+      "type": "bool"
+    },
+    "CaravanSpiderTargetScene": {
+      "id": 98,
+      "type": "string"
+    },
+    "CaravanSpiderTravelDirection": {
+      "id": 99,
+      "type": "float"
+    },
+    "CaravanTroupeLeaderCanLeaveGreymoor": {
+      "id": 100,
+      "type": "bool"
+    },
+    "CaravanTroupeLeaderCanLeaveJudge": {
+      "id": 101,
+      "type": "bool"
+    },
+    "CaravanTroupeLocation": {
+      "id": 102,
+      "type": "GlobalEnums.CaravanTroupeLocations"
+    },
+    "CaretakerOfferedSnareQuest": {
+      "id": 103,
+      "type": "bool"
+    },
+    "CaretakerSnareProgressConvo": {
+      "id": 104,
+      "type": "bool"
+    },
+    "CaretakerSwampSoulConvo": {
+      "id": 105,
+      "type": "bool"
+    },
+    "ChurchKeeperLeftBasement": {
+      "id": 106,
+      "type": "bool"
+    },
+    "CollectedCommonSpine": {
+      "id": 107,
+      "type": "bool"
+    },
+    "CollectedDockDemoKey": {
+      "id": 108,
+      "type": "bool"
+    },
+    "CollectedDustCageKey": {
+      "id": 109,
+      "type": "bool"
+    },
+    "CollectedHeartClover": {
+      "id": 110,
+      "type": "bool"
+    },
+    "CollectedHeartCoral": {
+      "id": 111,
+      "type": "bool"
+    },
+    "CollectedHeartFlower": {
+      "id": 112,
+      "type": "bool"
+    },
+    "CollectedHeartHunter": {
+      "id": 113,
+      "type": "bool"
+    },
+    "CollectedMementoGrey": {
+      "id": 114,
+      "type": "bool"
+    },
+    "CollectedMementoSprintmaster": {
+      "id": 115,
+      "type": "bool"
+    },
+    "CollectedToolMetal": {
+      "id": 116,
+      "type": "bool"
+    },
+    "CompletedEndings": {
+      "id": 117,
+      "type": "SaveSlotCompletionIcons.CompletionState"
+    },
+    "CompletedRedMemory": {
+      "id": 118,
+      "type": "bool"
+    },
+    "CompletedWeaveSprintChallenge": {
+      "id": 119,
+      "type": "bool"
+    },
+    "CompletedWeaveSprintChallengeMax": {
+      "id": 120,
+      "type": "bool"
+    },
+    "ConductorWeaverDlgHeard": {
+      "id": 121,
+      "type": "bool"
+    },
+    "ConductorWeaverDlgQueued": {
+      "id": 122,
+      "type": "bool"
+    },
+    "ConstructedFarsight": {
+      "id": 123,
+      "type": "bool"
+    },
+    "ConstructedMaterium": {
+      "id": 124,
+      "type": "bool"
+    },
+    "CorrectMazeDoorsEntered": {
+      "id": 125,
+      "type": "int"
+    },
+    "CrawbellCrawsInside": {
+      "id": 126,
+      "type": "bool"
+    },
+    "CrawbellInstalled": {
+      "id": 127,
+      "type": "bool"
+    },
+    "CrawbellTimer": {
+      "id": 128,
+      "type": "float"
+    },
+    "CrestPreUpgradeAdditional": {
+      "id": 129,
+      "type": "bool"
+    },
+    "CrestPreUpgradeTalked": {
+      "id": 130,
+      "type": "bool"
+    },
+    "CrestPurposeQueued": {
+      "id": 131,
+      "type": "bool"
+    },
+    "CrestTalkedPurpose": {
+      "id": 132,
+      "type": "bool"
+    },
+    "CrestUpgraderOfferedFinal": {
+      "id": 133,
+      "type": "bool"
+    },
+    "CrestUpgraderTalkedSnare": {
+      "id": 134,
+      "type": "bool"
+    },
+    "CrowCourtInSession": {
+      "id": 135,
+      "type": "bool"
+    },
+    "CrowSummonsAppearedScene": {
+      "id": 136,
+      "type": "string"
+    },
+    "CurrentCrestID": {
+      "id": 137,
+      "type": "string"
+    },
+    "CurseKilledFlyBoneEast": {
+      "id": 138,
+      "type": "bool"
+    },
+    "CurseKilledFlyGreymoor": {
+      "id": 139,
+      "type": "bool"
+    },
+    "CurseKilledFlyShellwood": {
+      "id": 140,
+      "type": "bool"
+    },
+    "CurseKilledFlySwamp": {
+      "id": 141,
+      "type": "bool"
+    },
+    "DeclinedBartenderDrink": {
+      "id": 142,
+      "type": "bool"
+    },
+    "DefeatedBonetownBoss": {
+      "id": 143,
+      "type": "bool"
+    },
+    "DefeatedSwampShaman": {
+      "id": 144,
+      "type": "bool"
+    },
+    "DeskPlacedLibrarianList": {
+      "id": 145,
+      "type": "bool"
+    },
+    "DeskPlacedRelicList": {
+      "id": 146,
+      "type": "bool"
+    },
+    "DidEnterPreviousMazeDoor": {
+      "id": 147,
+      "type": "bool"
+    },
+    "DustTradersOfferedPins": {
+      "id": 148,
+      "type": "bool"
+    },
+    "DustTradersOfferedQuest": {
+      "id": 149,
+      "type": "bool"
+    },
+    "EnclaveStateNPCShortHorned": {
+      "id": 150,
+      "type": "GlobalEnums.NPCEncounterState"
+    },
+    "EnclaveStateNPCStandard": {
+      "id": 151,
+      "type": "GlobalEnums.NPCEncounterState"
+    },
+    "EnclaveStateNPCTall": {
+      "id": 152,
+      "type": "GlobalEnums.NPCEncounterState"
+    },
+    "EnclaveStatePilgrimSmall": {
+      "id": 153,
+      "type": "GlobalEnums.NPCEncounterState"
+    },
+    "EnclaveState_songKnightFan": {
+      "id": 154,
+      "type": "GlobalEnums.NPCEncounterState"
+    },
+    "EncounteredBonetownBoss": {
+      "id": 155,
+      "type": "bool"
+    },
+    "EncounteredLostLace": {
+      "id": 156,
+      "type": "bool"
+    },
+    "EncounteredSummonedSaviour": {
+      "id": 157,
+      "type": "bool"
+    },
+    "EnteredMazeRestScene": {
+      "id": 158,
+      "type": "bool"
+    },
+    "FastTravelNPCLocation": {
+      "id": 159,
+      "type": "GlobalEnums.FastTravelLocations"
+    },
+    "FisherWalkerDirection": {
+      "id": 160,
+      "type": "bool"
+    },
+    "FisherWalkerIdleTimeLeft": {
+      "id": 161,
+      "type": "float"
+    },
+    "FisherWalkerTimer": {
+      "id": 162,
+      "type": "float"
+    },
+    "FixedDustBellBench": {
+      "id": 163,
+      "type": "bool"
+    },
+    "FleaGamesCanStart": {
+      "id": 164,
+      "type": "bool"
+    },
+    "FleaGamesEnded": {
+      "id": 165,
+      "type": "bool"
+    },
+    "FleaGamesEndedContinuedPlaying": {
+      "id": 166,
+      "type": "bool"
+    },
+    "FleaGamesMementoGiven": {
+      "id": 167,
+      "type": "bool"
+    },
+    "FleaGamesPinataHit": {
+      "id": 168,
+      "type": "bool"
+    },
+    "FleaGamesSpiritScoreAdded": {
+      "id": 169,
+      "type": "bool"
+    },
+    "FleaGamesStarted": {
+      "id": 170,
+      "type": "bool"
+    },
+    "FleaQuestOffered": {
+      "id": 171,
+      "type": "bool"
+    },
+    "ForgeDaughterMentionedDivingBell": {
+      "id": 172,
+      "type": "bool"
+    },
+    "ForgeDaughterMentionedWebShot": {
+      "id": 173,
+      "type": "bool"
+    },
+    "ForgeDaughterPostAbyssDlg": {
+      "id": 174,
+      "type": "bool"
+    },
+    "ForgeDaughterPurchaseDlg": {
+      "id": 175,
+      "type": "bool"
+    },
+    "ForgeDaughterSpentToolMetal": {
+      "id": 176,
+      "type": "bool"
+    },
+    "ForgeDaughterTalkState": {
+      "id": 177,
+      "type": "int"
+    },
+    "ForgeDaughterWhiteFlowerDlg": {
+      "id": 178,
+      "type": "bool"
+    },
+    "FreedCaravanSpider": {
+      "id": 179,
+      "type": "bool"
+    },
+    "GivenLibrarianRelic": {
+      "id": 180,
+      "type": "bool"
+    },
+    "GotGourmandReward": {
+      "id": 181,
+      "type": "bool"
+    },
+    "GourmandGivenCoral": {
+      "id": 182,
+      "type": "bool"
+    },
+    "GourmandGivenEgg": {
+      "id": 183,
+      "type": "bool"
+    },
+    "GourmandGivenMeat": {
+      "id": 184,
+      "type": "bool"
+    },
+    "GourmandGivenNectar": {
+      "id": 185,
+      "type": "bool"
+    },
+    "GourmandGivenStew": {
+      "id": 186,
+      "type": "bool"
+    },
+    "GourmandServantOfferedQuest": {
+      "id": 187,
+      "type": "bool"
+    },
+    "GreenPrinceLocation": {
+      "id": 188,
+      "type": "GlobalEnums.GreenPrinceLocations"
+    },
+    "GreenPrinceSeenSong04": {
+      "id": 189,
+      "type": "bool"
+    },
+    "GrowstoneState": {
+      "id": 190,
+      "type": "int"
+    },
+    "GrowstoneTimer": {
+      "id": 191,
+      "type": "float"
+    },
+    "GrubFarmerSilkGrubsSold": {
+      "id": 192,
+      "type": "int"
+    },
+    "HalfwayBartenderCursedConvo": {
+      "id": 193,
+      "type": "bool"
+    },
+    "HalfwayBartenderHauntedBellhartConvo": {
+      "id": 194,
+      "type": "bool"
+    },
+    "HalfwayBartenderOfferedQuest": {
+      "id": 195,
+      "type": "bool"
+    },
+    "HalfwayDrinksPurchased": {
+      "id": 196,
+      "type": "int"
+    },
+    "HalfwayNectarOffered": {
+      "id": 197,
+      "type": "bool"
+    },
+    "HalfwayNectarPaid": {
+      "id": 198,
+      "type": "bool"
+    },
+    "HalfwayPatronLeftGone": {
+      "id": 199,
+      "type": "bool"
+    },
+    "HalfwayPatronRightGone": {
+      "id": 200,
+      "type": "bool"
+    },
+    "HalfwayPatronsCanVisit": {
+      "id": 201,
+      "type": "bool"
+    },
+    "HalfwayScarecrawAppeared": {
+      "id": 202,
+      "type": "bool"
+    },
+    "HasAbyssMap": {
+      "id": 203,
+      "type": "bool"
+    },
+    "HasAqueductMap": {
+      "id": 204,
+      "type": "bool"
+    },
+    "HasArboriumMap": {
+      "id": 205,
+      "type": "bool"
+    },
+    "HasBellhartMap": {
+      "id": 206,
+      "type": "bool"
+    },
+    "HasBoneforestMap": {
+      "id": 207,
+      "type": "bool"
+    },
+    "HasBoundCrestUpgrader": {
+      "id": 208,
+      "type": "bool"
+    },
+    "HasCitadelUnderstoreMap": {
+      "id": 209,
+      "type": "bool"
+    },
+    "HasCloverMap": {
+      "id": 210,
+      "type": "bool"
+    },
+    "HasCogMap": {
+      "id": 211,
+      "type": "bool"
+    },
+    "HasCoralMap": {
+      "id": 212,
+      "type": "bool"
+    },
+    "HasCradleMap": {
+      "id": 213,
+      "type": "bool"
+    },
+    "HasCrawlMap": {
+      "id": 214,
+      "type": "bool"
+    },
+    "HasDocksMap": {
+      "id": 215,
+      "type": "bool"
+    },
+    "HasDustpensMap": {
+      "id": 216,
+      "type": "bool"
+    },
+    "HasGreymoorMap": {
+      "id": 217,
+      "type": "bool"
+    },
+    "HasHallsMap": {
+      "id": 218,
+      "type": "bool"
+    },
+    "HasHangMap": {
+      "id": 219,
+      "type": "bool"
+    },
+    "HasHuntersNestMap": {
+      "id": 220,
+      "type": "bool"
+    },
+    "HasJudgeStepsMap": {
+      "id": 221,
+      "type": "bool"
+    },
+    "HasLibraryMap": {
+      "id": 222,
+      "type": "bool"
+    },
+    "HasMelodyArchitect": {
+      "id": 223,
+      "type": "bool"
+    },
+    "HasMelodyConductor": {
+      "id": 224,
+      "type": "bool"
+    },
+    "HasMelodyLibrarian": {
+      "id": 225,
+      "type": "bool"
+    },
+    "HasMossGrottoMap": {
+      "id": 226,
+      "type": "bool"
+    },
+    "HasPeakMap": {
+      "id": 227,
+      "type": "bool"
+    },
+    "HasSeenDash": {
+      "id": 228,
+      "type": "bool"
+    },
+    "HasSeenEvaHeal": {
+      "id": 229,
+      "type": "bool"
+    },
+    "HasSeenGeo": {
+      "id": 230,
+      "type": "bool"
+    },
+    "HasSeenGeoBig": {
+      "id": 231,
+      "type": "bool"
+    },
+    "HasSeenGeoMid": {
+      "id": 232,
+      "type": "bool"
+    },
+    "HasSeenHarpoon": {
+      "id": 233,
+      "type": "bool"
+    },
+    "HasSeenMapMarkerUpdated": {
+      "id": 234,
+      "type": "bool"
+    },
+    "HasSeenMapUpdated": {
+      "id": 235,
+      "type": "bool"
+    },
+    "HasSeenNeedolin": {
+      "id": 236,
+      "type": "bool"
+    },
+    "HasSeenNeedolinDown": {
+      "id": 237,
+      "type": "bool"
+    },
+    "HasSeenNeedolinUp": {
+      "id": 238,
+      "type": "bool"
+    },
+    "HasSeenRation": {
+      "id": 239,
+      "type": "bool"
+    },
+    "HasSeenShellShards": {
+      "id": 240,
+      "type": "bool"
+    },
+    "HasSeenSilkHearts": {
+      "id": 241,
+      "type": "bool"
+    },
+    "HasSeenSuperJump": {
+      "id": 242,
+      "type": "bool"
+    },
+    "HasSeenWalljump": {
+      "id": 243,
+      "type": "bool"
+    },
+    "HasShellwoodMap": {
+      "id": 244,
+      "type": "bool"
+    },
+    "HasSlabKeyA": {
+      "id": 245,
+      "type": "bool"
+    },
+    "HasSlabKeyB": {
+      "id": 246,
+      "type": "bool"
+    },
+    "HasSlabKeyC": {
+      "id": 247,
+      "type": "bool"
+    },
+    "HasSlabMap": {
+      "id": 248,
+      "type": "bool"
+    },
+    "HasSongGateMap": {
+      "id": 249,
+      "type": "bool"
+    },
+    "HasStoredMemoryState": {
+      "id": 250,
+      "type": "bool"
+    },
+    "HasSwampMap": {
+      "id": 251,
+      "type": "bool"
+    },
+    "HasWardMap": {
+      "id": 252,
+      "type": "bool"
+    },
+    "HasWeavehomeMap": {
+      "id": 253,
+      "type": "bool"
+    },
+    "HasWildsMap": {
+      "id": 254,
+      "type": "bool"
+    },
+    "HeardBoneBottomShopKeepPostBoss": {
+      "id": 255,
+      "type": "bool"
+    },
+    "HeardMelodyConductorNoQuest": {
+      "id": 256,
+      "type": "bool"
+    },
+    "HeroCorpseMarkerGuid": {
+      "id": 257,
+      "type": "guid"
+    },
+    "HeroCorpseMoneyPool": {
+      "id": 258,
+      "type": "int"
+    },
+    "HeroCorpseScene": {
+      "id": 259,
+      "type": "string"
+    },
+    "HeroCorpseType": {
+      "id": 260,
+      "type": "GlobalEnums.HeroDeathCocoonTypes"
+    },
+    "HuntressQuestOffered": {
+      "id": 261,
+      "type": "bool"
+    },
+    "HuntressRuntAppeared": {
+      "id": 262,
+      "type": "bool"
+    },
+    "HuntressRuntQuestOffered": {
+      "id": 263,
+      "type": "bool"
+    },
+    "IncorrectMazeDoorsEntered": {
+      "id": 264,
+      "type": "int"
+    },
+    "InvNailHasNew": {
+      "id": 265,
+      "type": "bool"
+    },
+    "InvPaneHasNew": {
+      "id": 266,
+      "type": "bool"
+    },
+    "IsCurrentCrestTemp": {
+      "id": 267,
+      "type": "bool"
+    },
+    "IsPinGallerySetup": {
+      "id": 268,
+      "type": "bool"
+    },
+    "IsSilkSpoolBroken": {
+      "id": 269,
+      "type": "bool"
+    },
+    "IsTeleporting": {
+      "id": 270,
+      "type": "bool"
+    },
+    "JournalPaneHasNew": {
+      "id": 271,
+      "type": "bool"
+    },
+    "LastCompletedEnding": {
+      "id": 272,
+      "type": "SaveSlotCompletionIcons.CompletionState"
+    },
+    "LastDiveCursedConvo": {
+      "id": 273,
+      "type": "bool"
+    },
+    "LastSetFieldName": {
+      "id": 274,
+      "type": "string"
+    },
+    "LibrarianAskedForMelody": {
+      "id": 275,
+      "type": "bool"
+    },
+    "LibrarianAskedForRelic": {
+      "id": 276,
+      "type": "bool"
+    },
+    "LibrarianCollectionComplete": {
+      "id": 277,
+      "type": "bool"
+    },
+    "LibrarianMentionedMelody": {
+      "id": 278,
+      "type": "bool"
+    },
+    "LibrarianMetAct3": {
+      "id": 279,
+      "type": "bool"
+    },
+    "LightningToolToggle": {
+      "id": 280,
+      "type": "bool"
+    },
+    "MaggotCharmHits": {
+      "id": 281,
+      "type": "int"
+    },
+    "MapperAppearInBellhart": {
+      "id": 282,
+      "type": "bool"
+    },
+    "MapperLeftBellhart": {
+      "id": 283,
+      "type": "bool"
+    },
+    "MapperLeftBoneForest": {
+      "id": 284,
+      "type": "bool"
+    },
+    "MapperLeftBonetown": {
+      "id": 285,
+      "type": "bool"
+    },
+    "MapperLeftCoralCaverns": {
+      "id": 286,
+      "type": "bool"
+    },
+    "MapperLeftCrawl": {
+      "id": 287,
+      "type": "bool"
+    },
+    "MapperLeftDocks": {
+      "id": 288,
+      "type": "bool"
+    },
+    "MapperLeftDustpens": {
+      "id": 289,
+      "type": "bool"
+    },
+    "MapperLeftGreymoor": {
+      "id": 290,
+      "type": "bool"
+    },
+    "MapperLeftHuntersNest": {
+      "id": 291,
+      "type": "bool"
+    },
+    "MapperLeftJudgeSteps": {
+      "id": 292,
+      "type": "bool"
+    },
+    "MapperLeftPeak": {
+      "id": 293,
+      "type": "bool"
+    },
+    "MapperLeftShadow": {
+      "id": 294,
+      "type": "bool"
+    },
+    "MapperLeftShellwood": {
+      "id": 295,
+      "type": "bool"
+    },
+    "MapperLeftWilds": {
+      "id": 296,
+      "type": "bool"
+    },
+    "MaskMakerQueuedUnmasked2": {
+      "id": 297,
+      "type": "bool"
+    },
+    "MaskMakerTalkedPeak": {
+      "id": 298,
+      "type": "bool"
+    },
+    "MaskMakerTalkedRelationship": {
+      "id": 299,
+      "type": "bool"
+    },
+    "MaskMakerTalkedUnmasked": {
+      "id": 300,
+      "type": "bool"
+    },
+    "MaskMakerTalkedUnmasked1": {
+      "id": 301,
+      "type": "bool"
+    },
+    "MaskMakerTalkedUnmasked2": {
+      "id": 302,
+      "type": "bool"
+    },
+    "MaskMakerTalkedUnmaskedAct3": {
+      "id": 303,
+      "type": "bool"
+    },
+    "MazeEntranceDoor": {
+      "id": 304,
+      "type": "string"
+    },
+    "MazeEntranceInitialDoor": {
+      "id": 305,
+      "type": "string"
+    },
+    "MazeEntranceInitialScene": {
+      "id": 306,
+      "type": "string"
+    },
+    "MazeEntranceScene": {
+      "id": 307,
+      "type": "string"
+    },
+    "MelodyLiftCanReturn": {
+      "id": 308,
+      "type": "bool"
+    },
+    "MerchantEnclaveShellFragment": {
+      "id": 309,
+      "type": "bool"
+    },
+    "MerchantEnclaveSimpleKey": {
+      "id": 310,
+      "type": "bool"
+    },
+    "MerchantEnclaveSocket": {
+      "id": 311,
+      "type": "bool"
+    },
+    "MerchantEnclaveSpoolPiece": {
+      "id": 312,
+      "type": "bool"
+    },
+    "MerchantEnclaveToolMetal": {
+      "id": 313,
+      "type": "bool"
+    },
+    "MerchantEnclaveWardKey": {
+      "id": 314,
+      "type": "bool"
+    },
+    "MetAntMerchant": {
+      "id": 315,
+      "type": "bool"
+    },
+    "MetArchitect": {
+      "id": 316,
+      "type": "bool"
+    },
+    "MetArchitectAct3": {
+      "id": 317,
+      "type": "bool"
+    },
+    "MetBelltownBagpipers": {
+      "id": 318,
+      "type": "bool"
+    },
+    "MetBelltownDoctor": {
+      "id": 319,
+      "type": "bool"
+    },
+    "MetBelltownDoctorDoor": {
+      "id": 320,
+      "type": "bool"
+    },
+    "MetBelltownDoctorDoorAct3": {
+      "id": 321,
+      "type": "bool"
+    },
+    "MetBelltownRelicDealer": {
+      "id": 322,
+      "type": "bool"
+    },
+    "MetBelltownRelicDealerAct3": {
+      "id": 323,
+      "type": "bool"
+    },
+    "MetBelltownShopkeep": {
+      "id": 324,
+      "type": "bool"
+    },
+    "MetBoneBottomShopKeep": {
+      "id": 325,
+      "type": "bool"
+    },
+    "MetCaravanSpider": {
+      "id": 326,
+      "type": "bool"
+    },
+    "MetCaravanSpiderCoral": {
+      "id": 327,
+      "type": "bool"
+    },
+    "MetCaravanTroupeLeader": {
+      "id": 328,
+      "type": "bool"
+    },
+    "MetCaravanTroupeLeaderGreymoor": {
+      "id": 329,
+      "type": "bool"
+    },
+    "MetCaravanTroupeLeaderGreymoorScared": {
+      "id": 330,
+      "type": "bool"
+    },
+    "MetCaravanTroupeLeaderJudge": {
+      "id": 331,
+      "type": "bool"
+    },
+    "MetCityMerchantEnclave": {
+      "id": 332,
+      "type": "bool"
+    },
+    "MetCityMerchantEnclaveAct3": {
+      "id": 333,
+      "type": "bool"
+    },
+    "MetCityMerchantScavenge": {
+      "id": 334,
+      "type": "bool"
+    },
+    "MetCrestUpgrader": {
+      "id": 335,
+      "type": "bool"
+    },
+    "MetCrestUpgraderAct3": {
+      "id": 336,
+      "type": "bool"
+    },
+    "MetEnclaveScaredPilgrim": {
+      "id": 337,
+      "type": "bool"
+    },
+    "MetFisherHomeBasic": {
+      "id": 338,
+      "type": "bool"
+    },
+    "MetFisherHomeFull": {
+      "id": 339,
+      "type": "bool"
+    },
+    "MetForgeDaughter": {
+      "id": 340,
+      "type": "bool"
+    },
+    "MetForgeDaughterAct3": {
+      "id": 341,
+      "type": "bool"
+    },
+    "MetGourmandServant": {
+      "id": 342,
+      "type": "bool"
+    },
+    "MetGourmandServantAct3": {
+      "id": 343,
+      "type": "bool"
+    },
+    "MetGrubFarmerMimic": {
+      "id": 344,
+      "type": "bool"
+    },
+    "MetHalfwayBartender": {
+      "id": 345,
+      "type": "bool"
+    },
+    "MetHalfwayBartenderAct3": {
+      "id": 346,
+      "type": "bool"
+    },
+    "MetHalfwayHunterFan": {
+      "id": 347,
+      "type": "bool"
+    },
+    "MetHunterFanOutside": {
+      "id": 348,
+      "type": "bool"
+    },
+    "MetMaskMaker": {
+      "id": 349,
+      "type": "bool"
+    },
+    "MetMaskMakerAct3": {
+      "id": 350,
+      "type": "bool"
+    },
+    "MetPilgrimsRestShop": {
+      "id": 351,
+      "type": "bool"
+    },
+    "MetPinChallengeBug": {
+      "id": 352,
+      "type": "bool"
+    },
+    "MetSeamstress": {
+      "id": 353,
+      "type": "bool"
+    },
+    "MetSethNPC": {
+      "id": 354,
+      "type": "bool"
+    },
+    "MetTroupeHunterWild": {
+      "id": 355,
+      "type": "bool"
+    },
+    "MetWoodWitch": {
+      "id": 356,
+      "type": "bool"
+    },
+    "MottledChildGivenTool": {
+      "id": 357,
+      "type": "bool"
+    },
+    "MottledChildNewTool": {
+      "id": 358,
+      "type": "bool"
+    },
+    "MushroomQuestFound1": {
+      "id": 359,
+      "type": "bool"
+    },
+    "MushroomQuestFound2": {
+      "id": 360,
+      "type": "bool"
+    },
+    "MushroomQuestFound3": {
+      "id": 361,
+      "type": "bool"
+    },
+    "MushroomQuestFound4": {
+      "id": 362,
+      "type": "bool"
+    },
+    "MushroomQuestFound5": {
+      "id": 363,
+      "type": "bool"
+    },
+    "MushroomQuestFound6": {
+      "id": 364,
+      "type": "bool"
+    },
+    "MushroomQuestFound7": {
+      "id": 365,
+      "type": "bool"
+    },
+    "OpenedCoralCaravanSpider": {
+      "id": 366,
+      "type": "bool"
+    },
+    "OpenedCrowSummonsDoor": {
+      "id": 367,
+      "type": "bool"
+    },
+    "PickedUpCrowMemento": {
+      "id": 368,
+      "type": "bool"
+    },
+    "PilgrimStomperNPCOffered": {
+      "id": 369,
+      "type": "bool"
+    },
+    "PilgrimsRestDoorBroken": {
+      "id": 370,
+      "type": "bool"
+    },
+    "PilgrimsRestShopIdleTalkState": {
+      "id": 371,
+      "type": "int"
+    },
+    "PinGalleryHasPlayedFinalChallenge": {
+      "id": 372,
+      "type": "bool"
+    },
+    "PinGalleryLastChallengeOpen": {
+      "id": 373,
+      "type": "bool"
+    },
+    "PinGalleryWallet": {
+      "id": 374,
+      "type": "int"
+    },
+    "PinsmithMetBelltown": {
+      "id": 375,
+      "type": "bool"
+    },
+    "PinsmithQuestOffered": {
+      "id": 376,
+      "type": "bool"
+    },
+    "PinsmithUpg2Offered": {
+      "id": 377,
+      "type": "bool"
+    },
+    "PinsmithUpg3Offered": {
+      "id": 378,
+      "type": "bool"
+    },
+    "PinsmithUpg4Offered": {
+      "id": 379,
+      "type": "bool"
+    },
+    "PinstressPeakBattleAccepted": {
+      "id": 380,
+      "type": "bool"
+    },
+    "PinstressPeakBattleOffered": {
+      "id": 381,
+      "type": "bool"
+    },
+    "PinstressPeakQuestOffered": {
+      "id": 382,
+      "type": "bool"
+    },
+    "PreviousCrestID": {
+      "id": 383,
+      "type": "string"
+    },
+    "PreviousMazeDoor": {
+      "id": 384,
+      "type": "string"
+    },
+    "PreviousMazeScene": {
+      "id": 385,
+      "type": "string"
+    },
+    "PreviousMazeTargetDoor": {
+      "id": 386,
+      "type": "string"
+    },
+    "PurchasedArchitectKey": {
+      "id": 387,
+      "type": "bool"
+    },
+    "PurchasedArchitectToolKit": {
+      "id": 388,
+      "type": "bool"
+    },
+    "PurchasedBelltownMemoryLocket": {
+      "id": 389,
+      "type": "bool"
+    },
+    "PurchasedBelltownShellFragment": {
+      "id": 390,
+      "type": "bool"
+    },
+    "PurchasedBelltownSpoolSegment": {
+      "id": 391,
+      "type": "bool"
+    },
+    "PurchasedBelltownToolPouch": {
+      "id": 392,
+      "type": "bool"
+    },
+    "PurchasedBonebottomFaithToken": {
+      "id": 393,
+      "type": "bool"
+    },
+    "PurchasedBonebottomHeartPiece": {
+      "id": 394,
+      "type": "bool"
+    },
+    "PurchasedBonebottomToolMetal": {
+      "id": 395,
+      "type": "bool"
+    },
+    "PurchasedForgeToolKit": {
+      "id": 396,
+      "type": "bool"
+    },
+    "PurchasedPilgrimsRestMemoryLocket": {
+      "id": 397,
+      "type": "bool"
+    },
+    "PurchasedPilgrimsRestToolPouch": {
+      "id": 398,
+      "type": "bool"
+    },
+    "QuestPaneHasNew": {
+      "id": 399,
+      "type": "bool"
+    },
+    "QuillState": {
+      "id": 400,
+      "type": "int"
+    },
+    "RevisionBreak": {
+      "id": 401,
+      "type": "int"
+    },
+    "SatAtBenchAfterAbyssEscape": {
+      "id": 402,
+      "type": "bool"
+    },
+    "SavedFlea_Ant_03": {
+      "id": 403,
+      "type": "bool"
+    },
+    "SavedFlea_Belltown_04": {
+      "id": 404,
+      "type": "bool"
+    },
+    "SavedFlea_Bone_06": {
+      "id": 405,
+      "type": "bool"
+    },
+    "SavedFlea_Bone_East_05": {
+      "id": 406,
+      "type": "bool"
+    },
+    "SavedFlea_Bone_East_10_Church": {
+      "id": 407,
+      "type": "bool"
+    },
+    "SavedFlea_Bone_East_17b": {
+      "id": 408,
+      "type": "bool"
+    },
+    "SavedFlea_Coral_24": {
+      "id": 409,
+      "type": "bool"
+    },
+    "SavedFlea_Coral_35": {
+      "id": 410,
+      "type": "bool"
+    },
+    "SavedFlea_Crawl_06": {
+      "id": 411,
+      "type": "bool"
+    },
+    "SavedFlea_Dock_03d": {
+      "id": 412,
+      "type": "bool"
+    },
+    "SavedFlea_Dock_16": {
+      "id": 413,
+      "type": "bool"
+    },
+    "SavedFlea_Dust_09": {
+      "id": 414,
+      "type": "bool"
+    },
+    "SavedFlea_Dust_12": {
+      "id": 415,
+      "type": "bool"
+    },
+    "SavedFlea_Greymoor_06": {
+      "id": 416,
+      "type": "bool"
+    },
+    "SavedFlea_Greymoor_15b": {
+      "id": 417,
+      "type": "bool"
+    },
+    "SavedFlea_Library_01": {
+      "id": 418,
+      "type": "bool"
+    },
+    "SavedFlea_Library_09": {
+      "id": 419,
+      "type": "bool"
+    },
+    "SavedFlea_Peak_05c": {
+      "id": 420,
+      "type": "bool"
+    },
+    "SavedFlea_Shadow_10": {
+      "id": 421,
+      "type": "bool"
+    },
+    "SavedFlea_Shadow_28": {
+      "id": 422,
+      "type": "bool"
+    },
+    "SavedFlea_Shellwood_03": {
+      "id": 423,
+      "type": "bool"
+    },
+    "SavedFlea_Slab_06": {
+      "id": 424,
+      "type": "bool"
+    },
+    "SavedFlea_Slab_Cell": {
+      "id": 425,
+      "type": "bool"
+    },
+    "SavedFlea_Song_11": {
+      "id": 426,
+      "type": "bool"
+    },
+    "SavedFlea_Song_14": {
+      "id": 427,
+      "type": "bool"
+    },
+    "SavedFlea_Under_21": {
+      "id": 428,
+      "type": "bool"
+    },
+    "SavedFlea_Under_23": {
+      "id": 429,
+      "type": "bool"
+    },
+    "SeamstressAct3Convo": {
+      "id": 430,
+      "type": "bool"
+    },
+    "SeamstressBadgeConvo": {
+      "id": 431,
+      "type": "bool"
+    },
+    "SeamstressCitadelConvo": {
+      "id": 432,
+      "type": "bool"
+    },
+    "SeamstressIdleTalkState": {
+      "id": 433,
+      "type": "int"
+    },
+    "SeamstressOfferedQuest": {
+      "id": 434,
+      "type": "bool"
+    },
+    "SeamstressPinstressConvo": {
+      "id": 435,
+      "type": "bool"
+    },
+    "SeenAntMerchantDead": {
+      "id": 436,
+      "type": "bool"
+    },
+    "SeenArchitectLeft": {
+      "id": 437,
+      "type": "bool"
+    },
+    "SeenBelltownCutscene": {
+      "id": 438,
+      "type": "bool"
+    },
+    "SeenBindPrompt": {
+      "id": 439,
+      "type": "bool"
+    },
+    "SeenBoneBottomShopKeep": {
+      "id": 440,
+      "type": "bool"
+    },
+    "SeenCaravanSpider": {
+      "id": 441,
+      "type": "bool"
+    },
+    "SeenDivingBellGoneAbyss": {
+      "id": 442,
+      "type": "bool"
+    },
+    "SeenFleaCaravan": {
+      "id": 443,
+      "type": "bool"
+    },
+    "SeenFleatopiaEmpty": {
+      "id": 444,
+      "type": "bool"
+    },
+    "SeenGrindleShop": {
+      "id": 445,
+      "type": "bool"
+    },
+    "SeenHalfwayPatronLeft": {
+      "id": 446,
+      "type": "bool"
+    },
+    "SeenHalfwayPatronRight": {
+      "id": 447,
+      "type": "bool"
+    },
+    "SeenLastJudgeGateOpen": {
+      "id": 448,
+      "type": "bool"
+    },
+    "SeenMapperBellhart": {
+      "id": 449,
+      "type": "bool"
+    },
+    "SeenMapperBoneForest": {
+      "id": 450,
+      "type": "bool"
+    },
+    "SeenMapperBonetown": {
+      "id": 451,
+      "type": "bool"
+    },
+    "SeenMapperCoralCaverns": {
+      "id": 452,
+      "type": "bool"
+    },
+    "SeenMapperCrawl": {
+      "id": 453,
+      "type": "bool"
+    },
+    "SeenMapperDocks": {
+      "id": 454,
+      "type": "bool"
+    },
+    "SeenMapperDustpens": {
+      "id": 455,
+      "type": "bool"
+    },
+    "SeenMapperGreymoor": {
+      "id": 456,
+      "type": "bool"
+    },
+    "SeenMapperHuntersNest": {
+      "id": 457,
+      "type": "bool"
+    },
+    "SeenMapperJudgeSteps": {
+      "id": 458,
+      "type": "bool"
+    },
+    "SeenMapperPeak": {
+      "id": 459,
+      "type": "bool"
+    },
+    "SeenMapperShadow": {
+      "id": 460,
+      "type": "bool"
+    },
+    "SeenMapperShellwood": {
+      "id": 461,
+      "type": "bool"
+    },
+    "SeenMapperWilds": {
+      "id": 462,
+      "type": "bool"
+    },
+    "SeenMelodyLibrarianReturn": {
+      "id": 463,
+      "type": "bool"
+    },
+    "SeenMortDead": {
+      "id": 464,
+      "type": "bool"
+    },
+    "SeenMortLeft": {
+      "id": 465,
+      "type": "bool"
+    },
+    "SeenToolEquipPrompt": {
+      "id": 466,
+      "type": "bool"
+    },
+    "SeenToolGetPrompt": {
+      "id": 467,
+      "type": "bool"
+    },
+    "SeenToolUsePrompt": {
+      "id": 468,
+      "type": "bool"
+    },
+    "SeenToolWeaponGetPrompt": {
+      "id": 469,
+      "type": "bool"
+    },
+    "SethJoinedFleatopia": {
+      "id": 470,
+      "type": "bool"
+    },
+    "SethNpcLocation": {
+      "id": 471,
+      "type": "GlobalEnums.SethNpcLocations"
+    },
+    "ShakraFinalQuestAppear": {
+      "id": 472,
+      "type": "bool"
+    },
+    "ShamanRitualCursedConvo": {
+      "id": 473,
+      "type": "bool"
+    },
+    "ShellShards": {
+      "id": 474,
+      "type": "int"
+    },
+    "ShopkeeperQuestMentioned": {
+      "id": 475,
+      "type": "bool"
+    },
+    "SnailShamansCloverHeartConvo": {
+      "id": 476,
+      "type": "bool"
+    },
+    "SnailShamansCrestConvo": {
+      "id": 477,
+      "type": "bool"
+    },
+    "SpinnerDefeatedTimePassed": {
+      "id": 478,
+      "type": "bool"
+    },
+    "SprintMasterCurrentRace": {
+      "id": 479,
+      "type": "int"
+    },
+    "SprintMasterExtraRaceAvailable": {
+      "id": 480,
+      "type": "bool"
+    },
+    "SprintMasterExtraRaceDlg": {
+      "id": 481,
+      "type": "bool"
+    },
+    "SprintMasterExtraRaceWon": {
+      "id": 482,
+      "type": "bool"
+    },
+    "SteelSentinelMet": {
+      "id": 483,
+      "type": "bool"
+    },
+    "SteelSentinelOffered": {
+      "id": 484,
+      "type": "bool"
+    },
+    "TempGeoStore": {
+      "id": 485,
+      "type": "int"
+    },
+    "TempShellShardStore": {
+      "id": 486,
+      "type": "int"
+    },
+    "ToolKitUpgrades": {
+      "id": 487,
+      "type": "int"
+    },
+    "ToolPaneHasNew": {
+      "id": 488,
+      "type": "bool"
+    },
+    "ToolPouchUpgrades": {
+      "id": 489,
+      "type": "int"
+    },
+    "TroupeHunterWildAct3Convo": {
+      "id": 490,
+      "type": "bool"
+    },
+    "TroupeLeaderSpokenFleatopiaSearch": {
+      "id": 491,
+      "type": "bool"
+    },
+    "TroupeLeaderSpokenHunter": {
+      "id": 492,
+      "type": "bool"
+    },
+    "TroupeLeaderSpokenLech": {
+      "id": 493,
+      "type": "bool"
+    },
+    "UnlockSilkFinalCutscene": {
+      "id": 494,
+      "type": "bool"
+    },
+    "UnlockedAqueductStation": {
+      "id": 495,
+      "type": "bool"
+    },
+    "UnlockedArboriumTube": {
+      "id": 496,
+      "type": "bool"
+    },
+    "UnlockedBelltownStation": {
+      "id": 497,
+      "type": "bool"
+    },
+    "UnlockedBoneforestEastStation": {
+      "id": 498,
+      "type": "bool"
+    },
+    "UnlockedCityBellwayTube": {
+      "id": 499,
+      "type": "bool"
+    },
+    "UnlockedCityStation": {
+      "id": 500,
+      "type": "bool"
+    },
+    "UnlockedCoralTowerStation": {
+      "id": 501,
+      "type": "bool"
+    },
+    "UnlockedDocksStation": {
+      "id": 502,
+      "type": "bool"
+    },
+    "UnlockedDustCage": {
+      "id": 503,
+      "type": "bool"
+    },
+    "UnlockedEnclaveTube": {
+      "id": 504,
+      "type": "bool"
+    },
+    "UnlockedExtraBlueSlot": {
+      "id": 505,
+      "type": "bool"
+    },
+    "UnlockedExtraYellowSlot": {
+      "id": 506,
+      "type": "bool"
+    },
+    "UnlockedFastTravel": {
+      "id": 507,
+      "type": "bool"
+    },
+    "UnlockedFastTravelTeleport": {
+      "id": 508,
+      "type": "bool"
+    },
+    "UnlockedGreymoorStation": {
+      "id": 509,
+      "type": "bool"
+    },
+    "UnlockedHangTube": {
+      "id": 510,
+      "type": "bool"
+    },
+    "UnlockedMelodyLift": {
+      "id": 511,
+      "type": "bool"
+    },
+    "UnlockedPeakStation": {
+      "id": 512,
+      "type": "bool"
+    },
+    "UnlockedShadowStation": {
+      "id": 513,
+      "type": "bool"
+    },
+    "UnlockedShellwoodStation": {
+      "id": 514,
+      "type": "bool"
+    },
+    "UnlockedSongTube": {
+      "id": 515,
+      "type": "bool"
+    },
+    "UnlockedUnderTube": {
+      "id": 516,
+      "type": "bool"
+    },
+    "VampireGnatCorpseInWater": {
+      "id": 517,
+      "type": "bool"
+    },
+    "VampireGnatCorpseOnCaravan": {
+      "id": 518,
+      "type": "bool"
+    },
+    "VampireGnatDefeatedBeforeCaravanArrived": {
+      "id": 519,
+      "type": "bool"
+    },
+    "WasInPinChallenge": {
+      "id": 520,
+      "type": "bool"
+    },
+    "WasInSceneRace": {
+      "id": 521,
+      "type": "bool"
+    },
+    "WoodWitchGaveMandrake": {
+      "id": 522,
+      "type": "bool"
+    },
+    "WoodWitchOfferedCurse": {
+      "id": 523,
+      "type": "bool"
+    },
+    "WoodWitchOfferedFlowerQuest": {
+      "id": 524,
+      "type": "bool"
+    },
+    "WoodWitchOfferedItemQuest": {
+      "id": 525,
+      "type": "bool"
+    },
+    "WoodWitchTalkedPostQuest": {
+      "id": 526,
+      "type": "bool"
+    },
+    "act2Started": {
+      "id": 527,
+      "type": "bool"
+    },
+    "act3MapUpdated": {
+      "id": 528,
+      "type": "bool"
+    },
+    "act3_enclaveWakeSceneCompleted": {
+      "id": 529,
+      "type": "bool"
+    },
+    "act3_wokeUp": {
+      "id": 530,
+      "type": "bool"
+    },
+    "activatedStepsUpperBellbench": {
+      "id": 531,
+      "type": "bool"
+    },
+    "allowVampireGnatInAltLoc": {
+      "id": 532,
+      "type": "bool"
+    },
+    "ant02GuardDefeated": {
+      "id": 533,
+      "type": "bool"
+    },
+    "ant04_battleCompleted": {
+      "id": 534,
+      "type": "bool"
+    },
+    "ant04_enemiesReturn": {
+      "id": 535,
+      "type": "bool"
+    },
+    "ant21_ExtraBattleAdded": {
+      "id": 536,
+      "type": "bool"
+    },
+    "ant21_InitBattleCompleted": {
+      "id": 537,
+      "type": "bool"
+    },
+    "antBenchTrapDefused": {
+      "id": 538,
+      "type": "bool"
+    },
+    "antMerchantKilled": {
+      "id": 539,
+      "type": "bool"
+    },
+    "antMerchantShortcut": {
+      "id": 540,
+      "type": "bool"
+    },
+    "antQueenNPC_deepMelodyConvo": {
+      "id": 541,
+      "type": "bool"
+    },
+    "arborium_08_oneWay": {
+      "id": 542,
+      "type": "bool"
+    },
+    "arborium_09_oneWay": {
+      "id": 543,
+      "type": "bool"
+    },
+    "aspid06_battleComplete": {
+      "id": 544,
+      "type": "bool"
+    },
+    "aspid06_cloverStagsReturned": {
+      "id": 545,
+      "type": "bool"
+    },
+    "aspid07_cloverStagsReturned": {
+      "id": 546,
+      "type": "bool"
+    },
+    "aspid_04_gate": {
+      "id": 547,
+      "type": "bool"
+    },
+    "aspid_04b_battleCompleted": {
+      "id": 548,
+      "type": "bool"
+    },
+    "aspid_04b_wildlifeReturned": {
+      "id": 549,
+      "type": "bool"
+    },
+    "aspid_16_oneway": {
+      "id": 550,
+      "type": "bool"
+    },
+    "aspid_16_relic": {
+      "id": 551,
+      "type": "bool"
+    },
+    "atBench": {
+      "id": 552,
+      "type": "bool"
+    },
+    "attunement": {
+      "id": 553,
+      "type": "int"
+    },
+    "attunementLevel": {
+      "id": 554,
+      "type": "int"
+    },
+    "bankOpened": {
+      "id": 555,
+      "type": "bool"
+    },
+    "basementAntWall": {
+      "id": 556,
+      "type": "bool"
+    },
+    "beamDamage": {
+      "id": 557,
+      "type": "int"
+    },
+    "bellCentipedeAppeared": {
+      "id": 558,
+      "type": "bool"
+    },
+    "bellShrineBellhart": {
+      "id": 559,
+      "type": "bool"
+    },
+    "bellShrineBoneForest": {
+      "id": 560,
+      "type": "bool"
+    },
+    "bellShrineEnclave": {
+      "id": 561,
+      "type": "bool"
+    },
+    "bellShrineGreymoor": {
+      "id": 562,
+      "type": "bool"
+    },
+    "bellShrineShellwood": {
+      "id": 563,
+      "type": "bool"
+    },
+    "bellShrineWilds": {
+      "id": 564,
+      "type": "bool"
+    },
+    "belltownBasementBreakWall": {
+      "id": 565,
+      "type": "bool"
+    },
+    "belltownCrowd": {
+      "id": 566,
+      "type": "int"
+    },
+    "belltownCrowdsReady": {
+      "id": 567,
+      "type": "bool"
+    },
+    "betaEnd": {
+      "id": 568,
+      "type": "bool"
+    },
+    "bindCutscenePlayed": {
+      "id": 569,
+      "type": "bool"
+    },
+    "blackThreadWorld": {
+      "id": 570,
+      "type": "bool"
+    },
+    "bone01shortcutPlat": {
+      "id": 571,
+      "type": "bool"
+    },
+    "bone03_openedTrapdoor": {
+      "id": 572,
+      "type": "bool"
+    },
+    "bone03_openedTrapdoorForRockRoller": {
+      "id": 573,
+      "type": "bool"
+    },
+    "boneBottomAddition_RagLine": {
+      "id": 574,
+      "type": "bool"
+    },
+    "boneBottomFuneral": {
+      "id": 575,
+      "type": "bool"
+    },
+    "boneBottomFuneralComplete": {
+      "id": 576,
+      "type": "bool"
+    },
+    "boneEast07_openedMidRoof": {
+      "id": 577,
+      "type": "bool"
+    },
+    "boneEastJailerClearedOut": {
+      "id": 578,
+      "type": "bool"
+    },
+    "boneEastJailerKilled": {
+      "id": 579,
+      "type": "bool"
+    },
+    "bonebottomQuestBoardFixed": {
+      "id": 580,
+      "type": "bool"
+    },
+    "bonegraveAspidBerryCollected": {
+      "id": 581,
+      "type": "bool"
+    },
+    "bonegraveOpen": {
+      "id": 582,
+      "type": "bool"
+    },
+    "bonegravePilgrimCrowdsCanReturn": {
+      "id": 583,
+      "type": "bool"
+    },
+    "bonegraveRosaryPilgrimDefeated": {
+      "id": 584,
+      "type": "bool"
+    },
+    "bonetownAspidBerryCollected": {
+      "id": 585,
+      "type": "bool"
+    },
+    "bonetownCrowd": {
+      "id": 586,
+      "type": "int"
+    },
+    "bonetownPilgrimHornedActive": {
+      "id": 587,
+      "type": "bool"
+    },
+    "bonetownPilgrimHornedCount": {
+      "id": 588,
+      "type": "int"
+    },
+    "bonetownPilgrimHornedSeen": {
+      "id": 589,
+      "type": "bool"
+    },
+    "bonetownPilgrimRoundActive": {
+      "id": 590,
+      "type": "bool"
+    },
+    "bonetownPilgrimRoundCount": {
+      "id": 591,
+      "type": "int"
+    },
+    "bonetownPilgrimRoundSeen": {
+      "id": 592,
+      "type": "bool"
+    },
+    "bossReturnEntryGate": {
+      "id": 593,
+      "type": "string"
+    },
+    "bossRushMode": {
+      "id": 594,
+      "type": "bool"
+    },
+    "bossStatueTargetLevel": {
+      "id": 595,
+      "type": "int"
+    },
+    "brokeConfessional": {
+      "id": 596,
+      "type": "bool"
+    },
+    "brokeUnderstoreFloor": {
+      "id": 597,
+      "type": "bool"
+    },
+    "broodMotherEyeCollected": {
+      "id": 598,
+      "type": "bool"
+    },
+    "caretakerBeastConvo": {
+      "id": 599,
+      "type": "bool"
+    },
+    "caretakerConvoLv1": {
+      "id": 600,
+      "type": "bool"
+    },
+    "caretakerConvoLv2": {
+      "id": 601,
+      "type": "bool"
+    },
+    "caretakerConvoLv3": {
+      "id": 602,
+      "type": "bool"
+    },
+    "caretakerLaceConvo": {
+      "id": 603,
+      "type": "bool"
+    },
+    "caretakerMerchantConvo": {
+      "id": 604,
+      "type": "bool"
+    },
+    "caretakerSoulSnareConvo": {
+      "id": 605,
+      "type": "bool"
+    },
+    "caretakerWardConvo": {
+      "id": 606,
+      "type": "bool"
+    },
+    "cauldronShortcutUpdraft": {
+      "id": 607,
+      "type": "bool"
+    },
+    "chapelClosed_beast": {
+      "id": 608,
+      "type": "bool"
+    },
+    "chapelClosed_reaper": {
+      "id": 609,
+      "type": "bool"
+    },
+    "chapelClosed_shaman": {
+      "id": 610,
+      "type": "bool"
+    },
+    "chapelClosed_toolmaster": {
+      "id": 611,
+      "type": "bool"
+    },
+    "chapelClosed_wanderer": {
+      "id": 612,
+      "type": "bool"
+    },
+    "chapelClosed_witch": {
+      "id": 613,
+      "type": "bool"
+    },
+    "churchKeeperBonegraveConvo": {
+      "id": 614,
+      "type": "bool"
+    },
+    "churchKeeperCursedConvo": {
+      "id": 615,
+      "type": "bool"
+    },
+    "churchKeeperIntro": {
+      "id": 616,
+      "type": "bool"
+    },
+    "churchRhinoBlackThreadCorpse": {
+      "id": 617,
+      "type": "bool"
+    },
+    "churchRhinoKilled": {
+      "id": 618,
+      "type": "bool"
+    },
+    "citadelHalfwayComplete": {
+      "id": 619,
+      "type": "bool"
+    },
+    "citadelWoken": {
+      "id": 620,
+      "type": "bool"
+    },
+    "citadel_encounteredFencers": {
+      "id": 621,
+      "type": "bool"
+    },
+    "cityMerchantBridgeSaveRemeet": {
+      "id": 622,
+      "type": "bool"
+    },
+    "cityMerchantCanLeaveForBridge": {
+      "id": 623,
+      "type": "bool"
+    },
+    "cityMerchantConvo1": {
+      "id": 624,
+      "type": "bool"
+    },
+    "cityMerchantEnclaveConvo": {
+      "id": 625,
+      "type": "bool"
+    },
+    "cityMerchantInGrandForum": {
+      "id": 626,
+      "type": "bool"
+    },
+    "cityMerchantInGrandForumLeft": {
+      "id": 627,
+      "type": "bool"
+    },
+    "cityMerchantInGrandForumSeen": {
+      "id": 628,
+      "type": "bool"
+    },
+    "cityMerchantInLibrary03": {
+      "id": 629,
+      "type": "bool"
+    },
+    "cityMerchantInLibrary03Left": {
+      "id": 630,
+      "type": "bool"
+    },
+    "cityMerchantInLibrary03Seen": {
+      "id": 631,
+      "type": "bool"
+    },
+    "cityMerchantIntroduced": {
+      "id": 632,
+      "type": "bool"
+    },
+    "cityMerchantRecentlySeenInEnclave": {
+      "id": 633,
+      "type": "bool"
+    },
+    "cityMerchantSaved": {
+      "id": 634,
+      "type": "bool"
+    },
+    "cloakOdour_slabFly": {
+      "id": 635,
+      "type": "int"
+    },
+    "cloverDancerRegrowth": {
+      "id": 636,
+      "type": "bool"
+    },
+    "cog7_automatonDestroyed": {
+      "id": 637,
+      "type": "bool"
+    },
+    "cog7_automatonRepairing": {
+      "id": 638,
+      "type": "bool"
+    },
+    "cog7_automatonRepairingComplete": {
+      "id": 639,
+      "type": "bool"
+    },
+    "cog7_automaton_defeated": {
+      "id": 640,
+      "type": "bool"
+    },
+    "cog7_gateOpened": {
+      "id": 641,
+      "type": "bool"
+    },
+    "collectedWardBossKey": {
+      "id": 642,
+      "type": "bool"
+    },
+    "collectedWardKey": {
+      "id": 643,
+      "type": "bool"
+    },
+    "collectorEggsHatched": {
+      "id": 644,
+      "type": "bool"
+    },
+    "completedAbyssAscent": {
+      "id": 645,
+      "type": "bool"
+    },
+    "completedCog10_abyssBattle": {
+      "id": 646,
+      "type": "bool"
+    },
+    "completedGrandStageBattle": {
+      "id": 647,
+      "type": "bool"
+    },
+    "completedGreymoor17Battle": {
+      "id": 648,
+      "type": "bool"
+    },
+    "completedLavaChallenge": {
+      "id": 649,
+      "type": "bool"
+    },
+    "completedLibraryAcolyteBattle": {
+      "id": 650,
+      "type": "bool"
+    },
+    "completedLibraryEntryBattle": {
+      "id": 651,
+      "type": "bool"
+    },
+    "completedMemory_beast": {
+      "id": 652,
+      "type": "bool"
+    },
+    "completedMemory_reaper": {
+      "id": 653,
+      "type": "bool"
+    },
+    "completedMemory_shaman": {
+      "id": 654,
+      "type": "bool"
+    },
+    "completedMemory_toolmaster": {
+      "id": 655,
+      "type": "bool"
+    },
+    "completedMemory_wanderer": {
+      "id": 656,
+      "type": "bool"
+    },
+    "completedMemory_witch": {
+      "id": 657,
+      "type": "bool"
+    },
+    "completedSuperJumpSequence": {
+      "id": 658,
+      "type": "bool"
+    },
+    "completedTutorial": {
+      "id": 659,
+      "type": "bool"
+    },
+    "completionPercentage": {
+      "id": 660,
+      "type": "float"
+    },
+    "coral19_clearedOut": {
+      "id": 661,
+      "type": "bool"
+    },
+    "coralBridgeGuard2Stationed": {
+      "id": 662,
+      "type": "bool"
+    },
+    "coralDrillerSoloEnemiesReturned": {
+      "id": 663,
+      "type": "bool"
+    },
+    "coralDrillerSoloReady": {
+      "id": 664,
+      "type": "bool"
+    },
+    "coralKingHeartAppeared": {
+      "id": 665,
+      "type": "bool"
+    },
+    "crashedIntoGreymoor": {
+      "id": 666,
+      "type": "bool"
+    },
+    "crashingIntoGreymoor": {
+      "id": 667,
+      "type": "bool"
+    },
+    "crawl03_oneWayWall": {
+      "id": 668,
+      "type": "bool"
+    },
+    "creaturesReturnedToBone10": {
+      "id": 669,
+      "type": "bool"
+    },
+    "currentArea": {
+      "id": 670,
+      "type": "string"
+    },
+    "currentBossStatueCompletionKey": {
+      "id": 671,
+      "type": "string"
+    },
+    "currentInvPane": {
+      "id": 672,
+      "type": "int"
+    },
+    "damagedBlue": {
+      "id": 673,
+      "type": "bool"
+    },
+    "damagedPurple": {
+      "id": 674,
+      "type": "bool"
+    },
+    "date": {
+      "id": 675,
+      "type": "string"
+    },
+    "defeatedAntQueen": {
+      "id": 676,
+      "type": "bool"
+    },
+    "defeatedAntQueenAfterRedMemory": {
+      "id": 677,
+      "type": "bool"
+    },
+    "defeatedAntTrapper": {
+      "id": 678,
+      "type": "bool"
+    },
+    "defeatedBellBeast": {
+      "id": 679,
+      "type": "bool"
+    },
+    "defeatedBoneFlyerGiant": {
+      "id": 680,
+      "type": "bool"
+    },
+    "defeatedBoneFlyerGiantGolemScene": {
+      "id": 681,
+      "type": "bool"
+    },
+    "defeatedBroodMother": {
+      "id": 682,
+      "type": "bool"
+    },
+    "defeatedCloverDancers": {
+      "id": 683,
+      "type": "bool"
+    },
+    "defeatedCogworkDancers": {
+      "id": 684,
+      "type": "bool"
+    },
+    "defeatedCoralBridgeGuard1": {
+      "id": 685,
+      "type": "bool"
+    },
+    "defeatedCoralBridgeGuard2": {
+      "id": 686,
+      "type": "bool"
+    },
+    "defeatedCoralDrillerSolo": {
+      "id": 687,
+      "type": "bool"
+    },
+    "defeatedCoralDrillers": {
+      "id": 688,
+      "type": "bool"
+    },
+    "defeatedCoralKing": {
+      "id": 689,
+      "type": "bool"
+    },
+    "defeatedCrowCourt": {
+      "id": 690,
+      "type": "bool"
+    },
+    "defeatedDockForemen": {
+      "id": 691,
+      "type": "bool"
+    },
+    "defeatedFirstWeaver": {
+      "id": 692,
+      "type": "bool"
+    },
+    "defeatedFlowerQueen": {
+      "id": 693,
+      "type": "bool"
+    },
+    "defeatedGreyWarrior": {
+      "id": 694,
+      "type": "bool"
+    },
+    "defeatedGuardBoneEast25": {
+      "id": 695,
+      "type": "bool"
+    },
+    "defeatedLace1": {
+      "id": 696,
+      "type": "bool"
+    },
+    "defeatedLaceTower": {
+      "id": 697,
+      "type": "bool"
+    },
+    "defeatedLastJudge": {
+      "id": 698,
+      "type": "bool"
+    },
+    "defeatedMossEvolver": {
+      "id": 699,
+      "type": "bool"
+    },
+    "defeatedMossMother": {
+      "id": 700,
+      "type": "bool"
+    },
+    "defeatedPhantom": {
+      "id": 701,
+      "type": "bool"
+    },
+    "defeatedRoachkeeperChef": {
+      "id": 702,
+      "type": "bool"
+    },
+    "defeatedSeth": {
+      "id": 703,
+      "type": "bool"
+    },
+    "defeatedShellwoodRosaryPilgrim": {
+      "id": 704,
+      "type": "bool"
+    },
+    "defeatedSongChevalierBoss": {
+      "id": 705,
+      "type": "bool"
+    },
+    "defeatedSongGolem": {
+      "id": 706,
+      "type": "bool"
+    },
+    "defeatedSplinterQueen": {
+      "id": 707,
+      "type": "bool"
+    },
+    "defeatedTormentedTrobbio": {
+      "id": 708,
+      "type": "bool"
+    },
+    "defeatedTrobbio": {
+      "id": 709,
+      "type": "bool"
+    },
+    "defeatedVampireGnatBoss": {
+      "id": 710,
+      "type": "bool"
+    },
+    "defeatedWhiteCloverstag": {
+      "id": 711,
+      "type": "bool"
+    },
+    "defeatedWispPyreEffigy": {
+      "id": 712,
+      "type": "bool"
+    },
+    "defeatedZapCoreEnemy": {
+      "id": 713,
+      "type": "bool"
+    },
+    "defeatedZapGuard1": {
+      "id": 714,
+      "type": "bool"
+    },
+    "destroyedRosaryCannonMachine": {
+      "id": 715,
+      "type": "bool"
+    },
+    "destroyedSongGolemRock": {
+      "id": 716,
+      "type": "bool"
+    },
+    "dicePilgrimBank": {
+      "id": 717,
+      "type": "int"
+    },
+    "dicePilgrimDefeated": {
+      "id": 718,
+      "type": "bool"
+    },
+    "dicePilgrimGameExplained": {
+      "id": 719,
+      "type": "bool"
+    },
+    "dicePilgrimState": {
+      "id": 720,
+      "type": "int"
+    },
+    "didPilgrimIntroScene": {
+      "id": 721,
+      "type": "bool"
+    },
+    "didRhinoRuckus": {
+      "id": 722,
+      "type": "bool"
+    },
+    "disableInventory": {
+      "id": 723,
+      "type": "bool"
+    },
+    "disablePause": {
+      "id": 724,
+      "type": "bool"
+    },
+    "disableSaveQuit": {
+      "id": 725,
+      "type": "bool"
+    },
+    "disableSilkAbilities": {
+      "id": 726,
+      "type": "bool"
+    },
+    "docksBomberAmbush": {
+      "id": 727,
+      "type": "bool"
+    },
+    "docks_02_shortcut_left": {
+      "id": 728,
+      "type": "bool"
+    },
+    "docks_02_shortcut_right": {
+      "id": 729,
+      "type": "bool"
+    },
+    "dreamReturnScene": {
+      "id": 730,
+      "type": "string"
+    },
+    "droppedFloorBreakerPlat": {
+      "id": 731,
+      "type": "bool"
+    },
+    "druidAct3Intro": {
+      "id": 732,
+      "type": "bool"
+    },
+    "druidMossBerriesSold": {
+      "id": 733,
+      "type": "int"
+    },
+    "druidTradeIntro": {
+      "id": 734,
+      "type": "bool"
+    },
+    "dust01_battleCompleted": {
+      "id": 735,
+      "type": "bool"
+    },
+    "dust01_returnReady": {
+      "id": 736,
+      "type": "bool"
+    },
+    "dust03_battleCompleted": {
+      "id": 737,
+      "type": "bool"
+    },
+    "dust03_returnReady": {
+      "id": 738,
+      "type": "bool"
+    },
+    "dust05EnemyClearedOut": {
+      "id": 739,
+      "type": "bool"
+    },
+    "enclaveAddition_CloakLine": {
+      "id": 740,
+      "type": "bool"
+    },
+    "enclaveAddition_PinRack": {
+      "id": 741,
+      "type": "bool"
+    },
+    "enclaveDonation2_Available": {
+      "id": 742,
+      "type": "bool"
+    },
+    "enclaveLevel": {
+      "id": 743,
+      "type": "int"
+    },
+    "enclaveMerchantSaved": {
+      "id": 744,
+      "type": "bool"
+    },
+    "enclaveMerchantSeenInEnclave": {
+      "id": 745,
+      "type": "bool"
+    },
+    "enclaveNPC_songKnightFan": {
+      "id": 746,
+      "type": "bool"
+    },
+    "encounteredAntTrapper": {
+      "id": 747,
+      "type": "bool"
+    },
+    "encounteredBellBeast": {
+      "id": 748,
+      "type": "bool"
+    },
+    "encounteredCloverDancers": {
+      "id": 749,
+      "type": "bool"
+    },
+    "encounteredCogworkDancers": {
+      "id": 750,
+      "type": "bool"
+    },
+    "encounteredCoralDrillerSolo": {
+      "id": 751,
+      "type": "bool"
+    },
+    "encounteredCoralDrillers": {
+      "id": 752,
+      "type": "bool"
+    },
+    "encounteredCoralKing": {
+      "id": 753,
+      "type": "bool"
+    },
+    "encounteredCrowCourt": {
+      "id": 754,
+      "type": "bool"
+    },
+    "encounteredDockForemen": {
+      "id": 755,
+      "type": "bool"
+    },
+    "encounteredFirstWeaver": {
+      "id": 756,
+      "type": "bool"
+    },
+    "encounteredFlowerQueen": {
+      "id": 757,
+      "type": "bool"
+    },
+    "encounteredLace1": {
+      "id": 758,
+      "type": "bool"
+    },
+    "encounteredLace1Grotto": {
+      "id": 759,
+      "type": "bool"
+    },
+    "encounteredLaceBlastedBridge": {
+      "id": 760,
+      "type": "bool"
+    },
+    "encounteredLaceTower": {
+      "id": 761,
+      "type": "bool"
+    },
+    "encounteredLastJudge": {
+      "id": 762,
+      "type": "bool"
+    },
+    "encounteredLibraryEntryBattle": {
+      "id": 763,
+      "type": "bool"
+    },
+    "encounteredMossMother": {
+      "id": 764,
+      "type": "bool"
+    },
+    "encounteredPhantom": {
+      "id": 765,
+      "type": "bool"
+    },
+    "encounteredPharloomEdge": {
+      "id": 766,
+      "type": "bool"
+    },
+    "encounteredPharloomEdgeAct3": {
+      "id": 767,
+      "type": "bool"
+    },
+    "encounteredSeth": {
+      "id": 768,
+      "type": "bool"
+    },
+    "encounteredSilk": {
+      "id": 769,
+      "type": "bool"
+    },
+    "encounteredSongChevalierBoss": {
+      "id": 770,
+      "type": "bool"
+    },
+    "encounteredSongGolem": {
+      "id": 771,
+      "type": "bool"
+    },
+    "encounteredSpinner": {
+      "id": 772,
+      "type": "bool"
+    },
+    "encounteredSplinterQueen": {
+      "id": 773,
+      "type": "bool"
+    },
+    "encounteredSurfaceEdge": {
+      "id": 774,
+      "type": "bool"
+    },
+    "encounteredTormentedTrobbio": {
+      "id": 775,
+      "type": "bool"
+    },
+    "encounteredTrobbio": {
+      "id": 776,
+      "type": "bool"
+    },
+    "encounteredVampireGnatBoss": {
+      "id": 777,
+      "type": "bool"
+    },
+    "encounteredVampireGnat_05": {
+      "id": 778,
+      "type": "bool"
+    },
+    "encounteredVampireGnat_07": {
+      "id": 779,
+      "type": "bool"
+    },
+    "encounteredWhiteCloverstag": {
+      "id": 780,
+      "type": "bool"
+    },
+    "encounteredWhiteCloverstagMid": {
+      "id": 781,
+      "type": "bool"
+    },
+    "enemyGroupAnt04": {
+      "id": 782,
+      "type": "int"
+    },
+    "enteredCoral_10": {
+      "id": 783,
+      "type": "bool"
+    },
+    "enteredGreymoor05": {
+      "id": 784,
+      "type": "bool"
+    },
+    "enteredHang_08": {
+      "id": 785,
+      "type": "bool"
+    },
+    "enteredSong_01": {
+      "id": 786,
+      "type": "bool"
+    },
+    "enteredSong_02": {
+      "id": 787,
+      "type": "bool"
+    },
+    "enteredSong_13": {
+      "id": 788,
+      "type": "bool"
+    },
+    "enteredSong_17": {
+      "id": 789,
+      "type": "bool"
+    },
+    "enteredSong_19": {
+      "id": 790,
+      "type": "bool"
+    },
+    "enteredTutorialFirstTime": {
+      "id": 791,
+      "type": "bool"
+    },
+    "entered_Tut01b": {
+      "id": 792,
+      "type": "bool"
+    },
+    "environmentType": {
+      "id": 793,
+      "type": "GlobalEnums.EnvironmentTypes"
+    },
+    "explodeWallBoneEast18c": {
+      "id": 794,
+      "type": "bool"
+    },
+    "explodeWallMosstown3": {
+      "id": 795,
+      "type": "bool"
+    },
+    "extraRestZone": {
+      "id": 796,
+      "type": "GlobalEnums.ExtraRestZones"
+    },
+    "farmer_grewFirstGrub": {
+      "id": 797,
+      "type": "bool"
+    },
+    "farmer_grubGrowing_1": {
+      "id": 798,
+      "type": "bool"
+    },
+    "farmer_grubGrowing_2": {
+      "id": 799,
+      "type": "bool"
+    },
+    "farmer_grubGrowing_3": {
+      "id": 800,
+      "type": "bool"
+    },
+    "farmer_grubGrown_1": {
+      "id": 801,
+      "type": "bool"
+    },
+    "farmer_grubGrown_2": {
+      "id": 802,
+      "type": "bool"
+    },
+    "farmer_grubGrown_3": {
+      "id": 803,
+      "type": "bool"
+    },
+    "fixerAcceptedQuestConvo": {
+      "id": 804,
+      "type": "bool"
+    },
+    "fixerBridgeBreaking": {
+      "id": 805,
+      "type": "bool"
+    },
+    "fixerBridgeBroken": {
+      "id": 806,
+      "type": "bool"
+    },
+    "fixerBridgeConstructed": {
+      "id": 807,
+      "type": "bool"
+    },
+    "fixerQuestBoardConvo": {
+      "id": 808,
+      "type": "bool"
+    },
+    "fixerStatueConstructed": {
+      "id": 809,
+      "type": "bool"
+    },
+    "fixerStatueConvo": {
+      "id": 810,
+      "type": "bool"
+    },
+    "fleaGames_bouncing_highscore": {
+      "id": 811,
+      "type": "int"
+    },
+    "fleaGames_bouncing_played": {
+      "id": 812,
+      "type": "bool"
+    },
+    "fleaGames_dodging_highscore": {
+      "id": 813,
+      "type": "int"
+    },
+    "fleaGames_dodging_played": {
+      "id": 814,
+      "type": "bool"
+    },
+    "fleaGames_juggling_highscore": {
+      "id": 815,
+      "type": "int"
+    },
+    "fleaGames_juggling_played": {
+      "id": 816,
+      "type": "bool"
+    },
+    "flowerQueenHeartAppeared": {
+      "id": 817,
+      "type": "bool"
+    },
+    "fullyEnteredVerdania": {
+      "id": 818,
+      "type": "bool"
+    },
+    "gainedCurse": {
+      "id": 819,
+      "type": "bool"
+    },
+    "garmondAidForumBattle": {
+      "id": 820,
+      "type": "bool"
+    },
+    "garmondBlackThreadDefeated": {
+      "id": 821,
+      "type": "bool"
+    },
+    "garmondEncounterCooldown": {
+      "id": 822,
+      "type": "bool"
+    },
+    "garmondEncounters_act3": {
+      "id": 823,
+      "type": "int"
+    },
+    "garmondFinalQuestReady": {
+      "id": 824,
+      "type": "bool"
+    },
+    "garmondInDust05": {
+      "id": 825,
+      "type": "bool"
+    },
+    "garmondInEnclave": {
+      "id": 826,
+      "type": "bool"
+    },
+    "garmondInLibrary": {
+      "id": 827,
+      "type": "bool"
+    },
+    "garmondInSong01": {
+      "id": 828,
+      "type": "bool"
+    },
+    "garmondInSong02": {
+      "id": 829,
+      "type": "bool"
+    },
+    "garmondInSong13": {
+      "id": 830,
+      "type": "bool"
+    },
+    "garmondInSong17": {
+      "id": 831,
+      "type": "bool"
+    },
+    "garmondLibraryDefeatedHornet": {
+      "id": 832,
+      "type": "bool"
+    },
+    "garmondLibraryMet": {
+      "id": 833,
+      "type": "bool"
+    },
+    "garmondLibraryOffered": {
+      "id": 834,
+      "type": "bool"
+    },
+    "garmondLibrarySeen": {
+      "id": 835,
+      "type": "bool"
+    },
+    "garmondMetEnclave": {
+      "id": 836,
+      "type": "bool"
+    },
+    "garmondMoorwingConvo": {
+      "id": 837,
+      "type": "bool"
+    },
+    "garmondMoorwingConvoReady": {
+      "id": 838,
+      "type": "bool"
+    },
+    "garmondPurposeConvo": {
+      "id": 839,
+      "type": "bool"
+    },
+    "garmondSeenInDust05": {
+      "id": 840,
+      "type": "bool"
+    },
+    "garmondSeenInGreymoor10": {
+      "id": 841,
+      "type": "bool"
+    },
+    "garmondSeenInSong01": {
+      "id": 842,
+      "type": "bool"
+    },
+    "garmondSeenInSong02": {
+      "id": 843,
+      "type": "bool"
+    },
+    "garmondSeenInSong13": {
+      "id": 844,
+      "type": "bool"
+    },
+    "garmondSeenInSong17": {
+      "id": 845,
+      "type": "bool"
+    },
+    "garmondWillAidInForumBattle": {
+      "id": 846,
+      "type": "bool"
+    },
+    "gatePilgrimNoNeedolinConvo": {
+      "id": 847,
+      "type": "bool"
+    },
+    "geo": {
+      "id": 848,
+      "type": "int"
+    },
+    "gillyAct3Convo": {
+      "id": 849,
+      "type": "bool"
+    },
+    "gillyHunterCampConvo": {
+      "id": 850,
+      "type": "bool"
+    },
+    "gillyIntroduced": {
+      "id": 851,
+      "type": "bool"
+    },
+    "gillyLocation": {
+      "id": 852,
+      "type": "int"
+    },
+    "gillyLocationAct3": {
+      "id": 853,
+      "type": "int"
+    },
+    "gillyMet": {
+      "id": 854,
+      "type": "bool"
+    },
+    "gillyQueueMovingOn": {
+      "id": 855,
+      "type": "bool"
+    },
+    "gillyStatueConvo": {
+      "id": 856,
+      "type": "bool"
+    },
+    "gillyTrapConvo": {
+      "id": 857,
+      "type": "bool"
+    },
+    "gotPastDockSpearThrower": {
+      "id": 858,
+      "type": "bool"
+    },
+    "gotPickledRoachEgg": {
+      "id": 859,
+      "type": "bool"
+    },
+    "greatBoneGateOpened": {
+      "id": 860,
+      "type": "bool"
+    },
+    "greyWarriorDeathX": {
+      "id": 861,
+      "type": "float"
+    },
+    "greymoor05_clearedOut": {
+      "id": 862,
+      "type": "bool"
+    },
+    "greymoor05_farmerPlatBroken": {
+      "id": 863,
+      "type": "bool"
+    },
+    "greymoor05_killedJailer": {
+      "id": 864,
+      "type": "bool"
+    },
+    "greymoor08_plat_destroyed": {
+      "id": 865,
+      "type": "bool"
+    },
+    "greymoor_04_battleCompleted": {
+      "id": 866,
+      "type": "bool"
+    },
+    "greymoor_05_centipedeArrives": {
+      "id": 867,
+      "type": "bool"
+    },
+    "greymoor_10_entered": {
+      "id": 868,
+      "type": "bool"
+    },
+    "grindleChestEncountered": {
+      "id": 869,
+      "type": "bool"
+    },
+    "grindleChestLocation": {
+      "id": 870,
+      "type": "int"
+    },
+    "grindleEnclaveConvo": {
+      "id": 871,
+      "type": "bool"
+    },
+    "grindleInSong_08": {
+      "id": 872,
+      "type": "bool"
+    },
+    "grindleMetGrandForum": {
+      "id": 873,
+      "type": "bool"
+    },
+    "grindleReleasedFromBonejail": {
+      "id": 874,
+      "type": "bool"
+    },
+    "grindleShopEnemyIntro": {
+      "id": 875,
+      "type": "bool"
+    },
+    "grindleSlabSequence": {
+      "id": 876,
+      "type": "int"
+    },
+    "grishkinSethConvo": {
+      "id": 877,
+      "type": "bool"
+    },
+    "grubFarmLevel": {
+      "id": 878,
+      "type": "int"
+    },
+    "grubFarmerEmerged": {
+      "id": 879,
+      "type": "bool"
+    },
+    "grubFarmerTimer": {
+      "id": 880,
+      "type": "float"
+    },
+    "grubFarmer_firstGrubConvo": {
+      "id": 881,
+      "type": "bool"
+    },
+    "grubFarmer_needolinConvo1": {
+      "id": 882,
+      "type": "bool"
+    },
+    "halfwayCrowEnemyGroup": {
+      "id": 883,
+      "type": "int"
+    },
+    "halfwayCrowd": {
+      "id": 884,
+      "type": "int"
+    },
+    "hang04Battle": {
+      "id": 885,
+      "type": "bool"
+    },
+    "hang_10_oneWay": {
+      "id": 886,
+      "type": "bool"
+    },
+    "hasActivatedBellBench": {
+      "id": 887,
+      "type": "bool"
+    },
+    "hasBrolly": {
+      "id": 888,
+      "type": "bool"
+    },
+    "hasChargeSlash": {
+      "id": 889,
+      "type": "bool"
+    },
+    "hasDash": {
+      "id": 890,
+      "type": "bool"
+    },
+    "hasDoubleJump": {
+      "id": 891,
+      "type": "bool"
+    },
+    "hasGodfinder": {
+      "id": 892,
+      "type": "bool"
+    },
+    "hasHarpoonDash": {
+      "id": 893,
+      "type": "bool"
+    },
+    "hasJournal": {
+      "id": 894,
+      "type": "bool"
+    },
+    "hasKilled": {
+      "id": 895,
+      "type": "bool"
+    },
+    "hasMarker": {
+      "id": 896,
+      "type": "bool"
+    },
+    "hasMarker_a": {
+      "id": 897,
+      "type": "bool"
+    },
+    "hasMarker_b": {
+      "id": 898,
+      "type": "bool"
+    },
+    "hasMarker_c": {
+      "id": 899,
+      "type": "bool"
+    },
+    "hasMarker_d": {
+      "id": 900,
+      "type": "bool"
+    },
+    "hasMarker_e": {
+      "id": 901,
+      "type": "bool"
+    },
+    "hasNeedleThrow": {
+      "id": 902,
+      "type": "bool"
+    },
+    "hasNeedolin": {
+      "id": 903,
+      "type": "bool"
+    },
+    "hasNeedolinMemoryPowerup": {
+      "id": 904,
+      "type": "bool"
+    },
+    "hasParry": {
+      "id": 905,
+      "type": "bool"
+    },
+    "hasPinBench": {
+      "id": 906,
+      "type": "bool"
+    },
+    "hasPinCocoon": {
+      "id": 907,
+      "type": "bool"
+    },
+    "hasPinFleaBlastedlands": {
+      "id": 908,
+      "type": "bool"
+    },
+    "hasPinFleaCitadel": {
+      "id": 909,
+      "type": "bool"
+    },
+    "hasPinFleaMarrowlands": {
+      "id": 910,
+      "type": "bool"
+    },
+    "hasPinFleaMidlands": {
+      "id": 911,
+      "type": "bool"
+    },
+    "hasPinFleaMucklands": {
+      "id": 912,
+      "type": "bool"
+    },
+    "hasPinFleaPeaklands": {
+      "id": 913,
+      "type": "bool"
+    },
+    "hasPinShop": {
+      "id": 914,
+      "type": "bool"
+    },
+    "hasPinSpa": {
+      "id": 915,
+      "type": "bool"
+    },
+    "hasPinStag": {
+      "id": 916,
+      "type": "bool"
+    },
+    "hasPinTube": {
+      "id": 917,
+      "type": "bool"
+    },
+    "hasQuill": {
+      "id": 918,
+      "type": "bool"
+    },
+    "hasSilkBomb": {
+      "id": 919,
+      "type": "bool"
+    },
+    "hasSilkBossNeedle": {
+      "id": 920,
+      "type": "bool"
+    },
+    "hasSilkCharge": {
+      "id": 921,
+      "type": "bool"
+    },
+    "hasSilkSpecial": {
+      "id": 922,
+      "type": "bool"
+    },
+    "hasSuperJump": {
+      "id": 923,
+      "type": "bool"
+    },
+    "hasThreadSphere": {
+      "id": 924,
+      "type": "bool"
+    },
+    "hasWalljump": {
+      "id": 925,
+      "type": "bool"
+    },
+    "hazardRespawnFacing": {
+      "id": 926,
+      "type": "HazardRespawnMarker.FacingDirection"
+    },
+    "health": {
+      "id": 927,
+      "type": "int"
+    },
+    "healthBlue": {
+      "id": 928,
+      "type": "int"
+    },
+    "heartPieces": {
+      "id": 929,
+      "type": "int"
+    },
+    "hitCrowCourtSwitch": {
+      "id": 930,
+      "type": "bool"
+    },
+    "hunterInfestationBoneForest": {
+      "id": 931,
+      "type": "bool"
+    },
+    "infiniteAirJump": {
+      "id": 932,
+      "type": "bool"
+    },
+    "isFirstGame": {
+      "id": 933,
+      "type": "bool"
+    },
+    "isInventoryOpen": {
+      "id": 934,
+      "type": "bool"
+    },
+    "isInvincible": {
+      "id": 935,
+      "type": "bool"
+    },
+    "killedRoostingCrowman": {
+      "id": 936,
+      "type": "bool"
+    },
+    "laceCorpseAddedEffects": {
+      "id": 937,
+      "type": "bool"
+    },
+    "laceCorpsePosX": {
+      "id": 938,
+      "type": "float"
+    },
+    "laceCorpseScaleX": {
+      "id": 939,
+      "type": "float"
+    },
+    "laceLeftDocks": {
+      "id": 940,
+      "type": "bool"
+    },
+    "laceMeetCitadel": {
+      "id": 941,
+      "type": "bool"
+    },
+    "laceTowerDoorOpened": {
+      "id": 942,
+      "type": "bool"
+    },
+    "lavaChallengeEntranceCavedIn": {
+      "id": 943,
+      "type": "bool"
+    },
+    "lavaSpittersEmerge": {
+      "id": 944,
+      "type": "bool"
+    },
+    "learnedPilbyName": {
+      "id": 945,
+      "type": "bool"
+    },
+    "leftTheGrandForum": {
+      "id": 946,
+      "type": "bool"
+    },
+    "libraryRoofShortcut": {
+      "id": 947,
+      "type": "bool"
+    },
+    "libraryStatueWoken": {
+      "id": 948,
+      "type": "bool"
+    },
+    "library_14_ambush": {
+      "id": 949,
+      "type": "bool"
+    },
+    "littleCrabsAppeared": {
+      "id": 950,
+      "type": "bool"
+    },
+    "mapAllRooms": {
+      "id": 951,
+      "type": "bool"
+    },
+    "mapKeyPref": {
+      "id": 952,
+      "type": "int"
+    },
+    "mapUpdateQueued": {
+      "id": 953,
+      "type": "bool"
+    },
+    "mapZone": {
+      "id": 954,
+      "type": "GlobalEnums.MapZone"
+    },
+    "mapperAway": {
+      "id": 955,
+      "type": "bool"
+    },
+    "mapperBellhartConvo": {
+      "id": 956,
+      "type": "bool"
+    },
+    "mapperBellhartConvo2": {
+      "id": 957,
+      "type": "bool"
+    },
+    "mapperBellhartConvoTimePassed": {
+      "id": 958,
+      "type": "bool"
+    },
+    "mapperBrokenBenchConvo": {
+      "id": 959,
+      "type": "bool"
+    },
+    "mapperCalledConvo": {
+      "id": 960,
+      "type": "bool"
+    },
+    "mapperConvo_Act3Intro": {
+      "id": 961,
+      "type": "bool"
+    },
+    "mapperConvo_Act3IntroTimePassed": {
+      "id": 962,
+      "type": "bool"
+    },
+    "mapperConvo_Act3NoStock": {
+      "id": 963,
+      "type": "bool"
+    },
+    "mapperConvo_WhiteFlower": {
+      "id": 964,
+      "type": "bool"
+    },
+    "mapperCursedConvo": {
+      "id": 965,
+      "type": "bool"
+    },
+    "mapperFightGroup": {
+      "id": 966,
+      "type": "int"
+    },
+    "mapperHauntedBellhartConvo": {
+      "id": 967,
+      "type": "bool"
+    },
+    "mapperIsFightingAct3": {
+      "id": 968,
+      "type": "bool"
+    },
+    "mapperLocationAct3": {
+      "id": 969,
+      "type": "int"
+    },
+    "mapperMaggottedConvo": {
+      "id": 970,
+      "type": "bool"
+    },
+    "mapperMappingConvo": {
+      "id": 971,
+      "type": "bool"
+    },
+    "mapperMasterAfterConvo": {
+      "id": 972,
+      "type": "bool"
+    },
+    "mapperMentorConvo": {
+      "id": 973,
+      "type": "bool"
+    },
+    "mapperMetInAnt04": {
+      "id": 974,
+      "type": "bool"
+    },
+    "mapperQuillConvo": {
+      "id": 975,
+      "type": "bool"
+    },
+    "mapperReactedToBrokenBellBench": {
+      "id": 976,
+      "type": "bool"
+    },
+    "mapperRosaryConvo": {
+      "id": 977,
+      "type": "bool"
+    },
+    "mapperSellingTubePins": {
+      "id": 978,
+      "type": "bool"
+    },
+    "mapperSparIntro": {
+      "id": 979,
+      "type": "bool"
+    },
+    "mapperTubeConvo": {
+      "id": 980,
+      "type": "bool"
+    },
+    "marionettesBurned": {
+      "id": 981,
+      "type": "bool"
+    },
+    "marionettesMet": {
+      "id": 982,
+      "type": "bool"
+    },
+    "maxHealth": {
+      "id": 983,
+      "type": "int"
+    },
+    "maxHealthBase": {
+      "id": 984,
+      "type": "int"
+    },
+    "memoryOrbs_Clover_02c_A": {
+      "id": 985,
+      "type": "bool"
+    },
+    "memoryOrbs_Clover_03_B": {
+      "id": 986,
+      "type": "bool"
+    },
+    "memoryOrbs_Clover_06_A": {
+      "id": 987,
+      "type": "bool"
+    },
+    "memoryOrbs_Clover_11": {
+      "id": 988,
+      "type": "bool"
+    },
+    "memoryOrbs_Clover_16_B": {
+      "id": 989,
+      "type": "bool"
+    },
+    "memoryOrbs_Clover_16_C": {
+      "id": 990,
+      "type": "bool"
+    },
+    "memoryOrbs_Clover_21": {
+      "id": 991,
+      "type": "bool"
+    },
+    "metAntQueenNPC": {
+      "id": 992,
+      "type": "bool"
+    },
+    "metCaretaker": {
+      "id": 993,
+      "type": "bool"
+    },
+    "metDicePilgrim": {
+      "id": 994,
+      "type": "bool"
+    },
+    "metDruid": {
+      "id": 995,
+      "type": "bool"
+    },
+    "metGarmond": {
+      "id": 996,
+      "type": "bool"
+    },
+    "metGarmondAct3": {
+      "id": 997,
+      "type": "bool"
+    },
+    "metGatePilgrim": {
+      "id": 998,
+      "type": "bool"
+    },
+    "metGrindleAct3": {
+      "id": 999,
+      "type": "bool"
+    },
+    "metGrubFarmer": {
+      "id": 1000,
+      "type": "bool"
+    },
+    "metGrubFarmerAct3": {
+      "id": 1001,
+      "type": "bool"
+    },
+    "metLearnedPilgrim": {
+      "id": 1002,
+      "type": "bool"
+    },
+    "metLearnedPilgrimAct3": {
+      "id": 1003,
+      "type": "bool"
+    },
+    "metMapper": {
+      "id": 1004,
+      "type": "bool"
+    },
+    "metSherma": {
+      "id": 1005,
+      "type": "bool"
+    },
+    "metShermaEnclave": {
+      "id": 1006,
+      "type": "bool"
+    },
+    "metShermaPilgrimsRest": {
+      "id": 1007,
+      "type": "bool"
+    },
+    "metSwampMuckmen": {
+      "id": 1008,
+      "type": "bool"
+    },
+    "mortKeptWeightedAnklet": {
+      "id": 1009,
+      "type": "bool"
+    },
+    "mosstown01_shortcut": {
+      "id": 1010,
+      "type": "bool"
+    },
+    "mosstownAspidBerryCollected": {
+      "id": 1011,
+      "type": "bool"
+    },
+    "muchTimePassed": {
+      "id": 1012,
+      "type": "bool"
+    },
+    "nailRange": {
+      "id": 1013,
+      "type": "int"
+    },
+    "nailUpgrades": {
+      "id": 1014,
+      "type": "int"
+    },
+    "newDatTraitorLord": {
+      "id": 1015,
+      "type": "bool"
+    },
+    "nextScene": {
+      "id": 1016,
+      "type": "string"
+    },
+    "nonLethalRespawnMarker": {
+      "id": 1017,
+      "type": "string"
+    },
+    "nonLethalRespawnScene": {
+      "id": 1018,
+      "type": "string"
+    },
+    "nonLethalRespawnType": {
+      "id": 1019,
+      "type": "int"
+    },
+    "nuuEncountered_coralDrillers": {
+      "id": 1020,
+      "type": "bool"
+    },
+    "nuuEncountered_skullKing": {
+      "id": 1021,
+      "type": "bool"
+    },
+    "nuuEncountered_splinterQueen": {
+      "id": 1022,
+      "type": "bool"
+    },
+    "nuuEncountered_zapNest": {
+      "id": 1023,
+      "type": "bool"
+    },
+    "nuuIntroAct3": {
+      "id": 1024,
+      "type": "bool"
+    },
+    "nuuIsHome": {
+      "id": 1025,
+      "type": "bool"
+    },
+    "nuuMementoAwarded": {
+      "id": 1026,
+      "type": "bool"
+    },
+    "nuuSlappedOutside": {
+      "id": 1027,
+      "type": "bool"
+    },
+    "nuuVisiting_coralDrillers": {
+      "id": 1028,
+      "type": "bool"
+    },
+    "nuuVisiting_skullKing": {
+      "id": 1029,
+      "type": "bool"
+    },
+    "nuuVisiting_splinterQueen": {
+      "id": 1030,
+      "type": "bool"
+    },
+    "nuuVisiting_zapNest": {
+      "id": 1031,
+      "type": "bool"
+    },
+    "openedBeastmasterDen": {
+      "id": 1032,
+      "type": "bool"
+    },
+    "openedCauldronShortcut": {
+      "id": 1033,
+      "type": "bool"
+    },
+    "openedCitadelSpaLeft": {
+      "id": 1034,
+      "type": "bool"
+    },
+    "openedCitadelSpaRight": {
+      "id": 1035,
+      "type": "bool"
+    },
+    "openedDocksBackEntrance": {
+      "id": 1036,
+      "type": "bool"
+    },
+    "openedDust05Gate": {
+      "id": 1037,
+      "type": "bool"
+    },
+    "openedGateCoral_14": {
+      "id": 1038,
+      "type": "bool"
+    },
+    "openedGeyserShaft": {
+      "id": 1039,
+      "type": "bool"
+    },
+    "openedShellwoodShortcut": {
+      "id": 1040,
+      "type": "bool"
+    },
+    "openedSongGateDocks": {
+      "id": 1041,
+      "type": "bool"
+    },
+    "openedTallGeyser": {
+      "id": 1042,
+      "type": "bool"
+    },
+    "openedUnder_01b": {
+      "id": 1043,
+      "type": "bool"
+    },
+    "openedUnder_05": {
+      "id": 1044,
+      "type": "bool"
+    },
+    "openedUnder_19": {
+      "id": 1045,
+      "type": "bool"
+    },
+    "opened_cog_06_door": {
+      "id": 1046,
+      "type": "bool"
+    },
+    "openingCreditsPlayed": {
+      "id": 1047,
+      "type": "bool"
+    },
+    "peak05b_oneWay": {
+      "id": 1048,
+      "type": "bool"
+    },
+    "peak05c_oneWay": {
+      "id": 1049,
+      "type": "bool"
+    },
+    "peak06_oneWay": {
+      "id": 1050,
+      "type": "bool"
+    },
+    "peak13_oneWay": {
+      "id": 1051,
+      "type": "bool"
+    },
+    "permadeathMode": {
+      "id": 1052,
+      "type": "GlobalEnums.PermadeathModes"
+    },
+    "pilbyAtPilgrimsRest": {
+      "id": 1053,
+      "type": "bool"
+    },
+    "pilbyBellhartConvo": {
+      "id": 1054,
+      "type": "bool"
+    },
+    "pilbyCampConvo": {
+      "id": 1055,
+      "type": "bool"
+    },
+    "pilbyFirstRepeatConvo": {
+      "id": 1056,
+      "type": "bool"
+    },
+    "pilbyFriendship": {
+      "id": 1057,
+      "type": "int"
+    },
+    "pilbyGotSprintConvo": {
+      "id": 1058,
+      "type": "bool"
+    },
+    "pilbyInsidePilgrimsRest": {
+      "id": 1059,
+      "type": "bool"
+    },
+    "pilbyKilled": {
+      "id": 1060,
+      "type": "bool"
+    },
+    "pilbyLeftPilgrimsRest": {
+      "id": 1061,
+      "type": "bool"
+    },
+    "pilbyMeetConvo": {
+      "id": 1062,
+      "type": "bool"
+    },
+    "pilbyMosstownConvo": {
+      "id": 1063,
+      "type": "bool"
+    },
+    "pilbyPilgrimsRestMeetConvo": {
+      "id": 1064,
+      "type": "bool"
+    },
+    "pilbySeenAtPilgrimsRest": {
+      "id": 1065,
+      "type": "bool"
+    },
+    "pilgrimFisherPossessed": {
+      "id": 1066,
+      "type": "bool"
+    },
+    "pilgrimGroupBonegrave": {
+      "id": 1067,
+      "type": "int"
+    },
+    "pilgrimGroupGreymoorField": {
+      "id": 1068,
+      "type": "int"
+    },
+    "pilgrimGroupShellgrave": {
+      "id": 1069,
+      "type": "int"
+    },
+    "pilgrimQuestSpoolCollected": {
+      "id": 1070,
+      "type": "bool"
+    },
+    "pilgrimRestCrowd": {
+      "id": 1071,
+      "type": "int"
+    },
+    "pilgrimRestMerchant_RhinoRuckusConvo": {
+      "id": 1072,
+      "type": "bool"
+    },
+    "pilgrimRestMerchant_SingConvo": {
+      "id": 1073,
+      "type": "bool"
+    },
+    "pilgrimsRestRosaryThiefCowardLeft": {
+      "id": 1074,
+      "type": "bool"
+    },
+    "pinGalleriesCompleted": {
+      "id": 1075,
+      "type": "int"
+    },
+    "pinstressInsideSitting": {
+      "id": 1076,
+      "type": "bool"
+    },
+    "pinstressQuestReady": {
+      "id": 1077,
+      "type": "bool"
+    },
+    "pinstressStoppedResting": {
+      "id": 1078,
+      "type": "bool"
+    },
+    "playTime": {
+      "id": 1079,
+      "type": "float"
+    },
+    "prevHealth": {
+      "id": 1080,
+      "type": "int"
+    },
+    "previousDarkness": {
+      "id": 1081,
+      "type": "int"
+    },
+    "previouslyVisitedGreymoor_05": {
+      "id": 1082,
+      "type": "bool"
+    },
+    "profileID": {
+      "id": 1083,
+      "type": "int"
+    },
+    "promisedFirstWish": {
+      "id": 1084,
+      "type": "bool"
+    },
+    "promptFocus": {
+      "id": 1085,
+      "type": "bool"
+    },
+    "purchasedGrindleMemoryLocket": {
+      "id": 1086,
+      "type": "bool"
+    },
+    "purchasedGrindleSimpleKey": {
+      "id": 1087,
+      "type": "bool"
+    },
+    "purchasedGrindleSpoolPiece": {
+      "id": 1088,
+      "type": "bool"
+    },
+    "purchasedGrindleToolKit": {
+      "id": 1089,
+      "type": "bool"
+    },
+    "queuedGodfinderIcon": {
+      "id": 1090,
+      "type": "bool"
+    },
+    "respawnMarkerName": {
+      "id": 1091,
+      "type": "string"
+    },
+    "respawnScene": {
+      "id": 1092,
+      "type": "string"
+    },
+    "respawnType": {
+      "id": 1093,
+      "type": "int"
+    },
+    "rhinoChurchUnlocked": {
+      "id": 1094,
+      "type": "bool"
+    },
+    "rhinoRampageCompleted": {
+      "id": 1095,
+      "type": "bool"
+    },
+    "rhinoRuckus": {
+      "id": 1096,
+      "type": "bool"
+    },
+    "roachkeeperChefCorpsePrepared": {
+      "id": 1097,
+      "type": "bool"
+    },
+    "rockRollerDefeated_bone01": {
+      "id": 1098,
+      "type": "bool"
+    },
+    "rockRollerDefeated_bone06": {
+      "id": 1099,
+      "type": "bool"
+    },
+    "rockRollerDefeated_bone07": {
+      "id": 1100,
+      "type": "bool"
+    },
+    "roofCrabDefeated": {
+      "id": 1101,
+      "type": "bool"
+    },
+    "roofCrabEncountered": {
+      "id": 1102,
+      "type": "bool"
+    },
+    "rosaryThievesInBank": {
+      "id": 1103,
+      "type": "bool"
+    },
+    "rosaryThievesInUnder07": {
+      "id": 1104,
+      "type": "bool"
+    },
+    "rosaryThievesLeftBank": {
+      "id": 1105,
+      "type": "bool"
+    },
+    "savedGrindleInCitadel": {
+      "id": 1106,
+      "type": "bool"
+    },
+    "savedPlinney": {
+      "id": 1107,
+      "type": "bool"
+    },
+    "savedPlinneyConvo": {
+      "id": 1108,
+      "type": "bool"
+    },
+    "sawPlinneyLeft": {
+      "id": 1109,
+      "type": "bool"
+    },
+    "scholarAcolytesInLibrary_02": {
+      "id": 1110,
+      "type": "bool"
+    },
+    "scholarAcolytesReleased": {
+      "id": 1111,
+      "type": "bool"
+    },
+    "scholarAcolytesReleasedAct3": {
+      "id": 1112,
+      "type": "bool"
+    },
+    "scholarAmbushReady": {
+      "id": 1113,
+      "type": "bool"
+    },
+    "seenBellBeast": {
+      "id": 1114,
+      "type": "bool"
+    },
+    "seenBonetownDestroyed": {
+      "id": 1115,
+      "type": "bool"
+    },
+    "seenDreamNailPrompt": {
+      "id": 1116,
+      "type": "bool"
+    },
+    "seenEmptyShellwood16": {
+      "id": 1117,
+      "type": "bool"
+    },
+    "seenFocusTablet": {
+      "id": 1118,
+      "type": "bool"
+    },
+    "seenGrindleInSong_08": {
+      "id": 1119,
+      "type": "bool"
+    },
+    "seenJournalMsg": {
+      "id": 1120,
+      "type": "bool"
+    },
+    "seenJournalQuestUpdateMsg": {
+      "id": 1121,
+      "type": "bool"
+    },
+    "seenMapperAct3": {
+      "id": 1122,
+      "type": "bool"
+    },
+    "seenMateriumMsg": {
+      "id": 1123,
+      "type": "bool"
+    },
+    "seenPebbLeft": {
+      "id": 1124,
+      "type": "bool"
+    },
+    "seenPilbyLeft": {
+      "id": 1125,
+      "type": "bool"
+    },
+    "seenScholarAcolytes": {
+      "id": 1126,
+      "type": "bool"
+    },
+    "sethConvo": {
+      "id": 1127,
+      "type": "int"
+    },
+    "sethLeftShellwood": {
+      "id": 1128,
+      "type": "bool"
+    },
+    "sethRevived": {
+      "id": 1129,
+      "type": "bool"
+    },
+    "sethShortcut": {
+      "id": 1130,
+      "type": "bool"
+    },
+    "shakraAidForumBattle": {
+      "id": 1131,
+      "type": "bool"
+    },
+    "shellGravePopulated": {
+      "id": 1132,
+      "type": "bool"
+    },
+    "shellwood13_BellWall": {
+      "id": 1133,
+      "type": "bool"
+    },
+    "shellwood14_ambushed": {
+      "id": 1134,
+      "type": "bool"
+    },
+    "shellwoodBellshrineTwigWall": {
+      "id": 1135,
+      "type": "bool"
+    },
+    "shellwoodSlabflyDefeated": {
+      "id": 1136,
+      "type": "bool"
+    },
+    "shellwoodTwigShortcut": {
+      "id": 1137,
+      "type": "bool"
+    },
+    "shermaAtSteps": {
+      "id": 1138,
+      "type": "bool"
+    },
+    "shermaCaretakerConvo1": {
+      "id": 1139,
+      "type": "bool"
+    },
+    "shermaCaretakerConvoFinal": {
+      "id": 1140,
+      "type": "bool"
+    },
+    "shermaCitadelEnclave_Seen": {
+      "id": 1141,
+      "type": "bool"
+    },
+    "shermaCitadelEntrance_Left": {
+      "id": 1142,
+      "type": "bool"
+    },
+    "shermaCitadelEntrance_Seen": {
+      "id": 1143,
+      "type": "bool"
+    },
+    "shermaCitadelEntrance_Visiting": {
+      "id": 1144,
+      "type": "bool"
+    },
+    "shermaCitadelSpa_ExtraConvo": {
+      "id": 1145,
+      "type": "bool"
+    },
+    "shermaCitadelSpa_Left": {
+      "id": 1146,
+      "type": "bool"
+    },
+    "shermaCitadelSpa_Seen": {
+      "id": 1147,
+      "type": "bool"
+    },
+    "shermaCitadelSpa_Visiting": {
+      "id": 1148,
+      "type": "bool"
+    },
+    "shermaConvoBellBeast": {
+      "id": 1149,
+      "type": "bool"
+    },
+    "shermaConvoCoralBench": {
+      "id": 1150,
+      "type": "bool"
+    },
+    "shermaConvoCoralJudges": {
+      "id": 1151,
+      "type": "bool"
+    },
+    "shermaEnclaveHealingConvo": {
+      "id": 1152,
+      "type": "bool"
+    },
+    "shermaHealerActive": {
+      "id": 1153,
+      "type": "bool"
+    },
+    "shermaInBellhart": {
+      "id": 1154,
+      "type": "bool"
+    },
+    "shermaInEnclave": {
+      "id": 1155,
+      "type": "bool"
+    },
+    "shermaPos": {
+      "id": 1156,
+      "type": "int"
+    },
+    "shermaQuestActive": {
+      "id": 1157,
+      "type": "bool"
+    },
+    "shermaSeenInBellhart": {
+      "id": 1158,
+      "type": "bool"
+    },
+    "shermaSeenInSteps": {
+      "id": 1159,
+      "type": "bool"
+    },
+    "shermaWokeInSteps": {
+      "id": 1160,
+      "type": "bool"
+    },
+    "shermaWoundedPilgrim": {
+      "id": 1161,
+      "type": "int"
+    },
+    "showGeoUI": {
+      "id": 1162,
+      "type": "bool"
+    },
+    "showHealthUI": {
+      "id": 1163,
+      "type": "bool"
+    },
+    "silk": {
+      "id": 1164,
+      "type": "int"
+    },
+    "silkFarmAbyssCoresCleared": {
+      "id": 1165,
+      "type": "bool"
+    },
+    "silkFarmBattle1_complete": {
+      "id": 1166,
+      "type": "bool"
+    },
+    "silkMax": {
+      "id": 1167,
+      "type": "int"
+    },
+    "silkParts": {
+      "id": 1168,
+      "type": "int"
+    },
+    "silkRegenMax": {
+      "id": 1169,
+      "type": "int"
+    },
+    "silkSpecialLevel": {
+      "id": 1170,
+      "type": "int"
+    },
+    "silkSpoolParts": {
+      "id": 1171,
+      "type": "int"
+    },
+    "skullKingAwake": {
+      "id": 1172,
+      "type": "bool"
+    },
+    "skullKingBenchMended": {
+      "id": 1173,
+      "type": "bool"
+    },
+    "skullKingDefeated": {
+      "id": 1174,
+      "type": "bool"
+    },
+    "skullKingDefeatedBlackThreaded": {
+      "id": 1175,
+      "type": "bool"
+    },
+    "skullKingInvaded": {
+      "id": 1176,
+      "type": "bool"
+    },
+    "skullKingKilled": {
+      "id": 1177,
+      "type": "bool"
+    },
+    "skullKingPlatMended": {
+      "id": 1178,
+      "type": "bool"
+    },
+    "skullKingShortcut": {
+      "id": 1179,
+      "type": "bool"
+    },
+    "skullKingWillInvade": {
+      "id": 1180,
+      "type": "bool"
+    },
+    "slabCaptor_heardChallenge": {
+      "id": 1181,
+      "type": "bool"
+    },
+    "slabCaptor_heardChallengeRings": {
+      "id": 1182,
+      "type": "bool"
+    },
+    "slabFlyInShellwood16": {
+      "id": 1183,
+      "type": "bool"
+    },
+    "slabPrisonerFlyConvo": {
+      "id": 1184,
+      "type": "bool"
+    },
+    "slabPrisonerRemeetConvo": {
+      "id": 1185,
+      "type": "bool"
+    },
+    "slabPrisonerSingConvo": {
+      "id": 1186,
+      "type": "bool"
+    },
+    "slab_03_rubbishCleared": {
+      "id": 1187,
+      "type": "bool"
+    },
+    "slab_05_gateOpen": {
+      "id": 1188,
+      "type": "bool"
+    },
+    "slab_07_gateOpen": {
+      "id": 1189,
+      "type": "bool"
+    },
+    "slab_17_openedGateLeft": {
+      "id": 1190,
+      "type": "bool"
+    },
+    "slab_17_openedGateRight": {
+      "id": 1191,
+      "type": "bool"
+    },
+    "slab_cell_quiet_oneWayWall": {
+      "id": 1192,
+      "type": "bool"
+    },
+    "slab_cloak_battle_completed": {
+      "id": 1193,
+      "type": "bool"
+    },
+    "slab_cloak_battle_encountered": {
+      "id": 1194,
+      "type": "bool"
+    },
+    "slab_cloak_gate_reopened": {
+      "id": 1195,
+      "type": "bool"
+    },
+    "song05MarchGroupReady": {
+      "id": 1196,
+      "type": "bool"
+    },
+    "song18Shortcut": {
+      "id": 1197,
+      "type": "bool"
+    },
+    "songChevalierActiveInHang_02": {
+      "id": 1198,
+      "type": "bool"
+    },
+    "songChevalierActiveInSong_02": {
+      "id": 1199,
+      "type": "bool"
+    },
+    "songChevalierActiveInSong_04": {
+      "id": 1200,
+      "type": "bool"
+    },
+    "songChevalierActiveInSong_07": {
+      "id": 1201,
+      "type": "bool"
+    },
+    "songChevalierActiveInSong_24": {
+      "id": 1202,
+      "type": "bool"
+    },
+    "songChevalierActiveInSong_25": {
+      "id": 1203,
+      "type": "bool"
+    },
+    "songChevalierActiveInSong_27": {
+      "id": 1204,
+      "type": "bool"
+    },
+    "songChevalierEncounterCooldown": {
+      "id": 1205,
+      "type": "bool"
+    },
+    "songChevalierEncounters": {
+      "id": 1206,
+      "type": "int"
+    },
+    "songChevalierQuestReady": {
+      "id": 1207,
+      "type": "bool"
+    },
+    "songChevalierRestingMet": {
+      "id": 1208,
+      "type": "bool"
+    },
+    "songChevalierRestingMetAct3": {
+      "id": 1209,
+      "type": "bool"
+    },
+    "songChevalierSeenInHang_02": {
+      "id": 1210,
+      "type": "bool"
+    },
+    "songChevalierSeenInSong_02": {
+      "id": 1211,
+      "type": "bool"
+    },
+    "songChevalierSeenInSong_04": {
+      "id": 1212,
+      "type": "bool"
+    },
+    "songChevalierSeenInSong_07": {
+      "id": 1213,
+      "type": "bool"
+    },
+    "songChevalierSeenInSong_24": {
+      "id": 1214,
+      "type": "bool"
+    },
+    "songChevalierSeenInSong_25": {
+      "id": 1215,
+      "type": "bool"
+    },
+    "songChevalierSeenInSong_27": {
+      "id": 1216,
+      "type": "bool"
+    },
+    "song_04_battleCompleted": {
+      "id": 1217,
+      "type": "bool"
+    },
+    "song_11_oneway": {
+      "id": 1218,
+      "type": "bool"
+    },
+    "song_17_clearedOut": {
+      "id": 1219,
+      "type": "bool"
+    },
+    "song_27_opened": {
+      "id": 1220,
+      "type": "bool"
+    },
+    "soulSnareReady": {
+      "id": 1221,
+      "type": "bool"
+    },
+    "spinnerDefeated": {
+      "id": 1222,
+      "type": "bool"
+    },
+    "spinnerEncounter": {
+      "id": 1223,
+      "type": "int"
+    },
+    "splinterQueenSproutCut": {
+      "id": 1224,
+      "type": "bool"
+    },
+    "splinterQueenSproutGrewLarge": {
+      "id": 1225,
+      "type": "bool"
+    },
+    "splinterQueenSproutTimer": {
+      "id": 1226,
+      "type": "int"
+    },
+    "summonedLakeOrbs": {
+      "id": 1227,
+      "type": "bool"
+    },
+    "swampMuckmanTallInvades": {
+      "id": 1228,
+      "type": "bool"
+    },
+    "tamedGiantFlea": {
+      "id": 1229,
+      "type": "bool"
+    },
+    "tempRespawnMarker": {
+      "id": 1230,
+      "type": "string"
+    },
+    "tempRespawnScene": {
+      "id": 1231,
+      "type": "string"
+    },
+    "tempRespawnType": {
+      "id": 1232,
+      "type": "int"
+    },
+    "thievesReturnedToShadow28": {
+      "id": 1233,
+      "type": "bool"
+    },
+    "tinyBroodMotherAppeared": {
+      "id": 1234,
+      "type": "bool"
+    },
+    "tookGreymoor17Spool": {
+      "id": 1235,
+      "type": "bool"
+    },
+    "tookRestroomRosaries": {
+      "id": 1236,
+      "type": "bool"
+    },
+    "tormentedTrobbioLurking": {
+      "id": 1237,
+      "type": "bool"
+    },
+    "travelling": {
+      "id": 1238,
+      "type": "bool"
+    },
+    "trobbioCleanedUp": {
+      "id": 1239,
+      "type": "bool"
+    },
+    "uncagedGiantFlea": {
+      "id": 1240,
+      "type": "bool"
+    },
+    "under07_battleCompleted": {
+      "id": 1241,
+      "type": "bool"
+    },
+    "under07_heavyWorkerReturned": {
+      "id": 1242,
+      "type": "bool"
+    },
+    "understoreLiftBroke": {
+      "id": 1243,
+      "type": "bool"
+    },
+    "unlockedNewBossStatue": {
+      "id": 1244,
+      "type": "bool"
+    },
+    "vampireGnatDeaths": {
+      "id": 1245,
+      "type": "int"
+    },
+    "vampireGnatRequestedAid": {
+      "id": 1246,
+      "type": "bool"
+    },
+    "version": {
+      "id": 1247,
+      "type": "string"
+    },
+    "visitedAbyss": {
+      "id": 1248,
+      "type": "bool"
+    },
+    "visitedAqueducts": {
+      "id": 1249,
+      "type": "bool"
+    },
+    "visitedArborium": {
+      "id": 1250,
+      "type": "bool"
+    },
+    "visitedBellhart": {
+      "id": 1251,
+      "type": "bool"
+    },
+    "visitedBellhartHaunted": {
+      "id": 1252,
+      "type": "bool"
+    },
+    "visitedBellhartSaved": {
+      "id": 1253,
+      "type": "bool"
+    },
+    "visitedBoneBottom": {
+      "id": 1254,
+      "type": "bool"
+    },
+    "visitedBoneEast14b": {
+      "id": 1255,
+      "type": "bool"
+    },
+    "visitedBoneForest": {
+      "id": 1256,
+      "type": "bool"
+    },
+    "visitedCitadel": {
+      "id": 1257,
+      "type": "bool"
+    },
+    "visitedCogwork": {
+      "id": 1258,
+      "type": "bool"
+    },
+    "visitedCoral": {
+      "id": 1259,
+      "type": "bool"
+    },
+    "visitedCoralBellshrine": {
+      "id": 1260,
+      "type": "bool"
+    },
+    "visitedCoralRiver": {
+      "id": 1261,
+      "type": "bool"
+    },
+    "visitedCoralRiverInner": {
+      "id": 1262,
+      "type": "bool"
+    },
+    "visitedCoralTower": {
+      "id": 1263,
+      "type": "bool"
+    },
+    "visitedCradle": {
+      "id": 1264,
+      "type": "bool"
+    },
+    "visitedCrawl": {
+      "id": 1265,
+      "type": "bool"
+    },
+    "visitedDeepDocks": {
+      "id": 1266,
+      "type": "bool"
+    },
+    "visitedDustpens": {
+      "id": 1267,
+      "type": "bool"
+    },
+    "visitedEnclave": {
+      "id": 1268,
+      "type": "bool"
+    },
+    "visitedFleaFestival": {
+      "id": 1269,
+      "type": "bool"
+    },
+    "visitedFleatopia": {
+      "id": 1270,
+      "type": "bool"
+    },
+    "visitedGloom": {
+      "id": 1271,
+      "type": "bool"
+    },
+    "visitedGrandGate": {
+      "id": 1272,
+      "type": "bool"
+    },
+    "visitedGreymoor": {
+      "id": 1273,
+      "type": "bool"
+    },
+    "visitedGrove": {
+      "id": 1274,
+      "type": "bool"
+    },
+    "visitedHalfway": {
+      "id": 1275,
+      "type": "bool"
+    },
+    "visitedHalls": {
+      "id": 1276,
+      "type": "bool"
+    },
+    "visitedHang": {
+      "id": 1277,
+      "type": "bool"
+    },
+    "visitedHangAtrium": {
+      "id": 1278,
+      "type": "bool"
+    },
+    "visitedHuntersTrail": {
+      "id": 1279,
+      "type": "bool"
+    },
+    "visitedIceCore": {
+      "id": 1280,
+      "type": "bool"
+    },
+    "visitedLibrary": {
+      "id": 1281,
+      "type": "bool"
+    },
+    "visitedMistmaze": {
+      "id": 1282,
+      "type": "bool"
+    },
+    "visitedMossCave": {
+      "id": 1283,
+      "type": "bool"
+    },
+    "visitedMosstown": {
+      "id": 1284,
+      "type": "bool"
+    },
+    "visitedMountain": {
+      "id": 1285,
+      "type": "bool"
+    },
+    "visitedRuinedCradle": {
+      "id": 1286,
+      "type": "bool"
+    },
+    "visitedShadow": {
+      "id": 1287,
+      "type": "bool"
+    },
+    "visitedShadow03": {
+      "id": 1288,
+      "type": "bool"
+    },
+    "visitedShellwood": {
+      "id": 1289,
+      "type": "bool"
+    },
+    "visitedShellwood_16": {
+      "id": 1290,
+      "type": "bool"
+    },
+    "visitedSlab": {
+      "id": 1291,
+      "type": "bool"
+    },
+    "visitedStage": {
+      "id": 1292,
+      "type": "bool"
+    },
+    "visitedUnderstore": {
+      "id": 1293,
+      "type": "bool"
+    },
+    "visitedUpperSlab": {
+      "id": 1294,
+      "type": "bool"
+    },
+    "visitedWard": {
+      "id": 1295,
+      "type": "bool"
+    },
+    "visitedWeave": {
+      "id": 1296,
+      "type": "bool"
+    },
+    "visitedWilds": {
+      "id": 1297,
+      "type": "bool"
+    },
+    "visitedWisp": {
+      "id": 1298,
+      "type": "bool"
+    },
+    "wardBossDefeated": {
+      "id": 1299,
+      "type": "bool"
+    },
+    "wardBossEncountered": {
+      "id": 1300,
+      "type": "bool"
+    },
+    "wardBossHatchOpened": {
+      "id": 1301,
+      "type": "bool"
+    },
+    "wardWoken": {
+      "id": 1302,
+      "type": "bool"
+    },
+    "weave01_oneWay": {
+      "id": 1303,
+      "type": "bool"
+    },
+    "weave05_oneWay": {
+      "id": 1304,
+      "type": "bool"
+    },
+    "whiteCloverPos": {
+      "id": 1305,
+      "type": "int"
+    },
+    "wisp02_enemiesReturned": {
+      "id": 1306,
+      "type": "bool"
+    },
+    "wokeGreyWarrior": {
+      "id": 1307,
+      "type": "bool"
+    },
+    "wokeLiftWeaver": {
+      "id": 1308,
+      "type": "bool"
+    },
+    "wokeMossEvolver": {
+      "id": 1309,
+      "type": "bool"
+    },
+    "wokeSongChevalier": {
+      "id": 1310,
+      "type": "bool"
+    },
+    "hazardRespawnLocation": {
+      "id": 1311,
+      "type": "vector3"
+    },
+    "memoryOrbs_Clover_18_A": {
+      "id": 1312,
+      "type": "ulong"
+    },
+    "memoryOrbs_Clover_18_B": {
+      "id": 1313,
+      "type": "ulong"
+    },
+    "memoryOrbs_Clover_18_C": {
+      "id": 1314,
+      "type": "ulong"
+    },
+    "memoryOrbs_Clover_18_D": {
+      "id": 1315,
+      "type": "ulong"
+    },
+    "memoryOrbs_Clover_18_E": {
+      "id": 1316,
+      "type": "ulong"
+    },
+    "memoryOrbs_Clover_19": {
+      "id": 1317,
+      "type": "ulong"
+    },
+    "CrawbellCurrency": {
+      "id": 1318,
+      "type": "int[]"
+    },
+    "CrawbellCurrencyCaps": {
+      "id": 1319,
+      "type": "int[]"
+    },
+    "GrubFarmerMimicValueList": {
+      "id": 1320,
+      "type": "int[]"
+    },
+    "HeroDeathScenePos": {
+      "id": 1321,
+      "type": "vector2"
+    },
+    "HeroDeathSceneSize": {
+      "id": 1322,
+      "type": "vector2"
+    },
+    "mossBerryValueList": {
+      "id": 1323,
+      "type": "int[]"
+    }
+  },
+  "enums": {
+    "GlobalEnums.BellhomePaintColours": {
+      "Blue": 1,
+      "Bronze": 2,
+      "Chrome": 3,
+      "DarkGrey": 4,
+      "None": 5,
+      "Red": 6,
+      "White": 7
+    },
+    "GlobalEnums.BelltownHouseStates": {
+      "Full": 1,
+      "Half": 2,
+      "None": 3
+    },
+    "GlobalEnums.CaravanTroupeLocations": {
+      "Aqueduct": 1,
+      "Bone": 2,
+      "CoralJudge": 3,
+      "Greymoor": 4
+    },
+    "GlobalEnums.EnvironmentTypes": {
+      "Bell": 1,
+      "Bone": 2,
+      "Dust": 3,
+      "FlowerField": 4,
+      "Grass": 5,
+      "Metal": 6,
+      "Moss": 7,
+      "NoEffect": 8,
+      "PeakPuff": 9,
+      "RunningWater": 10,
+      "Sand": 11,
+      "ShallowWater": 12,
+      "Silk": 13,
+      "ThinMetal": 14,
+      "WetMetal": 15,
+      "WetWood": 16,
+      "Wood": 17
+    },
+    "GlobalEnums.ExtraRestZones": {
+      "AboveCradle": 1,
+      "Bellhome": 2,
+      "BelltownHaunted": 3,
+      "Bellvein": 4,
+      "Bonegrave": 5,
+      "BonetownBroken": 6,
+      "CitadelShrine": 7,
+      "Citadelstation": 8,
+      "CoralBellshrine": 9,
+      "CoralTower": 10,
+      "Enclave": 11,
+      "FleaFestival": 12,
+      "Fleatopia": 13,
+      "GrandGate": 14,
+      "MemoryRed": 15,
+      "None": 16,
+      "Organ": 17,
+      "PinstressHut": 18,
+      "SeamstressHut": 19,
+      "SlabCell": 20,
+      "SprintmasterCave": 21,
+      "TubeHub": 22,
+      "WhiteLake": 23
+    },
+    "GlobalEnums.FastTravelLocations": {
+      "Aqueduct": 1,
+      "Belltown": 2,
+      "Bone": 3,
+      "BoneforestEast": 4,
+      "Bonetown": 5,
+      "City": 6,
+      "CoralTower": 7,
+      "Docks": 8,
+      "Greymoor": 9,
+      "None": 10,
+      "Peak": 11,
+      "Shadow": 12,
+      "Shellwood": 13
+    },
+    "GlobalEnums.GreenPrinceLocations": {
+      "Clover": 1,
+      "CogDancers": 2,
+      "DustCage": 3,
+      "Song04": 4
+    },
+    "GlobalEnums.HeroDeathCocoonTypes": {
+      "Cursed": 1,
+      "Normal": 2,
+      "Rosaries": 3
+    },
+    "GlobalEnums.MapZone": {
+      "ABYSS": 1,
+      "AQUEDUCT": 2,
+      "ARBORIUM": 3,
+      "BELLTOWN": 4,
+      "BONECHURCH": 5,
+      "BONETOWN": 6,
+      "CITY_OF_SONG": 7,
+      "CLOVER": 8,
+      "COG_CORE": 9,
+      "CORAL_CAVERNS": 10,
+      "CRADLE": 11,
+      "CRAWLSPACE": 12,
+      "DOCKS": 13,
+      "DUSTPENS": 14,
+      "DUST_MAZE": 15,
+      "FRONT_GATE": 16,
+      "GLOOM": 17,
+      "GREYMOOR": 18,
+      "HALFWAY_HOUSE": 19,
+      "HANG": 20,
+      "HUNTERS_NEST": 21,
+      "JUDGE_STEPS": 22,
+      "LIBRARY": 23,
+      "MEMORY": 24,
+      "MOSSTOWN": 25,
+      "MOSS_CAVE": 26,
+      "NONE": 27,
+      "PATH_OF_BONE": 28,
+      "PEAK": 29,
+      "PHARLOOM_BAY": 30,
+      "PILGRIMS_REST": 31,
+      "RED_CORAL_GORGE": 32,
+      "SHELLWOOD_THICKET": 33,
+      "SURFACE": 34,
+      "SWAMP": 35,
+      "TEST_AREA": 36,
+      "THE_SLAB": 37,
+      "UNDERSTORE": 38,
+      "WARD": 39,
+      "WEAVER_SHRINE": 40,
+      "WILDS": 41,
+      "WISP": 42
+    },
+    "GlobalEnums.NPCEncounterState": {
+      "AuthorisedToLeave": 1,
+      "HasLeft": 2,
+      "Met": 3,
+      "None": 4,
+      "ReadyToLeave": 5
+    },
+    "GlobalEnums.PermadeathModes": {
+      "Dead": 1,
+      "Off": 2,
+      "On": 3
+    },
+    "GlobalEnums.SethNpcLocations": {
+      "Absent": 1,
+      "Citadel": 2,
+      "Fleatopia": 3,
+      "Greymoor": 4,
+      "Shellwood": 5
+    },
+    "HazardRespawnMarker.FacingDirection": {
+      "Left": 1,
+      "None": 2,
+      "Right": 3
+    },
+    "SaveSlotCompletionIcons.CompletionState": {
+      "Act2Cursed": 1,
+      "Act2Regular": 2,
+      "Act2SoulSnare": 3,
+      "Act3Ending": 4,
+      "None": 5
+    }
+  }
+}

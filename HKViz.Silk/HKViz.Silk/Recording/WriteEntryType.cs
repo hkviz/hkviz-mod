@@ -24,6 +24,11 @@ public enum WriteEntryType : byte {
     PlayerDataBool       = 0x11,
     PlayerDataInt        = 0x12,
     PlayerDataFloat      = 0x13,
-    PlayerDataString      = 0x14,
-    PlayerDataGuid        = 0x15,
+    PlayerDataString     = 0x14,
+    PlayerDataGuid       = 0x15,
+    PlayerDataEnum       = 0x16,
+    PlayerDataULong      = 0x17,
+    PlayerDataVector3    = 0x18,
+    PlayerDataVector2    = 0x19,
+    PlayerDataIntArray   = 0x1A,
 }

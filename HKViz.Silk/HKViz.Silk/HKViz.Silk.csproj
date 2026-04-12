@@ -9,7 +9,6 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <EnableNETAnalyzers>True</EnableNETAnalyzers>
-        <AnalysisMode>recommended</AnalysisMode>
         <!-- Ignore warning about processor architecture mismatch with PlayMaker ConditionalExpression -->
         <NoWarn>$(NoWarn);MSB3270</NoWarn>
 
@@ -26,6 +25,11 @@
         <NeutralLanguage>EN</NeutralLanguage>
     </PropertyGroup>
     <ItemGroup>
+        <ProjectReference
+                Include="..\HKViz.Silk.PlayerDataGenerator\HKViz.Silk.PlayerDataGenerator.csproj"
+                OutputItemType="Analyzer"
+                ReferenceOutputAssembly="false"
+        />
         <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all"/>
         <PackageReference Include="BepInEx.Core" Version="5.4.21"/>
         <PackageReference Include="HarmonyX" Version="2.9.0"/>
@@ -49,11 +53,27 @@
 
     <ItemGroup>
         <Folder Remove="thunderstore/temp;thunderstore/dist"/>
+        <AdditionalFiles Include="Recording/PlayerDataFieldIds.json" />
         <None Include="README.md" Pack="True" PackagePath="README.md"/>
         <None Include="thunderstore/icon.png" Pack="True" PackagePath="icon.png"/>
     </ItemGroup>
 
     <Import Project="..\..\HKViz.Shared\HKViz.Shared.projitems" Label="Shared" />
+
+    <Target Name="SyncPlayerDataFieldIds" BeforeTargets="CoreCompile" DependsOnTargets="ResolveReferences">
+        <PropertyGroup>
+            <_ResolvedReferencePaths>@(ReferencePath->'%(FullPath)', ';')</_ResolvedReferencePaths>
+            <_PlayerDataFieldIdsPath>$(MSBuildProjectDirectory)/Recording/PlayerDataFieldIds.json</_PlayerDataFieldIdsPath>
+        </PropertyGroup>
+
+        <Exec
+                Condition="'$(_ResolvedReferencePaths)' != ''"
+                Command="dotnet run --project &quot;$(MSBuildProjectDirectory)/../HKViz.Silk.PlayerDataIdSync/HKViz.Silk.PlayerDataIdSync.csproj&quot; -p:AnalysisLevel=latest -- &quot;$(_ResolvedReferencePaths)&quot; &quot;PlayerData&quot; &quot;$(_PlayerDataFieldIdsPath)&quot;"
+                StandardOutputImportance="Low"
+                StandardErrorImportance="High"
+        />
+        <Warning Condition="'$(_ResolvedReferencePaths)' == ''" Text="Could not resolve project references; PlayerData field id sync skipped." />
+    </Target>
 
     <Target Name="CopyAndPackageMod" AfterTargets="PostBuildEvent">
         <ItemGroup>

@@ -12,6 +12,8 @@ using UnityEngine.SocialPlatforms;
 namespace HKViz.Silk.Recording;
 
 public class RunFiles(Guid localRunId, long currentRunPart, UploadManager uploadManager, ManualLogSource logger) {
+    public event Action? OnNewFileCreated;
+
     public Guid LocalRunId { get; } = localRunId;
     public long CurrentRunPart { get; private set; } = currentRunPart;
     public long currentFileFirstUnixSeconds { get; private set; } = DateTimeUtils.GetUnixSeconds();
@@ -24,6 +26,9 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
     private long _lastWrittenTime = 0;
     
     private BinaryWriter? _writer;
+
+    private const byte IntArrayModeFull = 0;
+    private const byte IntArrayModeDelta = 1;
 
     public void NextFileIfNeeded() {
         if (_isClosed) return;
@@ -56,6 +61,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         WriteHeader(_writer);
         currentFileFirstUnixSeconds = DateTimeUtils.GetUnixSeconds();
         WriteTimeIfChanged(_writer);
+        OnNewFileCreated?.Invoke();
 
 
         // TODO add new file to global storage of known files
@@ -236,8 +242,122 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
             return;
         }
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataFloat);
+        writer.WriteEntryType(WriteEntryType.PlayerDataInt);
         writer.Write(fieldId);
         writer.Write(value);
+    }
+
+    public void WritePlayerDataEnumChange(ushort fieldId, ushort value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data enum but writer is null");
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataEnum);
+        writer.Write(fieldId);
+        writer.Write(value);
+    }
+
+    public void WritePlayerDataULongChange(ushort fieldId, ulong value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data ulong but writer is null");
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataULong);
+        writer.Write(fieldId);
+        writer.Write(value);
+    }
+
+    public void WritePlayerDataVector3Change(ushort fieldId, Vector3 value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data vector3 but writer is null");
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataVector3);
+        writer.Write(fieldId);
+        writer.WriteVector3(value);
+    }
+
+    public void WritePlayerDataVector2Change(ushort fieldId, Vector2 value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data vector2 but writer is null");
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataVector2);
+        writer.Write(fieldId);
+        writer.WriteVector2(value);
+    }
+
+    public void WritePlayerDataIntArrayFullChange(ushort fieldId, int[]? value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data int array full but writer is null");
+            return;
+        }
+
+        int[] values = value ?? Array.Empty<int>();
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataIntArray);
+        writer.Write(fieldId);
+        writer.Write(IntArrayModeFull);
+        writer.Write(values.Length);
+        for (int i = 0; i < values.Length; i++) {
+            writer.Write(values[i]);
+        }
+    }
+
+    public void WritePlayerDataIntArrayDeltaChange(
+        ushort fieldId,
+        int arrayLength,
+        int[] changedIndices,
+        int[] changedValues
+    ) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data int array delta but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataIntArray);
+        writer.Write(fieldId);
+        writer.Write(IntArrayModeDelta);
+        writer.Write(arrayLength);
+        writer.Write(changedIndices.Length);
+        for (int i = 0; i < changedIndices.Length; i++) {
+            writer.Write(changedIndices[i]);
+            writer.Write(changedValues[i]);
+        }
+    }
+
+    public void WritePlayerDataStringChange(ushort fieldId, string value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data string but writer is null");
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataString);
+        writer.Write(fieldId);
+        writer.WriteStringCompat(value);
+    }
+
+    public void WritePlayerDataGuidChange(ushort fieldId, Guid value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data guid but writer is null");
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataGuid);
+        writer.Write(fieldId);
+        writer.Write(value.ToByteArray());
     }
 }
