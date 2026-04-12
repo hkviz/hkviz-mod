@@ -5,9 +5,9 @@ using GlobalEnums;
 using HKViz.Shared;
 using HKViz.Shared.Upload;
 using HKViz.Silk.GameData;
+using HKViz.Silk.Recording.DataHelpers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms;
 
 namespace HKViz.Silk.Recording;
 
@@ -20,19 +20,13 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
     private const float SwitchFileAfterSeconds = 60f * 10L; // 5 minutes
     
-    private float _lastPartCreatedTime = 0f;
-    private bool _isClosed = false;
-    private bool _wroteTimeForUpdate = false;
-    private long _lastWrittenTime = 0;
+    private float _lastPartCreatedTime;
+    private bool _isClosed;
+    private bool _wroteTimeForUpdate;
+    private long _lastWrittenTime;
     
     private BinaryWriter? _writer;
 
-    private const byte IntArrayModeFull = 0;
-    private const byte IntArrayModeDelta = 1;
-    private const byte StringCollectionModeFull = 0;
-    private const byte StringCollectionModeDelta = 1;
-    private const byte StringSetModeFull = 0;
-    private const byte StringSetModeDelta = 1;
 
     public void NextFileIfNeeded() {
         if (_isClosed) return;
@@ -308,9 +302,8 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
         int[] values = value ?? Array.Empty<int>();
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataIntList);
+        writer.WriteEntryType(WriteEntryType.PlayerDataIntListFull);
         writer.Write(fieldId);
-        writer.Write(IntArrayModeFull);
         writer.Write(values.Length);
         for (int i = 0; i < values.Length; i++) {
             writer.Write(values[i]);
@@ -326,9 +319,8 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
         int count = value?.Count ?? 0;
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataIntList);
+        writer.WriteEntryType(WriteEntryType.PlayerDataIntListFull);
         writer.Write(fieldId);
-        writer.Write(IntArrayModeFull);
         writer.Write(count);
         if (value == null) {
             return;
@@ -352,9 +344,8 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataIntList);
+        writer.WriteEntryType(WriteEntryType.PlayerDataIntListDelta);
         writer.Write(fieldId);
-        writer.Write(IntArrayModeDelta);
         writer.Write(arrayLength);
         writer.Write(changedIndices.Length);
         for (int i = 0; i < changedIndices.Length; i++) {
@@ -371,9 +362,8 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataStringList);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStringListFull);
         writer.Write(fieldId);
-        writer.Write(StringCollectionModeFull);
         writer.WriteStringArray(values);
     }
 
@@ -390,14 +380,13 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataStringList);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStringListDelta);
         writer.Write(fieldId);
-        writer.Write(StringCollectionModeDelta);
         writer.Write(collectionLength);
         writer.Write(changedIndices.Length);
         for (int i = 0; i < changedIndices.Length; i++) {
             writer.Write(changedIndices[i]);
-            writer.WriteStringCompat(changedValues[i] ?? string.Empty);
+            writer.WriteStringCompat(changedValues[i]);
         }
     }
 
@@ -413,9 +402,8 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataStringSet);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStringSetDelta);
         writer.Write(fieldId);
-        writer.Write(StringSetModeDelta);
         writer.Write(added.Count);
         for (int i = 0; i < added.Count; i++) {
             writer.WriteStringCompat(added[i] ?? string.Empty);
@@ -437,9 +425,8 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataStringSet);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStringSetFull);
         writer.Write(fieldId);
-        writer.Write(StringSetModeFull);
 
         int count = values?.Count ?? 0;
         writer.Write(count);
@@ -449,6 +436,166 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
         foreach (string value in values) {
             writer.WriteStringCompat(value ?? string.Empty);
+        }
+    }
+
+    public void WritePlayerDataNamedMapFullChange<TData>(
+        ushort fieldId,
+        System.Collections.Generic.IReadOnlyDictionary<string, TData>? values,
+        Action<BinaryWriter, TData> writeValue
+    ) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data named map full but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataNamedMapFull);
+        writer.Write(fieldId);
+
+        int count = values?.Count ?? 0;
+        writer.Write(count);
+        if (values == null || count == 0) {
+            return;
+        }
+
+        System.Collections.Generic.List<string> names = new(values.Keys);
+        names.Sort(StringComparer.Ordinal);
+        for (int i = 0; i < names.Count; i++) {
+            string name = names[i];
+            writer.WriteStringCompat(name);
+            writeValue(writer, values[name]);
+        }
+    }
+
+    public void WritePlayerDataNamedMapDeltaChange<TData>(
+        ushort fieldId,
+        System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string, TData>> upserts,
+        System.Collections.Generic.IReadOnlyList<string> removed,
+        Action<BinaryWriter, TData> writeValue
+    ) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data named map delta but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataNamedMapDelta);
+        writer.Write(fieldId);
+
+        writer.Write(upserts.Count);
+        for (int i = 0; i < upserts.Count; i++) {
+            writer.WriteStringCompat(upserts[i].Key);
+            writeValue(writer, upserts[i].Value);
+        }
+
+        writer.Write(removed.Count);
+        for (int i = 0; i < removed.Count; i++) {
+            writer.WriteStringCompat(removed[i]);
+        }
+    }
+
+    public void WritePlayerDataStoryEventListFullChange(ushort fieldId, System.Collections.Generic.IReadOnlyList<PlayerStory.EventInfo>? values) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data story event list full but writer is null");
+            return;
+        }
+
+        int count = values?.Count ?? 0;
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStoryEventListFull);
+        writer.Write(fieldId);
+        writer.Write(count);
+
+        if (values == null) {
+            return;
+        }
+
+        for (int i = 0; i < count; i++) {
+            StoryEventInfoDataHelper.Write(writer, values[i]);
+        }
+    }
+
+    public void WritePlayerDataStoryEventListDeltaChange(
+        ushort fieldId,
+        int listLength,
+        int[] changedIndices,
+        PlayerStory.EventInfo[] changedValues
+    ) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data story event list delta but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataStoryEventListDelta);
+        writer.Write(fieldId);
+        writer.Write(listLength);
+        writer.Write(changedIndices.Length);
+        for (int i = 0; i < changedIndices.Length; i++) {
+            writer.Write(changedIndices[i]);
+            StoryEventInfoDataHelper.Write(writer, changedValues[i]);
+        }
+    }
+
+    public void WritePlayerDataWrappedVector2ListFullChange(ushort fieldId, WrappedVector2List[]? values) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data wrapped vector2 list full but writer is null");
+            return;
+        }
+
+        WrappedVector2List[] data = values ?? Array.Empty<WrappedVector2List>();
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataWrappedVector2ListFull);
+        writer.Write(fieldId);
+        writer.Write(data.Length);
+        for (int i = 0; i < data.Length; i++) {
+            WrappedVector2ListDataHelper.Write(writer, data[i]);
+        }
+    }
+
+    public void WritePlayerDataWrappedVector2ListDeltaChange(
+        ushort fieldId,
+        int listLength,
+        int[] changedIndices,
+        WrappedVector2List[] changedValues
+    ) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data wrapped vector2 list delta but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataWrappedVector2ListDelta);
+        writer.Write(fieldId);
+        writer.Write(listLength);
+        writer.Write(changedIndices.Length);
+        for (int i = 0; i < changedIndices.Length; i++) {
+            writer.Write(changedIndices[i]);
+            WrappedVector2ListDataHelper.Write(writer, changedValues[i]);
+        }
+    }
+
+    public void WritePlayerDataWrappedVector2ListAppendChange(ushort fieldId, int oldLength, WrappedVector2List[] appendedValues) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data wrapped vector2 list append but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataWrappedVector2ListAppend);
+        writer.Write(fieldId);
+        writer.Write(oldLength);
+        writer.Write(appendedValues.Length);
+        for (int i = 0; i < appendedValues.Length; i++) {
+            WrappedVector2ListDataHelper.Write(writer, appendedValues[i]);
         }
     }
 

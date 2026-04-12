@@ -1,97 +1,52 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+using HKViz.Silk.Recording.DataHelpers;
 
 namespace HKViz.Silk.Recording;
 
 public partial class PlayerDataWriter(RunFiles runFiles) {
-
-    public partial void WriteAll();
+    public partial void WriteAll(); 
     public partial void WriteChanged();
 
-    public void WriteBoolIfChanged(
-        ushort fieldId,
-        bool oldValue,
-        bool newValue
-    ) {
+    public void WriteBoolIfChanged(ushort fieldId, bool oldValue, bool newValue) {
         if (oldValue != newValue) {
-            runFiles.WritePlayerDataBoolChange(
-                fieldId: fieldId,
-                value: newValue
-            );
+            runFiles.WritePlayerDataBoolChange(fieldId, newValue);
         }
     }
 
-    public void WriteIntIfChanged(
-        ushort fieldId,
-        int oldValue,
-        int newValue
-    ) {
+    public void WriteIntIfChanged(ushort fieldId, int oldValue, int newValue) {
         if (oldValue != newValue) {
-            runFiles.WritePlayerDataIntChange(
-                fieldId: fieldId,
-                value: newValue
-            );
+            runFiles.WritePlayerDataIntChange(fieldId, newValue);
         }
     }
 
-    public void WriteEnumIfChanged(
-        ushort fieldId,
-        ushort oldValue,
-        ushort newValue
-    ) {
+    public void WriteEnumIfChanged(ushort fieldId, ushort oldValue, ushort newValue) {
         if (oldValue != newValue) {
-            runFiles.WritePlayerDataEnumChange(
-                fieldId: fieldId,
-                value: newValue
-            );
+            runFiles.WritePlayerDataEnumChange(fieldId, newValue);
         }
     }
 
-    public void WriteULongIfChanged(
-        ushort fieldId,
-        ulong oldValue,
-        ulong newValue
-    ) {
+    public void WriteULongIfChanged(ushort fieldId, ulong oldValue, ulong newValue) {
         if (oldValue != newValue) {
-            runFiles.WritePlayerDataULongChange(
-                fieldId: fieldId,
-                value: newValue
-            );
+            runFiles.WritePlayerDataULongChange(fieldId, newValue);
         }
     }
 
-    public void WriteVector3IfChanged(
-        ushort fieldId,
-        Vector3 oldValue,
-        Vector3 newValue
-    ) {
+    public void WriteVector3IfChanged(ushort fieldId, Vector3 oldValue, Vector3 newValue) {
         if (oldValue != newValue) {
-            runFiles.WritePlayerDataVector3Change(
-                fieldId: fieldId,
-                value: newValue
-            );
+            runFiles.WritePlayerDataVector3Change(fieldId, newValue);
         }
     }
 
-    public void WriteVector2IfChanged(
-        ushort fieldId,
-        Vector2 oldValue,
-        Vector2 newValue
-    ) {
+    public void WriteVector2IfChanged(ushort fieldId, Vector2 oldValue, Vector2 newValue) {
         if (oldValue != newValue) {
-            runFiles.WritePlayerDataVector2Change(
-                fieldId: fieldId,
-                value: newValue
-            );
+            runFiles.WritePlayerDataVector2Change(fieldId, newValue);
         }
     }
 
-    public void WriteIntArrayIfChanged(
-        ushort fieldId,
-        ref int[]? oldValue,
-        int[]? newValue
-    ) {
+    public void WriteIntArrayIfChanged(ushort fieldId, ref int[]? oldValue, int[]? newValue) {
         int[] oldValues = oldValue ?? Array.Empty<int>();
         int[] newValues = newValue ?? Array.Empty<int>();
         int oldLength = oldValues.Length;
@@ -144,11 +99,7 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         UpdateIntArraySnapshot(ref oldValue, newValue);
     }
 
-    public void WriteIntListIfChanged(
-        ushort fieldId,
-        ref List<int>? oldValue,
-        List<int>? newValue
-    ) {
+    public void WriteIntListIfChanged(ushort fieldId, ref List<int>? oldValue, List<int>? newValue) {
         List<int> oldValues = oldValue ?? [];
         List<int> newValues = newValue ?? [];
         int oldLength = oldValues.Count;
@@ -201,104 +152,36 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         UpdateIntListSnapshot(ref oldValue, newValue);
     }
 
-    private static void UpdateIntArraySnapshot(
-        ref int[]? oldValue,
-        int[]? newValue
-    ) {
-        if (newValue is null) {
-            oldValue = Array.Empty<int>();
-            return;
-        }
-
-        if (oldValue is { Length: var oldLength } existing && oldLength == newValue.Length) {
-            Array.Copy(newValue, existing, newValue.Length);
-            return;
-        }
-
-        int[] snapshot = new int[newValue.Length];
-        Array.Copy(newValue, snapshot, newValue.Length);
-        oldValue = snapshot;
-    }
-
-    private static void UpdateIntListSnapshot(
-        ref List<int>? oldValue,
-        List<int>? newValue
-    ) {
-        if (newValue is null || newValue.Count == 0) {
-            oldValue = null;
-            return;
-        }
-
-        if (oldValue is { Count: var oldCount } existing && oldCount == newValue.Count) {
-            for (int i = 0; i < newValue.Count; i++) {
-                existing[i] = newValue[i];
-            }
-            return;
-        }
-
-        oldValue = new List<int>(newValue);
-    }
-
-    public void WriteFloatIfChanged(
-        ushort fieldId,
-        float oldValue,
-        float newValue
-    ) {
+    public void WriteFloatIfChanged(ushort fieldId, float oldValue, float newValue) {
         if (oldValue != newValue) {
-            runFiles.WritePlayerDataFloatChange(
-                fieldId: fieldId,
-                value: newValue
-            );
+            runFiles.WritePlayerDataFloatChange(fieldId, newValue);
         }
     }
 
-    public void WriteStringIfChanged(
-        ushort fieldId,
-        string? oldValue,
-        string? newValue
-    ) {
+    public void WriteStringIfChanged(ushort fieldId, string? oldValue, string? newValue) {
         if (!string.Equals(oldValue, newValue, StringComparison.Ordinal)) {
-            runFiles.WritePlayerDataStringChange(
-                fieldId: fieldId,
-                value: newValue ?? string.Empty
-            );
+            runFiles.WritePlayerDataStringChange(fieldId, newValue ?? string.Empty);
         }
     }
 
-    public void WriteGuidIfChanged(
-        ushort fieldId,
-        Guid oldValue,
-        Guid newValue
-    ) {
+    public void WriteGuidIfChanged(ushort fieldId, Guid oldValue, Guid newValue) {
         if (oldValue != newValue) {
-            runFiles.WritePlayerDataGuidChange(
-                fieldId: fieldId,
-                value: newValue
-            );
+            runFiles.WritePlayerDataGuidChange(fieldId, newValue);
         }
     }
 
-    public void WriteStringListIfChanged(
-        ushort fieldId,
-        ref List<string>? oldValue,
-        List<string>? newValue
-    ) {
+    public void WriteStringListIfChanged(ushort fieldId, ref List<string>? oldValue, List<string>? newValue) {
         CompareStringCollections(fieldId, ref oldValue, newValue);
     }
 
-    public void WriteStringSetIfChanged(
-        ushort fieldId,
-        ref HashSet<string>? oldValue,
-        HashSet<string>? newValue
-    ) {
+    public void WriteStringSetIfChanged(ushort fieldId, ref HashSet<string>? oldValue, HashSet<string>? newValue) {
         HashSet<string> oldSet = oldValue ?? [];
         HashSet<string> newSet = newValue ?? [];
 
         if (oldSet.Count == newSet.Count && oldSet.SetEquals(newSet)) {
-            return;  // No changes
+            return;
         }
 
-        // For sets, compute added and removed elements
         List<string> added = [];
         List<string> removed = [];
 
@@ -314,7 +197,6 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
             }
         }
 
-        // Delta vs full write decision
         int deltaPayloadEstimate = sizeof(byte) + sizeof(int) * 2 + (added.Count + removed.Count) * 32;
         int fullPayloadEstimate = sizeof(byte) + sizeof(int) + newSet.Count * 32;
 
@@ -327,11 +209,325 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         UpdateStringSetSnapshot(ref oldValue, newSet);
     }
 
-    private void CompareStringCollections(
+    public void WriteStoryEventListIfChanged(ushort fieldId, ref List<PlayerStory.EventInfo>? oldValue, List<PlayerStory.EventInfo>? newValue) {
+        List<PlayerStory.EventInfo> oldList = oldValue ?? [];
+        List<PlayerStory.EventInfo> newList = newValue ?? [];
+
+        int oldCount = oldList.Count;
+        int newCount = newList.Count;
+        int overlapCount = Math.Min(oldCount, newCount);
+
+        int changedCount = 0;
+        for (int i = 0; i < overlapCount; i++) {
+            if (!StoryEventInfoDataHelper.Equals(oldList[i], newList[i])) {
+                changedCount++;
+            }
+        }
+
+        if (newCount > overlapCount) {
+            changedCount += newCount - overlapCount;
+        }
+
+        if (changedCount == 0 && oldCount == newCount) {
+            return;
+        }
+
+        int fullPayloadEstimate = sizeof(byte) + sizeof(int) + (newCount * 48);
+        int deltaPayloadEstimate = sizeof(byte) + sizeof(int) + sizeof(int) + (changedCount * (sizeof(int) + 48));
+        if (deltaPayloadEstimate < fullPayloadEstimate) {
+            int[] changedIndices = new int[changedCount];
+            PlayerStory.EventInfo[] changedValues = new PlayerStory.EventInfo[changedCount];
+            int writeIndex = 0;
+
+            for (int i = 0; i < overlapCount; i++) {
+                if (StoryEventInfoDataHelper.Equals(oldList[i], newList[i])) {
+                    continue;
+                }
+
+                changedIndices[writeIndex] = i;
+                changedValues[writeIndex] = StoryEventInfoDataHelper.Copy(newList[i]);
+                writeIndex++;
+            }
+
+            for (int i = overlapCount; i < newCount; i++) {
+                changedIndices[writeIndex] = i;
+                changedValues[writeIndex] = StoryEventInfoDataHelper.Copy(newList[i]);
+                writeIndex++;
+            }
+
+            runFiles.WritePlayerDataStoryEventListDeltaChange(fieldId, newCount, changedIndices, changedValues);
+        } else {
+            runFiles.WritePlayerDataStoryEventListFullChange(fieldId, newList);
+        }
+
+        UpdateStoryEventListSnapshot(ref oldValue, newList);
+    }
+
+    public void WritePlacedMarkersIfChanged(ushort fieldId, ref WrappedVector2List[]? oldValue, WrappedVector2List[]? newValue) {
+        WrappedVector2List[] oldList = oldValue ?? Array.Empty<WrappedVector2List>();
+        WrappedVector2List[] newList = newValue ?? Array.Empty<WrappedVector2List>();
+
+        int oldCount = oldList.Length;
+        int newCount = newList.Length;
+        int overlapCount = Math.Min(oldCount, newCount);
+
+        int changedCount = 0;
+        for (int i = 0; i < overlapCount; i++) {
+            if (!WrappedVector2ListDataHelper.Equals(oldList[i], newList[i])) {
+                changedCount++;
+            }
+        }
+
+        if (newCount > overlapCount) {
+            changedCount += newCount - overlapCount;
+        }
+
+        if (changedCount == 0 && oldCount == newCount) {
+            return;
+        }
+
+        bool isPureAppend = newCount > oldCount && changedCount == (newCount - oldCount);
+        if (isPureAppend) {
+            WrappedVector2List[] appended = new WrappedVector2List[newCount - oldCount];
+            for (int i = oldCount; i < newCount; i++) {
+                appended[i - oldCount] = WrappedVector2ListDataHelper.Copy(newList[i]) ?? new WrappedVector2List();
+            }
+
+            runFiles.WritePlayerDataWrappedVector2ListAppendChange(fieldId, oldCount, appended);
+            oldValue = WrappedVector2ListDataHelper.CopyArray(newList);
+            return;
+        }
+
+        int fullPayloadEstimate = sizeof(byte) + sizeof(int) + (newCount * 36);
+        int deltaPayloadEstimate = sizeof(byte) + sizeof(int) + sizeof(int) + (changedCount * (sizeof(int) + 36));
+        if (deltaPayloadEstimate < fullPayloadEstimate) {
+            int[] changedIndices = new int[changedCount];
+            WrappedVector2List[] changedValues = new WrappedVector2List[changedCount];
+            int writeIndex = 0;
+
+            for (int i = 0; i < overlapCount; i++) {
+                if (WrappedVector2ListDataHelper.Equals(oldList[i], newList[i])) {
+                    continue;
+                }
+
+                changedIndices[writeIndex] = i;
+                changedValues[writeIndex] = WrappedVector2ListDataHelper.Copy(newList[i]) ?? new WrappedVector2List();
+                writeIndex++;
+            }
+
+            for (int i = overlapCount; i < newCount; i++) {
+                changedIndices[writeIndex] = i;
+                changedValues[writeIndex] = WrappedVector2ListDataHelper.Copy(newList[i]) ?? new WrappedVector2List();
+                writeIndex++;
+            }
+
+            runFiles.WritePlayerDataWrappedVector2ListDeltaChange(fieldId, newCount, changedIndices, changedValues);
+        } else {
+            runFiles.WritePlayerDataWrappedVector2ListFullChange(fieldId, newList);
+        }
+
+        oldValue = WrappedVector2ListDataHelper.CopyArray(newList);
+    }
+
+    public void WriteNamedMapIfChanged<TData>(
         ushort fieldId,
-        ref List<string>? oldValue,
-        List<string>? newValue
+        ref Dictionary<string, TData>? oldValue,
+        IEnumerable<KeyValuePair<string, TData>> newValues,
+        Func<TData, TData, bool> equals,
+        Func<TData, TData> copy,
+        Action<BinaryWriter, TData> writeValue
     ) {
+        Dictionary<string, TData> oldSnapshot = oldValue ?? new Dictionary<string, TData>(StringComparer.Ordinal);
+        Dictionary<string, TData> newSnapshot = new(StringComparer.Ordinal);
+        List<KeyValuePair<string, TData>> upserts = [];
+        List<string> removed = [];
+
+        foreach (KeyValuePair<string, TData> entry in newValues) {
+            TData copied = copy(entry.Value);
+            newSnapshot[entry.Key] = copied;
+            if (!oldSnapshot.TryGetValue(entry.Key, out TData oldEntry) || !equals(oldEntry, entry.Value)) {
+                upserts.Add(new KeyValuePair<string, TData>(entry.Key, copied));
+            }
+        }
+
+        foreach (KeyValuePair<string, TData> entry in oldSnapshot) {
+            if (!newSnapshot.ContainsKey(entry.Key)) {
+                removed.Add(entry.Key);
+            }
+        }
+
+        if (upserts.Count == 0 && removed.Count == 0 && oldSnapshot.Count == newSnapshot.Count) {
+            return;
+        }
+
+        upserts.Sort((left, right) => string.CompareOrdinal(left.Key, right.Key));
+        removed.Sort(StringComparer.Ordinal);
+
+        int fullPayloadEstimate = newSnapshot.Count * 32;
+        int deltaPayloadEstimate = (upserts.Count * 32) + (removed.Count * 8);
+        if (deltaPayloadEstimate < fullPayloadEstimate) {
+            runFiles.WritePlayerDataNamedMapDeltaChange(fieldId, upserts, removed, writeValue);
+        } else {
+            runFiles.WritePlayerDataNamedMapFullChange(fieldId, newSnapshot, writeValue);
+        }
+
+        oldValue = newSnapshot;
+    }
+
+    // Overloads for specific data types using helper classes
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, CollectableItemsData.Data>? oldValue,
+        IEnumerable<KeyValuePair<string, CollectableItemsData.Data>> newValues,
+        Action<BinaryWriter, CollectableItemsData.Data> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableItemsDataHelper.Equals, CollectableItemsDataHelper.Copy, writeValue ?? CollectableItemsDataHelper.Write);
+
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, CollectableRelicsData.Data>? oldValue,
+        IEnumerable<KeyValuePair<string, CollectableRelicsData.Data>> newValues,
+        Action<BinaryWriter, CollectableRelicsData.Data> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableRelicsDataHelper.Equals, CollectableRelicsDataHelper.Copy, writeValue ?? CollectableRelicsDataHelper.Write);
+
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, CollectableMementosData.Data>? oldValue,
+        IEnumerable<KeyValuePair<string, CollectableMementosData.Data>> newValues,
+        Action<BinaryWriter, CollectableMementosData.Data> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableMementosDataHelper.Equals, CollectableMementosDataHelper.Copy, writeValue ?? CollectableMementosDataHelper.Write);
+
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, MateriumItemsData.Data>? oldValue,
+        IEnumerable<KeyValuePair<string, MateriumItemsData.Data>> newValues,
+        Action<BinaryWriter, MateriumItemsData.Data> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, MateriumItemsDataHelper.Equals, MateriumItemsDataHelper.Copy, writeValue ?? MateriumItemsDataHelper.Write);
+
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, QuestCompletionData.Completion>? oldValue,
+        IEnumerable<KeyValuePair<string, QuestCompletionData.Completion>> newValues,
+        Action<BinaryWriter, QuestCompletionData.Completion> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, QuestCompletionDataHelper.Equals, QuestCompletionDataHelper.Copy, writeValue ?? QuestCompletionDataHelper.Write);
+
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, QuestRumourData.Data>? oldValue,
+        IEnumerable<KeyValuePair<string, QuestRumourData.Data>> newValues,
+        Action<BinaryWriter, QuestRumourData.Data> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, QuestRumourDataHelper.Equals, QuestRumourDataHelper.Copy, writeValue ?? QuestRumourDataHelper.Write);
+
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, ToolItemsData.Data>? oldValue,
+        IEnumerable<KeyValuePair<string, ToolItemsData.Data>> newValues,
+        Action<BinaryWriter, ToolItemsData.Data> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolItemsDataHelper.Equals, ToolItemsDataHelper.Copy, writeValue ?? ToolItemsDataHelper.Write);
+
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, ToolItemLiquidsData.Data>? oldValue,
+        IEnumerable<KeyValuePair<string, ToolItemLiquidsData.Data>> newValues,
+        Action<BinaryWriter, ToolItemLiquidsData.Data> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolItemLiquidsDataHelper.Equals, ToolItemLiquidsDataHelper.Copy, writeValue ?? ToolItemLiquidsDataHelper.Write);
+
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, ToolCrestsData.Data>? oldValue,
+        IEnumerable<KeyValuePair<string, ToolCrestsData.Data>> newValues,
+        Action<BinaryWriter, ToolCrestsData.Data> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolCrestsDataHelper.Equals, ToolCrestsDataHelper.Copy, writeValue ?? ToolCrestsDataHelper.Write);
+
+    public void WriteNamedMapIfChanged(
+        ushort fieldId,
+        ref Dictionary<string, EnemyJournalKillData.KillData>? oldValue,
+        IEnumerable<KeyValuePair<string, EnemyJournalKillData.KillData>> newValues,
+        Action<BinaryWriter, EnemyJournalKillData.KillData> writeValue
+    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, EnemyJournalKillDataHelper.Equals, EnemyJournalKillDataHelper.Copy, writeValue ?? EnemyJournalKillDataHelper.Write);
+
+    private static void UpdateIntArraySnapshot(ref int[]? oldValue, int[]? newValue) {
+        if (newValue is null) {
+            oldValue = Array.Empty<int>();
+            return;
+        }
+
+        if (oldValue is { Length: var oldLength } existing && oldLength == newValue.Length) {
+            Array.Copy(newValue, existing, newValue.Length);
+            return;
+        }
+
+        int[] snapshot = new int[newValue.Length];
+        Array.Copy(newValue, snapshot, newValue.Length);
+        oldValue = snapshot;
+    }
+
+    private static void UpdateIntListSnapshot(ref List<int>? oldValue, List<int>? newValue) {
+        if (newValue is null || newValue.Count == 0) {
+            oldValue = null;
+            return;
+        }
+
+        if (oldValue is { Count: var oldCount } existing && oldCount == newValue.Count) {
+            for (int i = 0; i < newValue.Count; i++) {
+                existing[i] = newValue[i];
+            }
+            return;
+        }
+
+        oldValue = new List<int>(newValue);
+    }
+
+    private static void UpdateStringListSnapshot(ref List<string>? oldValue, List<string>? newValue) {
+        if (newValue is null || newValue.Count == 0) {
+            oldValue = null;
+            return;
+        }
+
+        if (oldValue is { Count: var oldCount } existing && oldCount == newValue.Count) {
+            for (int i = 0; i < newValue.Count; i++) {
+                existing[i] = newValue[i];
+            }
+            return;
+        }
+
+        oldValue = new List<string>(newValue);
+    }
+
+    private static void UpdateStringSetSnapshot(ref HashSet<string>? oldValue, HashSet<string>? newValue) {
+        if (newValue is null || newValue.Count == 0) {
+            oldValue = null;
+            return;
+        }
+
+        if (oldValue == null) {
+            oldValue = new HashSet<string>(newValue, StringComparer.Ordinal);
+            return;
+        }
+
+        oldValue.Clear();
+        oldValue.UnionWith(newValue);
+    }
+
+    private static void UpdateStoryEventListSnapshot(ref List<PlayerStory.EventInfo>? oldValue, List<PlayerStory.EventInfo>? newValue) {
+        if (newValue is null || newValue.Count == 0) {
+            oldValue = null;
+            return;
+        }
+
+        if (oldValue is { Count: var oldCount } existing && oldCount == newValue.Count) {
+            for (int i = 0; i < newValue.Count; i++) {
+                existing[i] = StoryEventInfoDataHelper.Copy(newValue[i]);
+            }
+            return;
+        }
+
+        oldValue = new List<PlayerStory.EventInfo>(newValue.Count);
+        for (int i = 0; i < newValue.Count; i++) {
+            oldValue.Add(StoryEventInfoDataHelper.Copy(newValue[i]));
+        }
+    }
+
+    private void CompareStringCollections(ushort fieldId, ref List<string>? oldValue, List<string>? newValue) {
         List<string> oldList = oldValue ?? [];
         List<string> newList = newValue ?? [];
 
@@ -351,13 +547,10 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         }
 
         if (changedCount == 0 && oldCount == newCount) {
-            return;  // No changes
+            return;
         }
 
-        // Decide between delta and full write based on payload size estimation
-        // For lists, delta is better when only a few items changed
         if (changedCount <= newCount / 2 || (newCount > overlapCount && changedCount == newCount - overlapCount)) {
-            // Delta write: report only changed indices and new appended items
             int[] changedIndices = new int[changedCount];
             string[] changedValues = new string[changedCount];
             int writeIndex = 0;
@@ -378,50 +571,9 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
 
             runFiles.WritePlayerDataStringCollectionDeltaChange(fieldId, newCount, changedIndices, changedValues);
         } else {
-            // Full write
-            string[] newArray = newList.ToArray();
-            runFiles.WritePlayerDataStringCollectionFullChange(fieldId, newArray);
+            runFiles.WritePlayerDataStringCollectionFullChange(fieldId, newList.ToArray());
         }
 
         UpdateStringListSnapshot(ref oldValue, newList);
-    }
-
-    private static void UpdateStringListSnapshot(
-        ref List<string>? oldValue,
-        List<string>? newValue
-    ) {
-        if (newValue is null || newValue.Count == 0) {
-            oldValue = null;
-            return;
-        }
-
-        if (oldValue is { Count: var oldCount } existing && oldCount == newValue.Count) {
-            // Update in-place
-            for (int i = 0; i < newValue.Count; i++) {
-                existing[i] = newValue[i];
-            }
-            return;
-        }
-
-        // Create new snapshot
-        oldValue = new List<string>(newValue);
-    }
-
-    private static void UpdateStringSetSnapshot(
-        ref HashSet<string>? oldValue,
-        HashSet<string>? newValue
-    ) {
-        if (newValue is null || newValue.Count == 0) {
-            oldValue = null;
-            return;
-        }
-
-        if (oldValue == null) {
-            oldValue = new HashSet<string>(newValue, StringComparer.Ordinal);
-            return;
-        }
-
-        oldValue.Clear();
-        oldValue.UnionWith(newValue);
     }
 }

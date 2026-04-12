@@ -1,6 +1,11 @@
 using System.Text.Json;
 using Mono.Cecil;
 
+HashSet<string> ignoredPlayerDataFieldNames = new(StringComparer.Ordinal) {
+    "mapBoolList",
+    "currentBossSequence",
+};
+
 if (args.Length != 3) {
     Console.Error.WriteLine("Usage: <assembly-paths-separated-by-semicolon> <type-name> <field-ids-json-path>");
     return 1;
@@ -22,10 +27,12 @@ if (assemblyPaths.Length == 0) {
 }
 
 TypeDefinition? playerDataType = null;
+TypeDefinition? heroControllerStatesType = null;
 string sourceAssembly = string.Empty;
 foreach (string assemblyPath in assemblyPaths) {
     using AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyPath);
     playerDataType = assembly.MainModule.Types.FirstOrDefault(t => t.Name == typeName || t.FullName == typeName);
+    heroControllerStatesType ??= assembly.MainModule.Types.FirstOrDefault(t => t.Name == "HeroControllerStates" || t.FullName == "HeroControllerStates");
     if (playerDataType != null) {
         sourceAssembly = assemblyPath;
         break;
@@ -43,28 +50,43 @@ Dictionary<string, Dictionary<string, ushort>> enumMap = idMaps.Enums;
 
 ushort nextFieldId = fieldMap.Count == 0 ? (ushort)1 : (ushort)(fieldMap.Values.Max(static v => v.Id) + 1);
 
-List<FieldDefinition> supportedFields = playerDataType
+List<ObservedField> observedPlayerDataFields = playerDataType
     .Fields
-    .Where(static f => f.IsPublic && !f.IsStatic)
-    .Where(static f => IsSupported(f.FieldType, f.Name))
+    .Where(f => f.IsPublic && !f.IsStatic && !ignoredPlayerDataFieldNames.Contains(f.Name))
+    .SelectMany(GetObservedFields)
+    .Where(f => !ignoredPlayerDataFieldNames.Contains(f.Name))
+    .ToList();
+
+List<ObservedField> observedHeroStateFields = heroControllerStatesType == null
+    ? []
+    : GetObservedHeroStateFields(heroControllerStatesType).ToList();
+
+List<ObservedField> supportedFields = observedPlayerDataFields
+    .Concat(observedHeroStateFields)
+    .Where(static f => IsSupported(f.Type, f.Name))
     .OrderBy(static f => f.Name, StringComparer.Ordinal)
     .ToList();
 
 List<string> enumValidationErrors = [];
 Dictionary<string, HashSet<string>> observedEnumMembersByType = new(StringComparer.Ordinal);
 
-foreach (FieldDefinition field in supportedFields) {
-    string expectedTypeName = GetTypeName(field.FieldType, field.Name);
+foreach (ObservedField field in supportedFields) {
+    FieldSchema expectedSchema = GetExpectedFieldSchema(field.Type, field.Name);
 
     if (fieldMap.TryGetValue(field.Name, out FieldSchema existingField)) {
-        string normalizedType = string.IsNullOrWhiteSpace(existingField.Type) ? expectedTypeName : existingField.Type;
-        fieldMap[field.Name] = new FieldSchema(existingField.Id, normalizedType);
+        if (string.Equals(expectedSchema.Type, "enum", StringComparison.Ordinal)) {
+            string normalizedEnumType = string.IsNullOrWhiteSpace(existingField.EnumType) ? expectedSchema.EnumType : existingField.EnumType;
+            fieldMap[field.Name] = new FieldSchema(existingField.Id, "enum", normalizedEnumType);
+        } else {
+            string normalizedType = string.IsNullOrWhiteSpace(existingField.Type) ? expectedSchema.Type : existingField.Type;
+            fieldMap[field.Name] = new FieldSchema(existingField.Id, normalizedType, string.Empty);
+        }
     } else {
-        fieldMap[field.Name] = new FieldSchema(nextFieldId, expectedTypeName);
+        fieldMap[field.Name] = new FieldSchema(nextFieldId, expectedSchema.Type, expectedSchema.EnumType);
         nextFieldId++;
     }
 
-    if (!TryResolveEnumType(field.FieldType, out TypeDefinition? enumType) || enumType == null) {
+    if (!TryResolveEnumType(field.Type, out TypeDefinition? enumType) || enumType == null) {
         continue;
     }
 
@@ -114,10 +136,16 @@ List<KeyValuePair<string, FieldSchema>> orderedFields = fieldMap
 
 Dictionary<string, object> outputFields = new(StringComparer.Ordinal);
 foreach ((string key, FieldSchema value) in orderedFields) {
-    outputFields[key] = new Dictionary<string, object>(StringComparer.Ordinal) {
+    Dictionary<string, object> outputField = new(StringComparer.Ordinal) {
         ["id"] = value.Id,
         ["type"] = value.Type,
     };
+
+    if (!string.IsNullOrWhiteSpace(value.EnumType)) {
+        outputField["enumType"] = value.EnumType;
+    }
+
+    outputFields[key] = outputField;
 }
 
 Dictionary<string, object> outputEnums = new(StringComparer.Ordinal);
@@ -212,6 +240,7 @@ static Dictionary<string, FieldSchema> ReadFieldMapObject(JsonElement element) {
         ushort id = 0;
         bool hasId = false;
         string type = string.Empty;
+        string enumType = string.Empty;
 
         foreach (JsonProperty child in prop.Value.EnumerateObject()) {
             if (string.Equals(child.Name, "id", StringComparison.OrdinalIgnoreCase)
@@ -225,6 +254,12 @@ static Dictionary<string, FieldSchema> ReadFieldMapObject(JsonElement element) {
             if (string.Equals(child.Name, "type", StringComparison.OrdinalIgnoreCase)
                 && child.Value.ValueKind == JsonValueKind.String) {
                 type = child.Value.GetString() ?? string.Empty;
+                continue;
+            }
+
+            if (string.Equals(child.Name, "enumType", StringComparison.OrdinalIgnoreCase)
+                && child.Value.ValueKind == JsonValueKind.String) {
+                enumType = child.Value.GetString() ?? string.Empty;
             }
         }
 
@@ -232,7 +267,7 @@ static Dictionary<string, FieldSchema> ReadFieldMapObject(JsonElement element) {
             continue;
         }
 
-        map[prop.Name] = new FieldSchema(id, type);
+        map[prop.Name] = new FieldSchema(id, type, enumType);
     }
 
     return map;
@@ -301,11 +336,23 @@ static bool IsSupported(TypeReference type, string fieldName) {
         return true;
     }
 
+    if (IsSteelQuestSpotArray(type)) {
+        return true;
+    }
+
+    if (IsWrappedVector2ListArray(type)) {
+        return true;
+    }
+
     if (IsListOf(type, "System.Int32") || IsListOf(type, "System.String")) {
         return true;
     }
 
     if (IsSetOf(type, "System.String")) {
+        return true;
+    }
+
+    if (IsDictionaryOf(type, "System.String", "System.Int32")) {
         return true;
     }
 
@@ -319,6 +366,60 @@ static bool IsSupported(TypeReference type, string fieldName) {
     } catch {
         return false;
     }
+}
+
+static IEnumerable<ObservedField> GetObservedFields(FieldDefinition field) {
+    foreach (ObservedField observed in GetObservedFieldsRecursive(field.FieldType, field.Name)) {
+        yield return observed;
+    }
+}
+
+static IEnumerable<ObservedField> GetObservedFieldsRecursive(TypeReference type, string fieldNamePrefix) {
+    if (!IsFlattenedWrapperType(type)) {
+        yield return new ObservedField(fieldNamePrefix, type);
+        yield break;
+    }
+
+    TypeDefinition? wrapperType;
+    try {
+        wrapperType = type.Resolve();
+    } catch {
+        wrapperType = null;
+    }
+
+    if (wrapperType == null) {
+        yield break;
+    }
+
+    foreach (FieldDefinition nestedField in wrapperType.Fields.Where(static f => f.IsPublic && !f.IsStatic).OrderBy(static f => f.Name, StringComparer.Ordinal)) {
+        string nestedName = $"{fieldNamePrefix}_{nestedField.Name}";
+        foreach (ObservedField observed in GetObservedFieldsRecursive(nestedField.FieldType, nestedName)) {
+            yield return observed;
+        }
+    }
+}
+
+static IEnumerable<ObservedField> GetObservedHeroStateFields(TypeDefinition heroStateType) {
+    HashSet<string> ignoredHeroStateFieldNames = new(StringComparer.Ordinal) {
+        "boolFieldAccessOptimizer",
+        "fieldCache",
+        "invulnerabilitySources",
+    };
+
+    foreach (FieldDefinition field in heroStateType.Fields.Where(static f => !f.IsStatic).OrderBy(static f => f.Name, StringComparer.Ordinal)) {
+        if (ignoredHeroStateFieldNames.Contains(field.Name)) {
+            continue;
+        }
+
+        yield return new ObservedField("heroState_" + field.Name, field.FieldType);
+    }
+}
+
+static bool IsFlattenedWrapperType(TypeReference type) {
+    return type.FullName is
+        "HeroItemsState"
+        or "CollectionGramaphone/PlayingInfo"
+        or "CollectionGramaphone.PlayingInfo";
 }
 
 static bool TryResolveEnumType(TypeReference type, out TypeDefinition? enumType) {
@@ -363,11 +464,22 @@ static string GetTypeName(TypeReference type, string fieldName) {
         "System.Int32[]" => "int[]",
         "System.String" => "string",
         "System.Guid" => "guid",
+        _ when IsSteelQuestSpotArray(type) => "dictionary<string,bool>",
+        _ when IsWrappedVector2ListArray(type) => "wrappedvector2list[]",
         _ when IsListOf(type, "System.Int32") => "list<int>",
         _ when IsListOf(type, "System.String") => "list<string>",
         _ when IsSetOf(type, "System.String") => "hashset<string>",
+        _ when IsDictionaryOf(type, "System.String", "System.Int32") => "dictionary<string,int>",
         _ => type.FullName,
     };
+}
+
+static FieldSchema GetExpectedFieldSchema(TypeReference type, string fieldName) {
+    if (TryResolveEnumType(type, out TypeDefinition? enumType) && enumType != null) {
+        return new FieldSchema(0, "enum", ToEnumTypeKey(enumType));
+    }
+
+    return new FieldSchema(0, GetTypeName(type, fieldName), string.Empty);
 }
 
 static bool IsListOf(TypeReference type, string elementFullName) {
@@ -388,6 +500,24 @@ static bool IsSetOf(TypeReference type, string elementFullName) {
            && genericType.GenericArguments[0].FullName == elementFullName;
 }
 
+static bool IsDictionaryOf(TypeReference type, string keyFullName, string valueFullName) {
+    if (type is not GenericInstanceType { ElementType.FullName: "System.Collections.Generic.Dictionary`2" } genericType) {
+        return false;
+    }
+
+    return genericType.GenericArguments.Count == 2
+           && genericType.GenericArguments[0].FullName == keyFullName
+           && genericType.GenericArguments[1].FullName == valueFullName;
+}
+
+static bool IsSteelQuestSpotArray(TypeReference type) {
+    return type is ArrayType { ElementType.FullName: "SteelSoulQuestSpot/Spot" or "SteelSoulQuestSpot.Spot" };
+}
+
+static bool IsWrappedVector2ListArray(TypeReference type) {
+    return type is ArrayType { ElementType.FullName: "WrappedVector2List" };
+}
+
 static bool TryFitsIntoByte(object? value, out string valueText) {
     valueText = value?.ToString() ?? "<null>";
     return value switch {
@@ -404,13 +534,15 @@ static bool TryFitsIntoByte(object? value, out string valueText) {
 }
 
 readonly struct FieldSchema {
-    public FieldSchema(ushort id, string type) {
+    public FieldSchema(ushort id, string type, string enumType = "") {
         Id = id;
         Type = type;
+        EnumType = enumType;
     }
 
     public ushort Id { get; }
     public string Type { get; }
+    public string EnumType { get; }
 }
 
 readonly struct IdMaps {
@@ -422,3 +554,14 @@ readonly struct IdMaps {
     public Dictionary<string, FieldSchema> Fields { get; }
     public Dictionary<string, Dictionary<string, ushort>> Enums { get; }
 }
+
+readonly struct ObservedField {
+    public ObservedField(string name, TypeReference type) {
+        Name = name;
+        Type = type;
+    }
+
+    public string Name { get; }
+    public TypeReference Type { get; }
+}
+
