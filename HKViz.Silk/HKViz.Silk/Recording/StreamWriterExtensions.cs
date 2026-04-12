@@ -21,4 +21,8 @@ public static class BinaryWriterExtensions {
         writer.Write(bytes.Length);
         writer.Write(bytes);
     }
+
+    public static void WriteEntryType(this BinaryWriter writer, WriteEntryType value) {
+        writer.Write((byte)value);
+    }
 }

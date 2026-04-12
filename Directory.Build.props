@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>recommended</AnalysisLevel>
+  </PropertyGroup>
+</Project>
+

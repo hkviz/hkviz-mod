@@ -139,21 +139,21 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
                 break;
             case < 0:
                 // decreased timestamp, should rarely happen
-                writer.Write(WriteEntryType.TimestampBackwards);
+                writer.WriteEntryType(WriteEntryType.TimestampBackwards);
                 writer.Write(timestamp);
                 break;
             case <= byte.MaxValue:
-                writer.Write(WriteEntryType.TimestampAddByte);
+                writer.WriteEntryType(WriteEntryType.TimestampAddByte);
                 writer.Write((byte)deltaMillis);
                 break;
             case <= ushort.MaxValue:
                 // short timestamp
-                writer.Write(WriteEntryType.TimestampAddShort);
+                writer.WriteEntryType(WriteEntryType.TimestampAddShort);
                 writer.Write((ushort)deltaMillis);
                 break;
             default:
                 // full timestamp
-                writer.Write(WriteEntryType.TimestampFull);
+                writer.WriteEntryType(WriteEntryType.TimestampFull);
                 writer.Write(timestamp);
                 break;
         }
@@ -172,10 +172,10 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
         WriteTimeIfChanged(writer);
         if (hasId) {
-            writer.Write(mode == LoadSceneMode.Additive ? WriteEntryType.SceneChangeAddShort : WriteEntryType.SceneChangeSingleShort);
+            writer.WriteEntryType(mode == LoadSceneMode.Additive ? WriteEntryType.SceneChangeAddShort : WriteEntryType.SceneChangeSingleShort);
             writer.Write(id);
         } else {
-            writer.Write(mode == LoadSceneMode.Additive ? WriteEntryType.SceneChangeAddLong : WriteEntryType.SceneChangeSingleLong);
+            writer.WriteEntryType(mode == LoadSceneMode.Additive ? WriteEntryType.SceneChangeAddLong : WriteEntryType.SceneChangeSingleLong);
             writer.WriteStringCompat(sceneName);
         }
     }
@@ -188,7 +188,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         WriteTimeIfChanged(writer);
-        writer.Write(WriteEntryType.HeroLocation);
+        writer.WriteEntryType(WriteEntryType.HeroLocation);
         writer.WriteVector2(pos);
         
     }
@@ -201,7 +201,43 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         WriteTimeIfChanged(writer);
-        writer.Write(WriteEntryType.SceneBoundary);
+        writer.WriteEntryType(WriteEntryType.SceneBoundary);
         writer.WriteVector2(size);
+    }
+
+    public void WritePlayerDataBoolChange(ushort fieldId, bool value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data bool but writer is null");
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataBool);
+        ushort packed = (ushort)((fieldId << 1) | (value ? 1 : 0));
+        writer.Write(packed);
+    }
+    
+    public void WritePlayerDataFloatChange(ushort fieldId, float value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data float but writer is null");
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataFloat);
+        writer.Write(fieldId);
+        writer.Write(value);
+    }
+    
+    public void WritePlayerDataIntChange(ushort fieldId, int value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write player data int but writer is null");
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.PlayerDataFloat);
+        writer.Write(fieldId);
+        writer.Write(value);
     }
 }
