@@ -1,3 +1,4 @@
+using System;
 using HKViz.Shared.Upload;
 using HKViz.Silk.Recording;
 
@@ -7,7 +8,7 @@ public class SilkUploadPathResolver: IUploadPathResolver {
     public string GetPath(UploadQueueEntry entry) {
         return RunFilePaths.GetRecordingPath(
             partNumber: entry.partNumber,
-            localRunId: entry.localRunId,
+            localRunId: Guid.Parse(entry.localRunId),
             profileId: entry.profileId
         );
     }

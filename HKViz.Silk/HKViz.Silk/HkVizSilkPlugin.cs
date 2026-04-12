@@ -78,13 +78,13 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
             var currentRunWriter = CurrentRunWriter;
             if (currentRunWriter == null) return null;
             return new SaveDataRun(
-                localRunId: currentRunWriter.LocalRunId,
+                localRunId: currentRunWriter.LocalRunId.ToString(),
                 nextRunPart: currentRunWriter.GetNextRunPart()
             );
         }
         set {
             CurrentRunWriter?.Close();
-            string localRunId = value == null ? Guid.NewGuid().ToString() : value.LocalRunId;
+            Guid localRunId = value == null ? Guid.NewGuid() : Guid.Parse(value.LocalRunId);
             long nextRunPart = value?.NextRunPart ?? 0L;
             CurrentRunWriter = new RunWriter(localRunId, nextRunPart, sharedInstances.uploadManager, Logger);
         }

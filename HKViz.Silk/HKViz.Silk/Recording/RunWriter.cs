@@ -1,3 +1,4 @@
+using System;
 using BepInEx.Logging;
 using HKViz.Shared.Upload;
 using UnityEngine;
@@ -6,14 +7,14 @@ using UnityEngine.SceneManagement;
 namespace HKViz.Silk.Recording;
 
 public class RunWriter {
-    public string LocalRunId { get; }
+    public Guid LocalRunId { get; }
 
     private bool isClosed = false;
     private readonly RunFiles runFiles;
     private readonly HeroLocationWriter heroLocationWriter;
     private readonly ManualLogSource logger;
     
-    public RunWriter(string localRunId, long nextRunPart, UploadManager uploadManager, ManualLogSource logger) {
+    public RunWriter(Guid localRunId, long nextRunPart, UploadManager uploadManager, ManualLogSource logger) {
         LocalRunId = localRunId;
         this.logger = logger;
         runFiles = new RunFiles(localRunId, nextRunPart, uploadManager, logger);
@@ -51,6 +52,7 @@ public class RunWriter {
         if (isClosed) return;
         var gm = GameManager._instance;
         if (!gm || gm.IsGamePaused()) return;
+        runFiles.Update();
         heroLocationWriter.Update();
     }
 }

@@ -7,11 +7,12 @@ using HKViz.Shared.Upload;
 using HKViz.Silk.GameData;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms;
 
 namespace HKViz.Silk.Recording;
 
-public class RunFiles(string localRunId, long currentRunPart, UploadManager uploadManager, ManualLogSource logger) {
-    public string LocalRunId { get; } = localRunId;
+public class RunFiles(Guid localRunId, long currentRunPart, UploadManager uploadManager, ManualLogSource logger) {
+    public Guid LocalRunId { get; } = localRunId;
     public long CurrentRunPart { get; private set; } = currentRunPart;
     public long currentFileFirstUnixSeconds { get; private set; } = DateTimeUtils.GetUnixSeconds();
 
@@ -19,9 +20,11 @@ public class RunFiles(string localRunId, long currentRunPart, UploadManager uplo
     
     private float _lastPartCreatedTime = 0f;
     private bool _isClosed = false;
+    private bool _wroteTimeForUpdate = false;
+    private long _lastWrittenTime = 0;
     
     private BinaryWriter? _writer;
-    
+
     public void NextFileIfNeeded() {
         if (_isClosed) return;
         if (_writer == null || Time.unscaledTime - _lastPartCreatedTime > SwitchFileAfterSeconds) {
@@ -39,7 +42,6 @@ public class RunFiles(string localRunId, long currentRunPart, UploadManager uplo
         if (oldWriter != null) {
             CurrentRunPart++;
         }
-        currentFileFirstUnixSeconds = DateTimeUtils.GetUnixSeconds();
         var newPath = RunFilePaths.GetRecordingPath(LocalRunId, CurrentRunPart, GameManager.instance.profileID);
         while (File.Exists(newPath)) {
             CurrentRunPart++;
@@ -47,6 +49,15 @@ public class RunFiles(string localRunId, long currentRunPart, UploadManager uplo
         }
         _writer = new BinaryWriter(File.Open(newPath, FileMode.Create, FileAccess.Write, FileShare.Read));
         _lastPartCreatedTime = Time.unscaledTime;
+        _lastWrittenTime = 0;
+        _wroteTimeForUpdate = false;
+
+        // header
+        WriteHeader(_writer);
+        currentFileFirstUnixSeconds = DateTimeUtils.GetUnixSeconds();
+        WriteTimeIfChanged(_writer);
+
+
         // TODO add new file to global storage of known files
         //  even before upload. so upload can happen after crash
         FinishFile(oldWriter, previousRunPart, previousPartFirstUnixMillis);
@@ -72,7 +83,7 @@ public class RunFiles(string localRunId, long currentRunPart, UploadManager uplo
         // }
         
         uploadManager.QueueFile(new UploadQueueEntry {
-            localRunId = LocalRunId,
+            localRunId = LocalRunId.ToString(),
             partNumber = (int)partNumber,
             profileId = GameManager.instance.profileID,
 
@@ -103,7 +114,54 @@ public class RunFiles(string localRunId, long currentRunPart, UploadManager uplo
         });
     }
 
-    public void WriteSceneChange(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode) {
+    public void WriteHeader(BinaryWriter writer) {
+        writer.Write(HKVizSilkConstants.FileVersion);
+        writer.Write(LocalRunId.ToByteArray());
+        writer.Write(CurrentRunPart);
+    }
+
+    public void Update() {
+        _wroteTimeForUpdate = false;
+    }
+
+    public void WriteTimeIfChanged(BinaryWriter writer) {
+        if (_wroteTimeForUpdate) {
+            // already written
+            return;
+        }
+
+        long timestamp = DateTimeUtils.GetUnixMillis();
+
+        long deltaMillis = timestamp - _lastWrittenTime;
+        switch (deltaMillis) {
+            case 0:
+                // nothing to write
+                break;
+            case < 0:
+                // decreased timestamp, should rarely happen
+                writer.Write(WriteEntryType.TimestampBackwards);
+                writer.Write(timestamp);
+                break;
+            case <= byte.MaxValue:
+                writer.Write(WriteEntryType.TimestampAddByte);
+                writer.Write((byte)deltaMillis);
+                break;
+            case <= ushort.MaxValue:
+                // short timestamp
+                writer.Write(WriteEntryType.TimestampAddShort);
+                writer.Write((ushort)deltaMillis);
+                break;
+            default:
+                // full timestamp
+                writer.Write(WriteEntryType.TimestampFull);
+                writer.Write(timestamp);
+                break;
+        }
+        _lastWrittenTime = timestamp;
+        _wroteTimeForUpdate = true;
+    }
+
+    public void WriteSceneChange(Scene scene, LoadSceneMode mode) {
         var writer = _writer;
         if (writer == null) {
             logger.LogDebug("Tried to write scene change but writer is null");
@@ -112,6 +170,7 @@ public class RunFiles(string localRunId, long currentRunPart, UploadManager uplo
         var sceneName = scene.name;
         var hasId = SilkSongScenes.Scenes.TryGetValue(sceneName.ToLowerInvariant(), out var id);
 
+        WriteTimeIfChanged(writer);
         if (hasId) {
             writer.Write(mode == LoadSceneMode.Additive ? WriteEntryType.SceneChangeAddShort : WriteEntryType.SceneChangeSingleShort);
             writer.Write(id);
@@ -128,6 +187,7 @@ public class RunFiles(string localRunId, long currentRunPart, UploadManager uplo
             return;
         }
 
+        WriteTimeIfChanged(writer);
         writer.Write(WriteEntryType.HeroLocation);
         writer.WriteVector2(pos);
         
@@ -139,7 +199,8 @@ public class RunFiles(string localRunId, long currentRunPart, UploadManager uplo
             logger.LogDebug("Tried to write scene boundary but writer is null");
             return;
         }
-        logger.LogDebug("Write scene size" + size);
+
+        WriteTimeIfChanged(writer);
         writer.Write(WriteEntryType.SceneBoundary);
         writer.WriteVector2(size);
     }
