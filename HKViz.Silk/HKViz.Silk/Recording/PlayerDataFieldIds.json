@@ -5818,6 +5818,14 @@
     "Tools": {
       "id": 1450,
       "type": "ToolItemsData"
+    },
+    "ExtraToolEquips": {
+      "id": 1451,
+      "type": "FloatingCrestSlotsData"
+    },
+    "StoryEvents": {
+      "id": 1452,
+      "type": "list\u003Cplayerstory.eventinfo\u003E"
     }
   },
   "enums": {

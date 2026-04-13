@@ -113,8 +113,8 @@ public static class BinaryWriterExtensions {
         writer.Write(value.y);
     }
 
-    public static void WriteStringCompat(this BinaryWriter writer, string value) {
-        var bytes = Encoding.UTF8.GetBytes(value);
+    public static void WriteStringCompat(this BinaryWriter writer, string? value) {
+        var bytes = Encoding.UTF8.GetBytes(value ?? string.Empty);
         writer.Write(bytes.Length);
         writer.Write(bytes);
     }

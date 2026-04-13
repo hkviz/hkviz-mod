@@ -1,10 +1,6 @@
 using System.Text.Json;
+using HKViz.Silk.PlayerDataSchema;
 using Mono.Cecil;
-
-HashSet<string> ignoredPlayerDataFieldNames = new(StringComparer.Ordinal) {
-    "mapBoolList",
-    "currentBossSequence",
-};
 
 if (args.Length != 3) {
     Console.Error.WriteLine("Usage: <assembly-paths-separated-by-semicolon> <type-name> <field-ids-json-path>");
@@ -52,9 +48,9 @@ ushort nextFieldId = fieldMap.Count == 0 ? (ushort)1 : (ushort)(fieldMap.Values.
 
 List<ObservedField> observedPlayerDataFields = playerDataType
     .Fields
-    .Where(f => f.IsPublic && !f.IsStatic && !ignoredPlayerDataFieldNames.Contains(f.Name))
+    .Where(f => f.IsPublic && !f.IsStatic && !PlayerDataSchemaRules.IsIgnoredPlayerDataFieldName(f.Name))
     .SelectMany(GetObservedFields)
-    .Where(f => !ignoredPlayerDataFieldNames.Contains(f.Name))
+    .Where(f => !PlayerDataSchemaRules.IsIgnoredPlayerDataFieldName(f.Name))
     .ToList();
 
 List<ObservedField> observedHeroStateFields = heroControllerStatesType == null
@@ -360,6 +356,10 @@ static bool IsSupported(TypeReference type, string fieldName) {
         return true;
     }
 
+    if (IsStoryEventInfoList(type)) {
+        return true;
+    }
+
     if (fullName == "System.Byte[]" && fieldName.EndsWith("Guid", StringComparison.Ordinal)) {
         return true;
     }
@@ -404,14 +404,8 @@ static IEnumerable<ObservedField> GetObservedFieldsRecursive(TypeReference type,
 }
 
 static IEnumerable<ObservedField> GetObservedHeroStateFields(TypeDefinition heroStateType) {
-    HashSet<string> ignoredHeroStateFieldNames = new(StringComparer.Ordinal) {
-        "boolFieldAccessOptimizer",
-        "fieldCache",
-        "invulnerabilitySources",
-    };
-
     foreach (FieldDefinition field in heroStateType.Fields.Where(static f => !f.IsStatic).OrderBy(static f => f.Name, StringComparer.Ordinal)) {
-        if (ignoredHeroStateFieldNames.Contains(field.Name)) {
+        if (PlayerDataSchemaRules.IsIgnoredHeroStateFieldName(field.Name)) {
             continue;
         }
 
@@ -420,10 +414,7 @@ static IEnumerable<ObservedField> GetObservedHeroStateFields(TypeDefinition hero
 }
 
 static bool IsFlattenedWrapperType(TypeReference type) {
-    return type.FullName is
-        "HeroItemsState"
-        or "CollectionGramaphone/PlayingInfo"
-        or "CollectionGramaphone.PlayingInfo";
+    return PlayerDataSchemaRules.IsFlattenedWrapperTypeName(type.FullName);
 }
 
 static bool TryResolveEnumType(TypeReference type, out TypeDefinition? enumType) {
@@ -474,6 +465,7 @@ static string GetTypeName(TypeReference type, string fieldName) {
         _ when IsListOf(type, "System.String") => "list<string>",
         _ when IsSetOf(type, "System.String") => "hashset<string>",
         _ when IsDictionaryOf(type, "System.String", "System.Int32") => "dictionary<string,int>",
+        _ when IsStoryEventInfoList(type) => "list<playerstory.eventinfo>",
         _ => type.FullName,
     };
 }
@@ -514,6 +506,19 @@ static bool IsDictionaryOf(TypeReference type, string keyFullName, string valueF
            && genericType.GenericArguments[1].FullName == valueFullName;
 }
 
+static bool IsStoryEventInfoList(TypeReference type) {
+    if (type is not GenericInstanceType { ElementType.FullName: "System.Collections.Generic.List`1" } genericType) {
+        return false;
+    }
+
+    if (genericType.GenericArguments.Count != 1) {
+        return false;
+    }
+
+    string elementType = genericType.GenericArguments[0].FullName.Replace('/', '.');
+    return elementType == "PlayerStory.EventInfo";
+}
+
 static bool IsSteelQuestSpotArray(TypeReference type) {
     return type is ArrayType { ElementType.FullName: "SteelSoulQuestSpot/Spot" or "SteelSoulQuestSpot.Spot" };
 }
@@ -523,18 +528,7 @@ static bool IsWrappedVector2ListArray(TypeReference type) {
 }
 
 static bool IsNamedMapType(TypeReference type) {
-    string fullName = type.FullName;
-    return fullName is
-        "CollectableItemsData"
-        or "CollectableRelicsData"
-        or "CollectableMementosData"
-        or "QuestRumourData"
-        or "QuestCompletionData"
-        or "MateriumItemsData"
-        or "ToolItemLiquidsData"
-        or "ToolItemsData"
-        or "ToolCrestsData"
-        or "EnemyJournalKillData";
+    return PlayerDataSchemaRules.IsNamedMapTypeName(type.FullName);
 }
 
 static bool TryFitsIntoByte(object? value, out string valueText) {

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using HKViz.Silk.PlayerDataSchema;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
@@ -13,14 +14,6 @@ namespace HKViz.Silk.PlayerDataGenerator;
 [Generator]
 public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     private const string FieldIdsFileName = "PlayerDataFieldIds.json";
-    // Known PlayerData fields intentionally excluded from recording generation.
-    private static readonly HashSet<string> IgnoredPlayerDataFieldNames = new(StringComparer.Ordinal) {
-        "mapBoolList",
-        
-        // TODO needed likely in new update. Currently has shape
-        //  of Hollow Knight boss sequence. I.e. likely change ahead
-        "currentBossSequence",
-    };
 
     private static readonly DiagnosticDescriptor MissingPlayerDataType = new(
         id: "HKVIZSILK001",
@@ -93,10 +86,11 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         List<ObservedField> observedFields = playerDataType
             .GetMembers()
             .OfType<IFieldSymbol>()
-            .Where(static field => !field.IsStatic && !field.IsConst)
+            .Where(static field => field.DeclaredAccessibility == Accessibility.Public && !field.IsStatic && !field.IsConst)
             .OrderBy(static field => field.Name, StringComparer.Ordinal)
             .SelectMany(ExpandObservedFields)
-            .Where(static field => !IgnoredPlayerDataFieldNames.Contains(field.ContainingFieldName) && !IgnoredPlayerDataFieldNames.Contains(field.FieldName))
+            .Where(static field => !PlayerDataSchemaRules.IsIgnoredPlayerDataFieldName(field.ContainingFieldName)
+                                   && !PlayerDataSchemaRules.IsIgnoredPlayerDataFieldName(field.FieldName))
             .ToList();
 
         observedFields.AddRange(GetSyntheticHeroStateFields(compilation));
@@ -1201,13 +1195,11 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     }
 
     private static bool IsSteelQuestSpotArray(ITypeSymbol type) {
-        return type is IArrayTypeSymbol { ElementType: INamedTypeSymbol elementType }
-               && elementType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::SteelSoulQuestSpot.Spot";
+        return PlayerDataSchemaRules.IsSteelQuestSpotArrayTypeName(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
     }
 
     private static bool IsWrappedVector2ListArray(ITypeSymbol type) {
-        return type is IArrayTypeSymbol { ElementType: INamedTypeSymbol elementType }
-               && elementType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::WrappedVector2List";
+        return PlayerDataSchemaRules.IsWrappedVector2ListArrayTypeName(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
     }
 
     private static IEnumerable<ObservedField> ExpandObservedFields(IFieldSymbol field) {
@@ -1226,7 +1218,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             yield break;
         }
 
-        foreach (IFieldSymbol nestedField in wrapperType.GetMembers().OfType<IFieldSymbol>().Where(static f => !f.IsStatic && !f.IsConst).OrderBy(static f => f.Name, StringComparer.Ordinal)) {
+        foreach (IFieldSymbol nestedField in wrapperType.GetMembers().OfType<IFieldSymbol>().Where(static f => f.DeclaredAccessibility == Accessibility.Public && !f.IsStatic && !f.IsConst).OrderBy(static f => f.Name, StringComparer.Ordinal)) {
             string nestedFieldName = fieldNamePrefix + "_" + nestedField.Name;
             string nestedReadSuffix = readSuffixPrefix + "." + nestedField.Name;
 
@@ -1237,8 +1229,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     }
 
     private static bool IsFlattenedWrapperType(ITypeSymbol type) {
-        string fullTypeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        return fullTypeName is "global::HeroItemsState" or "global::CollectionGramaphone.PlayingInfo";
+        return PlayerDataSchemaRules.IsFlattenedWrapperTypeName(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
     }
 
     private static IEnumerable<ObservedField> GetSyntheticHeroStateFields(Compilation compilation) {
@@ -1247,14 +1238,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             yield break;
         }
 
-        HashSet<string> ignoredHeroStateFieldNames = new(StringComparer.Ordinal) {
-            "boolFieldAccessOptimizer",
-            "fieldCache",
-            "invulnerabilitySources",
-        };
-
         foreach (IFieldSymbol field in heroStateType.GetMembers().OfType<IFieldSymbol>().Where(static f => !f.IsStatic && !f.IsConst).OrderBy(static f => f.Name, StringComparer.Ordinal)) {
-            if (ignoredHeroStateFieldNames.Contains(field.Name)) {
+            if (PlayerDataSchemaRules.IsIgnoredHeroStateFieldName(field.Name)) {
                 continue;
             }
 

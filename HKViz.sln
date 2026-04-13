@@ -16,6 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{811F55CB-0
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HKViz.Silk", "HKViz.Silk", "{6B04A3C0-D179-451F-4A6F-40A77DD93260}"
+	ProjectSection(SolutionItems) = preProject
+		HKViz.Silk\PlayerDataSchemaRules.cs = HKViz.Silk\PlayerDataSchemaRules.cs
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HKViz.Silk.PlayerDataGenerator", "HKViz.Silk\HKViz.Silk.PlayerDataGenerator\HKViz.Silk.PlayerDataGenerator.csproj", "{D656FAF8-60C5-42F9-9603-63A0E1262F24}"
 EndProject
