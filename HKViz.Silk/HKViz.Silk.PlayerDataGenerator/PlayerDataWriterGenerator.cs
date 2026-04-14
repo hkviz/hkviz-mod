@@ -18,7 +18,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     private static readonly DiagnosticDescriptor MissingPlayerDataType = new(
         id: "HKVIZSILK001",
         title: "PlayerData type not found",
-        messageFormat: "Could not resolve PlayerData type from references. Checked: {0}",
+        messageFormat: "Could not resolve PlayerData type from references. Checked: {0}.",
         category: "HKViz.Silk.Generator",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true
@@ -41,6 +41,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true
     );
+
 
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         IncrementalValuesProvider<string> idMaps = context.AdditionalTextsProvider
@@ -148,6 +149,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         }
 
         HashSet<string> usedIdentifiers = new(StringComparer.Ordinal);
+
         for (int i = 0; i < supportedFields.Count; i++) {
             ObservedField field = supportedFields[i];
             field.FieldIdName = MakeUniqueIdentifier("FieldId_" + field.FieldName, usedIdentifiers);
@@ -651,12 +653,16 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             JsonElement root = doc.RootElement;
 
             bool hasFields = TryGetPropertyIgnoreCase(root, "fields", out JsonElement fieldsElement);
+            bool hasEnums = TryGetPropertyIgnoreCase(root, "enums", out JsonElement enumsElement);
 
-            if (root.ValueKind == JsonValueKind.Object && hasFields) {
+            if (root.ValueKind == JsonValueKind.Object && (hasFields || hasEnums)) {
                 Dictionary<string, FieldSchema> fields = hasFields
                     ? ReadFieldMapObject(fieldsElement)
                     : new Dictionary<string, FieldSchema>(StringComparer.Ordinal);
-                return new IdMaps(fields);
+                Dictionary<string, Dictionary<string, ushort>> enums = hasEnums
+                    ? ReadEnumMapObject(enumsElement)
+                    : new Dictionary<string, Dictionary<string, ushort>>(StringComparer.Ordinal);
+                return new IdMaps(fields, enums);
             }
 
             Dictionary<string, ushort>? legacy = JsonSerializer.Deserialize<Dictionary<string, ushort>>(json);
@@ -667,9 +673,12 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 }
             }
 
-            return new IdMaps(legacyFields);
+            return new IdMaps(legacyFields, new Dictionary<string, Dictionary<string, ushort>>(StringComparer.Ordinal));
         } catch {
-            return new IdMaps(new Dictionary<string, FieldSchema>(StringComparer.Ordinal));
+            return new IdMaps(
+                new Dictionary<string, FieldSchema>(StringComparer.Ordinal),
+                new Dictionary<string, Dictionary<string, ushort>>(StringComparer.Ordinal)
+            );
         }
     }
 
@@ -725,6 +734,30 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         return map;
     }
 
+    private static Dictionary<string, Dictionary<string, ushort>> ReadEnumMapObject(JsonElement element) {
+        Dictionary<string, Dictionary<string, ushort>> map = new(StringComparer.Ordinal);
+        if (element.ValueKind != JsonValueKind.Object) {
+            return map;
+        }
+
+        foreach (JsonProperty enumType in element.EnumerateObject()) {
+            if (enumType.Value.ValueKind != JsonValueKind.Object) {
+                continue;
+            }
+
+            Dictionary<string, ushort> members = new(StringComparer.Ordinal);
+            foreach (JsonProperty member in enumType.Value.EnumerateObject()) {
+                if (member.Value.ValueKind == JsonValueKind.Number && member.Value.TryGetUInt16(out ushort id)) {
+                    members[member.Name] = id;
+                }
+            }
+
+            map[enumType.Name] = members;
+        }
+
+        return map;
+    }
+
     private static bool TryGetPropertyIgnoreCase(JsonElement root, string propertyName, out JsonElement value) {
         if (root.ValueKind != JsonValueKind.Object) {
             value = default;
@@ -740,6 +773,35 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
 
         value = default;
         return false;
+    }
+
+    private static Dictionary<string, EnumTypeInfo> BuildEnumTypeInfos(List<ObservedField> supportedFields) {
+        Dictionary<string, EnumTypeInfo> infos = new(StringComparer.Ordinal);
+
+        foreach (ObservedField field in supportedFields.Where(static f => f.Kind == FieldKind.EnumId)) {
+            if (field.FieldType is not INamedTypeSymbol enumTypeSymbol) {
+                continue;
+            }
+
+            string enumTypeKey = GetEnumTypeKey(enumTypeSymbol);
+            if (infos.ContainsKey(enumTypeKey)) {
+                continue;
+            }
+
+            List<IFieldSymbol> memberSymbols = enumTypeSymbol
+                .GetMembers()
+                .OfType<IFieldSymbol>()
+                .Where(static m => m.IsStatic && m.ConstantValue != null && m.Name != "value__")
+                .ToList();
+
+            infos[enumTypeKey] = new EnumTypeInfo(
+                enumTypeKey,
+                enumTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                memberSymbols
+            );
+        }
+
+        return infos;
     }
 
     private static string MakeUniqueIdentifier(string name, HashSet<string> usedIdentifiers) {
@@ -807,7 +869,6 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         if (field.Kind == FieldKind.EnumId) {
             return "(ushort)(" + sourceExpression + ")";
         }
-
 
         if (field.Kind == FieldKind.NamedMap && TryGetNamedMapInfo(field.FieldType, out NamedMapInfo namedMapInfo)) {
             return sourceExpression + namedMapInfo.ReadExpressionSuffix;
@@ -1147,11 +1208,27 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     }
 
     private readonly struct IdMaps {
-        public IdMaps(Dictionary<string, FieldSchema> fields) {
+        public IdMaps(Dictionary<string, FieldSchema> fields, Dictionary<string, Dictionary<string, ushort>> enums) {
             Fields = fields;
+            Enums = enums;
         }
 
         public Dictionary<string, FieldSchema> Fields { get; }
+        public Dictionary<string, Dictionary<string, ushort>> Enums { get; }
+    }
+
+    private readonly struct EnumTypeInfo {
+        public EnumTypeInfo(string key, string fullyQualifiedTypeName, List<IFieldSymbol> memberSymbols) {
+            Key = key;
+            FullyQualifiedTypeName = fullyQualifiedTypeName;
+            MemberSymbols = memberSymbols;
+            MemberNames = new HashSet<string>(memberSymbols.Select(static m => m.Name), StringComparer.Ordinal);
+        }
+
+        public string Key { get; }
+        public string FullyQualifiedTypeName { get; }
+        public List<IFieldSymbol> MemberSymbols { get; }
+        public HashSet<string> MemberNames { get; }
     }
 
     private struct ObservedField {
@@ -1165,6 +1242,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             PreviousName = string.Empty;
             CurrentName = string.Empty;
             PreviousValueGetterName = string.Empty;
+            EnumTypeKey = string.Empty;
+            EnumMapperName = string.Empty;
             ContainingFieldName = symbol.Name;
             ReadExpressionOverride = string.Empty;
         }
@@ -1180,6 +1259,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 PreviousName = string.Empty,
                 CurrentName = string.Empty,
                 PreviousValueGetterName = string.Empty,
+                EnumTypeKey = string.Empty,
+                EnumMapperName = string.Empty,
                 ContainingFieldName = containingFieldName,
                 ReadExpressionOverride = readExpressionOverride,
             };
@@ -1194,6 +1275,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         public string PreviousName;
         public string CurrentName;
         public string PreviousValueGetterName;
+        public string EnumTypeKey;
+        public string EnumMapperName;
         public string ContainingFieldName;
         public string ReadExpressionOverride;
     }

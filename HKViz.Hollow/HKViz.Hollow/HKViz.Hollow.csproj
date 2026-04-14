@@ -339,5 +339,9 @@
   <ItemGroup>
     <None Include="LocalOverrides.targets" />
   </ItemGroup>
-  <Import Project="..\..\HKViz.Shared\HKViz.Shared.projitems" Label="Shared" />
+  <ItemGroup>
+    <Compile Include="..\..\HKViz.Shared\**\*.cs">
+      <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
 </Project>

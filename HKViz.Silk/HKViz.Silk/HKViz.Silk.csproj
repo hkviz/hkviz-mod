@@ -58,7 +58,11 @@
         <AdditionalFiles Include="Recording/PlayerDataFieldIds.json"/>
     </ItemGroup>
 
-    <Import Project="..\..\HKViz.Shared\HKViz.Shared.projitems" Label="Shared" />
+    <ItemGroup>
+        <Compile Include="..\..\HKViz.Shared\**\*.cs">
+            <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </Compile>
+    </ItemGroup>
 
     <Target Name="SyncPlayerDataFieldIds" BeforeTargets="CoreCompile" DependsOnTargets="ResolveReferences">
         <PropertyGroup>
