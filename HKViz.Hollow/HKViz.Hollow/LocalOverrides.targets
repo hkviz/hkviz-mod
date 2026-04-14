@@ -1,6 +1,0 @@
-﻿<Project>
-	<PropertyGroup>
-    <!-- Copy this file to LocalOverrides.targets and change the ref bellow to point to your <HollowKnightFolder>/hollow_knight_Data/Managed -->
-		<HollowKnightRefs>/Users/oliverg/Library/Application Support/Steam/steamapps/common/Hollow Knight/hollow_knight.app/Contents/Resources/Data/Managed</HollowKnightRefs>
-	</PropertyGroup>
-</Project>
