@@ -1,0 +1,40 @@
+﻿using System;
+using UnityEngine;
+
+namespace HKViz.Shared;
+
+internal class BehaviourManager : MonoBehaviour {
+    private static BehaviourManager? _instance;
+
+    private bool callFocusNextFrame = false;
+    private bool lastFocusValue = false;
+
+    public event Action<bool>? ApplicationFocusChanged;
+
+    public static BehaviourManager Instance {
+        get {
+            if (_instance == null) {
+                var foreverEmpty = new GameObject("HkViz Behaviours");
+                UnityEngine.Object.DontDestroyOnLoad(foreverEmpty);
+                _instance = foreverEmpty.AddComponent<BehaviourManager>();
+            }
+            return _instance;
+        }
+    }
+
+    public void OnApplicationFocus(bool focused) {
+        callFocusNextFrame = true;
+        lastFocusValue = focused;
+    }
+
+    private void Update() {
+        if (callFocusNextFrame) {
+            ApplicationFocusChanged?.Invoke(lastFocusValue);
+            callFocusNextFrame = false;
+        }
+    }
+}
+
+internal static class CoroutineExtensions {
+    public static Coroutine StartGlobal(this System.Collections.IEnumerator coro) => BehaviourManager.Instance.StartCoroutine(coro);
+}

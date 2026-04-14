@@ -2,10 +2,13 @@
 using System;
 using System.Globalization;
 using System.IO;
+using HKViz.Shared;
+using HKViz.Shared.Recording;
+using HKViz.Shared.Upload;
 using UnityEngine;
 
 namespace HKViz {
-    internal class RecordingFileManager : Loggable {
+    internal class RecordingFileManager : Loggable, IRecordingManager {
         private static RecordingFileManager? _instance;
         public static RecordingFileManager Instance {
             get {
@@ -31,7 +34,7 @@ namespace HKViz {
 
         private float lastPartCreatedTime = 0;
         private float switchFileAfterSeconds = 60 * 5; // 5 minutes
-        public bool isRecording { get; private set; } = false;
+        public bool IsRecording { get; private set; } = false;
 
         private long currentFileFirstUnixSeconds = 0;
 
@@ -53,22 +56,22 @@ namespace HKViz {
         //}
 
         public void SwitchToNextPartIfNessessary() {
-            if (isRecording && (Time.unscaledTime - lastPartCreatedTime) > switchFileAfterSeconds) {
+            if (IsRecording && (Time.unscaledTime - lastPartCreatedTime) > switchFileAfterSeconds) {
                 SwitchToNextPart();
             }
         }
-        public float GetNextPartInSeconds() => Math.Max(0, switchFileAfterSeconds - GetLastPartAgoSeconds());
+        public float NextPartInSeconds => Math.Max(0, switchFileAfterSeconds - GetLastPartAgoSeconds());
         public float GetLastPartAgoSeconds() => (Time.unscaledTime - lastPartCreatedTime);
 
         // called when a save state is loaded or a new game is started
         public void StartRecorder() {
             OnReturnToMenu();
-            isRecording = true;
+            IsRecording = true;
             StartPart();
         }
 
         public void OnReturnToMenu() {
-            isRecording = false;
+            IsRecording = false;
             try {
                 if (writer != null) {
                     Log("hkviz recording stopped");
@@ -116,7 +119,7 @@ namespace HKViz {
 
             writer?.Close();
             if (GlobalSettingsManager.SettingsOfCurrentUser.autoUpload) {
-                UploadManager.Instance.QueueFile(new UploadQueueEntry {
+                HkVizSharedInstances.Instance!.uploadManager.QueueFile(new UploadQueueEntry {
                     localRunId = localRunId,
                     partNumber = partNumber,
                     profileId = GameManager.instance.profileID,
@@ -141,14 +144,14 @@ namespace HKViz {
                     lastScene = lastScene,
 
                     firstUnixSeconds = partFirstUnixMillis,
-                    lastUnixSeconds = GetUnixSeconds(),
+                    lastUnixSeconds = DateTimeUtils.GetUnixSeconds(),
                 });
             }
         }
 
         public void StartPart() {
             Log("Start part" + currentPart);
-            currentFileFirstUnixSeconds = GetUnixSeconds();
+            currentFileFirstUnixSeconds = DateTimeUtils.GetUnixSeconds();
             lastPartCreatedTime = Time.unscaledTime;
             var recordingPath = StoragePaths.GetRecordingPath(currentPart, localRunId: localRunId);
 
@@ -157,11 +160,11 @@ namespace HKViz {
             writer = new StreamWriter(recordingPath, append: true);
             previousFullTimestampTime = -9999999999;
 
-            // always write new line at beginning, bc last session might have failed finishing writing
+            // always write new line at beginning, bc last session might have failed finishing writing,
             // and we would just continue writing on the errored line.
             WriteNL();
             WriteEntry(RecordingPrefixes.RECORDING_ID, localRunId);
-            WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, Constants.RECORDER_FILE_VERSION);
+            WriteEntry(RecordingPrefixes.RECORDING_FILE_VERSION, HkVizHollowConstants.RECORDER_FILE_VERSION);
             //}
             AfterSwitchedFile?.Invoke();
         }
@@ -179,12 +182,9 @@ namespace HKViz {
             FinishPart(previousPart, previousWriter, previousPartFirstUnixMillis);
         }
 
-        public long GetUnixMillis() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        public long GetUnixSeconds() => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
 
         private void WriteTimeInfo(long? unixTimeMillis) {
-            var nowMillis = unixTimeMillis ?? GetUnixMillis();
+            var nowMillis = unixTimeMillis ?? DateTimeUtils.GetUnixMillis();
             var diff = nowMillis - previousUnixMillis;
             var unscaledTime = Time.unscaledTime;
 

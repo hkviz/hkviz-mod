@@ -340,6 +340,8 @@
     <None Include="LocalOverrides.targets" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\HKViz.Shared\**\*.cs" LinkBase="HKViz.Shared" />
+    <Compile Include="..\..\HKViz.Shared\**\*.cs">
+      <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
   </ItemGroup>
 </Project>

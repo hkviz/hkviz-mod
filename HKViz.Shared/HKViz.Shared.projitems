@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{9e8c5d3f-8a7d-4b2e-9f1a-7c2e4d5b6a9f}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Auth\AuthManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Auth\Empty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Auth\InitSessionBodyPayload.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Auth\InitSessionResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Auth\LoginState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Auth\SessionInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Auth\UserInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BehaviourManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTimeUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HKVizIMGUI.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HKVizSharedInstances.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HkVizLogger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HkVizSharedConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Recording\IRecordingManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VersionChecker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\HkVizJson.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\Vector2Converter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\Vector3Converter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\Vector4Converter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameFlavor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerApi.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Upload\CreateUploadPartUrlRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Upload\CreateUploadPartUrlResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Upload\IRecordingFileResolver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Upload\MarkUploadPartFinishedRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Upload\UploadManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Upload\UploadQueueEntry.cs" />
+  </ItemGroup>
+</Project>

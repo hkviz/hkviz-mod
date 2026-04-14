@@ -1,0 +1,10 @@
+namespace HKViz.Shared.Auth;
+
+public enum LoginState {
+    NOT_LOGGED_IN,
+    LOADING_LOGIN_URL,
+    LOADING_LOGIN_URL_FAILED,
+    WAITING_FOR_USER_LOGIN_IN_BROWSER,
+    LOADING_AUTH_STATE_FAILED,
+    LOGGED_IN,
+}

@@ -1,20 +1,42 @@
+using System;
 using BepInEx.Logging;
+using HKViz.Shared.Upload;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace HKViz.Silk.Recording;
 
-public class RunWriter(string localRunId, long nextRunPart, ManualLogSource logger) {
-    public string LocalRunId { get; } = localRunId;
+public class RunWriter {
+    public Guid LocalRunId { get; }
 
     private bool isClosed = false;
-    private readonly RunFiles runFiles = new(localRunId, nextRunPart, logger);
+    private readonly RunFiles runFiles;
+    private readonly HeroLocationWriter heroLocationWriter;
+    private readonly PlayerDataWriter playerDataWriter;
+    private readonly ManualLogSource logger;
+    
+    public RunWriter(Guid localRunId, long nextRunPart, UploadManager uploadManager, ManualLogSource logger) {
+        LocalRunId = localRunId;
+        this.logger = logger;
+        runFiles = new RunFiles(localRunId, nextRunPart, uploadManager, logger);
+        heroLocationWriter = new HeroLocationWriter(runFiles);
+        playerDataWriter = new PlayerDataWriter(runFiles);
+        runFiles.OnNewFileCreated += playerDataWriter.WriteAll;
 
-    private ManualLogSource logger = logger;
+        GameMapLevelReadyPatch.OnGameMapLevelReady += OnGameMapLevelReady;
+    }
 
     public void Close() {
         if (isClosed) return;
         isClosed = true;
         runFiles.Close();
+        runFiles.OnNewFileCreated -= playerDataWriter.WriteAll;
+        GameMapLevelReadyPatch.OnGameMapLevelReady -= OnGameMapLevelReady;
+    }
+
+    private void OnGameMapLevelReady(Vector2 size) {
+        if (isClosed) return;
+        runFiles.WriteSceneBoundary(size);
     }
 
     public void HandleSceneChange(Scene scene, LoadSceneMode mode) {
@@ -23,12 +45,19 @@ public class RunWriter(string localRunId, long nextRunPart, ManualLogSource logg
         runFiles.NextFileIfNeeded();
         runFiles.WriteSceneChange(scene, mode);
     }
+    
+    public float NextPartInSeconds => runFiles.NextPartInSeconds;
 
     public long GetNextRunPart() {
         return runFiles.CurrentRunPart + 1L;
     }
 
     public void Update() {
-        if (!GameManager.instance.IsGamePaused()) return;
+        if (isClosed) return;
+        var gm = GameManager._instance;
+        if (!gm || gm.IsGamePaused()) return;
+        runFiles.Update();
+        heroLocationWriter.Update();
+        playerDataWriter.WriteChanged();
     }
 }

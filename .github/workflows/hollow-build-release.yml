@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup MAPI
-        uses: BadMagic100/setup-hk@v2
+        uses: BadMagic100/setup-hk@v3
         with:
           apiPath: HKViz.Hollow/API
           dependencyFilePath: HKViz.Hollow/HKViz.Hollow/ModDependencies.txt

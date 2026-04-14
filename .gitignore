@@ -31,3 +31,6 @@ HKViz.Hollow/HKViz.Hollow/LocalOverrides.targets
 HKViz.Silk/HKViz.Silk/SilksongPath.props
 HKViz.Silk/HKViz.Silk/thunderstore/temp/
 HKViz.Silk/HKViz.Silk/thunderstore/dist/
+
+# tmp files for dev
+ignored-sources

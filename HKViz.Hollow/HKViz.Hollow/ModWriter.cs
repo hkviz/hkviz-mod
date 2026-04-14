@@ -76,7 +76,7 @@ namespace HKViz {
         }
 
         public void WriteModsIfChanged() {
-            if (!recording.isRecording) return;
+            if (!recording.IsRecording) return;
 
             var mods = modLoaderModInstanceProperty.GetValue(modLoaderType, null) as IEnumerable;
 

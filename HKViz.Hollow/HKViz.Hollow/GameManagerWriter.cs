@@ -14,7 +14,7 @@ namespace HKViz {
             }
         }
 
-        private GameManager gm;
+        private GameManager? gm;
         private GameState? previousGameState;
         private string? previousActiveDeviceName;
 
@@ -24,7 +24,7 @@ namespace HKViz {
         }
 
         public void WriteChangedFields(long unixMillis) {
-            if (!recoding.isRecording) return;
+            if (!recoding.IsRecording) return;
 
             gm ??= GameManager.instance;
 

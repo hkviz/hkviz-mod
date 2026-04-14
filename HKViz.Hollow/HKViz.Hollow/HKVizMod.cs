@@ -2,338 +2,312 @@ using Core.FsmUtil;
 using HKMirror.Reflection;
 using Modding;
 using System;
+using HKViz.Shared;
+using HKViz.Upload;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace HKViz
+namespace HKViz;
+
+public class HKVizMod : Mod, ILocalSettings<LocalSettings>, ICustomMenuMod, IGlobalSettings<GlobalSettings>
 {
+    private static HKVizMod? _instance;
 
-    public class HKVizMod : Mod, ILocalSettings<LocalSettings>, ICustomMenuMod, IGlobalSettings<GlobalSettings>
+    internal static HKVizMod Instance => 
+        _instance ?? throw new InvalidOperationException($"An instance of {nameof(HKVizMod)} was never constructed");
+
+    private RecordingFileManager recording = RecordingFileManager.Instance;
+    private RecordingSerializer serializer = RecordingSerializer.Instance;
+
+    public bool ToggleButtonInsideMenu { get; }
+
+    private int profileId = -1;
+
+    public override string GetVersion() => GetType().Assembly.GetName().Version.ToString();
+
+    public HKVizMod() : base("HKViz") {
+        _instance = this;
+        HkVizSharedInstances.CreateInstance(new HkVizSharedInstances(
+            new HollowLogger(this),
+            new HollowUploadPathResolver(),
+            RecordingFileManager.Instance
+        ));
+        MainMenuUI.Instance.Initialize();
+        HkVizSharedInstances.Instance!.Initialize();
+        RecordingFileManager.Instance.Initialize();
+
+        ModHooks.HeroUpdateHook += HeroUpdateHook;
+        ModHooks.SavegameLoadHook += SavegameLoadHook;
+        ModHooks.NewGameHook += NewGameHook;
+
+        ModHooks.AttackHook += ModHooks_AttackHook;
+
+        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ActiveSceneChanged;
+        On.GameMap.SetManualTilemap += GameMap_SetManualTilemap;
+        On.GameMap.GetTilemapDimensions += GameMap_GetTilemapDimensions;
+        On.GameManager.ReturnToMainMenu += GameManager_ReturnToMainMenu;
+
+        PlayerDataWriter.Instance.SetupHooks();
+        HeroControllerWriter.Instance.SetupHooks();
+        PlayerPositionWriter.Instance.Ininitialize();
+        EnemyWriter.Instance.SetupHooks();
+    }
+
+    private System.Collections.IEnumerator GameManager_ReturnToMainMenu(On.GameManager.orig_ReturnToMainMenu orig,
+        GameManager self, GameManager.ReturnToMainMenuSaveModes saveMode, System.Action<bool> callback)
     {
-        private static HKVizMod? _instance;
+        // will switch to next part --> next time uses next one.
+        RecordingFileManager.Instance.OnReturnToMenu();
 
-        internal static HKVizMod Instance
+        return orig(self, saveMode, callback);
+    }
+
+    private void ModHooks_AttackHook(GlobalEnums.AttackDirection obj)
+    {
+        // throw new NotImplementedException();
+    }
+
+    private void GameMap_GetTilemapDimensions(On.GameMap.orig_GetTilemapDimensions orig, GameMap self)
+    {
+        orig(self);
+        WriteRoomTilemap(self);
+    }
+
+    private void GameMap_SetManualTilemap(On.GameMap.orig_SetManualTilemap orig, GameMap self, float offsetX,
+        float offsetY, float width, float height)
+    {
+        orig(self, offsetX, offsetY, width, height);
+        WriteRoomTilemap(self);
+    }
+
+    private void WriteRoomTilemap(GameMap map)
+    {
+        var rmap = map.Reflect();
+        recording.WriteEntryPrefix(RecordingPrefixes.ROOM_DIMENSIONS);
+        recording.Write(serializer.serialize(new Vector2(rmap.originOffsetX, rmap.originOffsetY)));
+        recording.WriteSep();
+        recording.Write(serializer.serialize(new Vector2(rmap.sceneWidth, rmap.sceneHeight)));
+        recording.WriteNL();
+    }
+
+    private void ActiveSceneChanged(Scene oldScene, Scene newScene)
+    {
+        // only switch file here, so a scene event will always be the first thing inside a recording part.
+        recording.SwitchToNextPartIfNessessary();
+        PlayerPositionWriter.Instance.ResetFrequency();
+        EnemyWriter.Instance.ActiveSceneChanged(oldScene, newScene);
+        if (newScene.name != "Menu_Title") {
+            recording.WriteEntry(RecordingPrefixes.SCENE_CHANGE, newScene.name);
+            RecordingFileManager.Instance.lastScene = newScene.name;
+        } else {
+            HkVizSharedInstances.Instance!.uploadManager.RetryFailedUploads();
+        }
+    }
+
+    // called when a save state is loaded or a new game is started
+    private void InitializeRecorder()
+    {
+        recording.StartRecorder();
+
+        profileId = GameManager.instance.profileID;
+
+        HeroControllerWriter.Instance.InitializeRun();
+
+        // TODO instead log with playerData from start
+        // recording.WriteEntry("profile-id", profileId.ToString());
+        recording.WriteEntry(RecordingPrefixes.HZVIZ_MOD_VERSION, GetVersion());
+        ModWriter.Instance.OnRecordingInit();
+
+        // FSMs are initialized later, since otherwise the Decoration was not able to initialize
+        InitFsmIfNotAlreadyHappened();
+    }
+
+
+    private void NewGameHook()
+    {
+        InitializeRecorder();
+    }
+
+    private void SavegameLoadHook(int playerIndex)
+    {
+        InitializeRecorder();
+    }
+
+    private bool didInitFsm = false;
+
+    private void InitFsmIfNotAlreadyHappened()
+    {
+        if (didInitFsm)
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    throw new InvalidOperationException($"An instance of {nameof(HKVizMod)} was never constructed");
-                }
-
-                return _instance;
-            }
+            return;
         }
 
-        private RecordingFileManager recording = RecordingFileManager.Instance;
-        private RecordingSerializer serializer = RecordingSerializer.Instance;
+        didInitFsm = true;
+        Log("Initializing FSMs");
+        // ---- SPELLS ----
+        // fireball
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Spell Control",
+            StateName: "Fireball Antic"
+        ), a => { recording.WriteEntry(RecordingPrefixes.SPELL_FIREBALL, facingDirectionChar()); });
 
-        public bool ToggleButtonInsideMenu { get; }
+        // spell down
+        Hooks.HookStateExited(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Spell Control",
+            StateName: "Quake Antic"
+        ), a => { recording.WriteEntry(RecordingPrefixes.SPELL_DOWN); });
 
-        private int profileId = -1;
+        // spell up
+        Hooks.HookStateExited(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Spell Control",
+            StateName: "Scream Antic1"
+        ), a => { recording.WriteEntry(RecordingPrefixes.SPELL_UP); });
+        Hooks.HookStateExited(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Spell Control",
+            StateName: "Scream Antic2"
+        ), a => { recording.WriteEntry(RecordingPrefixes.SPELL_UP); });
 
-        public override string GetVersion() => GetType().Assembly.GetName().Version.ToString();
+        // ----- HEALING / FOCUSING -----
+        PlayerHealthWriter.Instance.InitFsm();
 
-        public HKVizMod() : base("HKViz")
+        // ----- NAIL ARTS -----
+        // cyclone
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Nail Arts",
+            StateName: "Cyclone Start"
+        ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_CYCLONE, facingDirectionChar()); });
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Nail Arts",
+            StateName: "Cyclone End"
+        ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_CYCLONE, "0"); });
+        // dslash
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Nail Arts",
+            StateName: "DSlash Start"
+        ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_D_SLASH, facingDirectionChar()); });
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Nail Arts",
+            StateName: "D Slash End"
+        ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_D_SLASH, "0"); });
+        // gslash
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Nail Arts",
+            StateName: "Flash 2"
+        ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_G_SLASH, facingDirectionChar()); });
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Nail Arts",
+            StateName: "G Slash End"
+        ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_G_SLASH, "0"); });
+
+        // ----- SUPER DASH ----
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Superdash",
+            StateName: "G Right"
+        ), a => { recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "r"); });
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Superdash",
+            StateName: "G Left"
+        ), a => { recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "l"); });
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Superdash",
+            StateName: "Regain Control"
+        ), a => { recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "0"); });
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Dream Nail",
+            StateName: "Slash"
+        ), a => { recording.WriteEntry(RecordingPrefixes.DREAM_NAIL_SLASH); });
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Dream Nail",
+            StateName: "Warp Effect"
+        ), a => { recording.WriteEntry(RecordingPrefixes.DREAM_NAIL_GATE_WARP); });
+        Hooks.HookStateEntered(new FSMData(
+            // GameObjectName: knight.gameObject.name,
+            FsmName: "Dream Nail",
+            StateName: "Set"
+        ), a => { recording.WriteEntry(RecordingPrefixes.DREAM_NAIL_SET_GATE); });
+    }
+
+    private string facingDirectionChar() => HeroController.instance.cState.facingRight ? "r" : "l";
+
+    private void HeroUpdateHook() {
+        var unixMillis = DateTimeUtils.GetUnixMillis();
+
+        KnightManager.Instance.UpdateKnight();
+        ModWriter.Instance.OnKnightUpdate();
+        GameManagerWriter.Instance.WriteChangedFields(unixMillis);
+        PlayerPositionWriter.Instance.WritePositionsIfNeeded(unixMillis);
+        HeroControllerWriter.Instance.WriteChangedStates(unixMillis);
+        PlayerDataWriter.Instance.WriteChangedValues(unixMillis);
+
+
+        //if (Input.GetKeyDown(KeyCode.J)) {
+        //    MapExport.Instance.Export();
+        //    PlayerDataExport.Instance.Export();
+        //    HeroControllerExport.Instance.Export();
+        //}
+    }
+
+    private LocalSettings loadedLocalSettings;
+
+    void ILocalSettings<LocalSettings>.OnLoadLocal(LocalSettings s)
+    {
+        loadedLocalSettings = s;
+
+        UserLocalSettings fromUser;
+        if (!s.perUser.TryGetValue(GameLauncherUser.Instance.GetUserId(), out fromUser))
         {
-            _instance = this;
-            BehaviourManager.Instance.Initialize();
-            MainMenuUI.Instance.Initialize();
-            UploadManager.Instance.Initialize();
-            RecordingFileManager.Instance.Initialize();
-
-            ModHooks.HeroUpdateHook += HeroUpdateHook;
-            ModHooks.SavegameLoadHook += SavegameLoadHook;
-            ModHooks.NewGameHook += NewGameHook;
-
-            ModHooks.AttackHook += ModHooks_AttackHook;
-
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ActiveSceneChanged;
-            On.GameMap.SetManualTilemap += GameMap_SetManualTilemap;
-            On.GameMap.GetTilemapDimensions += GameMap_GetTilemapDimensions;
-            On.GameManager.ReturnToMainMenu += GameManager_ReturnToMainMenu;
-
-            PlayerDataWriter.Instance.SetupHooks();
-            HeroControllerWriter.Instance.SetupHooks();
-            PlayerPositionWriter.Instance.Ininitialize();
-            EnemyWriter.Instance.SetupHooks();
+            fromUser = s.FromDeprecatedFields();
+            s.ResetDeprecatedSettings();
         }
 
-        private System.Collections.IEnumerator GameManager_ReturnToMainMenu(On.GameManager.orig_ReturnToMainMenu orig,
-            GameManager self, GameManager.ReturnToMainMenuSaveModes saveMode, System.Action<bool> callback)
+        // TODO for new game initialize with defaults from config.
+        Log("Loading local settings" + fromUser);
+        PlayerDataWriter.Instance.InitFromLocalSave(fromUser.previousPlayerData);
+        RecordingFileManager.Instance.InitFromLocalSave(fromUser);
+        GameManagerWriter.Instance.InitFromLocalSave();
+        // InitializeRecorder();
+    }
+
+    LocalSettings ILocalSettings<LocalSettings>.OnSaveLocal()
+    {
+        Log("Save local settings");
+        var fromUser = new UserLocalSettings
         {
-            // will switch to next part --> next time uses next one.
-            RecordingFileManager.Instance.OnReturnToMenu();
+            previousPlayerData = PlayerDataWriter.Instance.previousPlayerData,
+            currentPart = RecordingFileManager.Instance.currentPart,
+            localRunId = RecordingFileManager.Instance.localRunId
+        };
 
-            return orig(self, saveMode, callback);
-        }
+        loadedLocalSettings.perUser[GameLauncherUser.Instance.GetUserId()] = fromUser;
+        return loadedLocalSettings;
+    }
 
-        private void ModHooks_AttackHook(GlobalEnums.AttackDirection obj)
-        {
-            // throw new NotImplementedException();
-        }
+    public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+        => HkVizModUI.Instance.GetMenuScreen(modListMenu, toggleDelegates);
 
-        private void GameMap_GetTilemapDimensions(On.GameMap.orig_GetTilemapDimensions orig, GameMap self)
-        {
-            orig(self);
-            WriteRoomTilemap(self);
-        }
+    public void OnLoadGlobal(GlobalSettings s)
+    {
+        //Log("Steam-user" + GameLauncherUser.Instance.GetUserId());
+        GlobalSettingsManager.Instance.InitializeFromSavedSettings(s);
+        MainMenuUI.Instance.GlobalSettingsLoaded();
+    }
 
-        private void GameMap_SetManualTilemap(On.GameMap.orig_SetManualTilemap orig, GameMap self, float offsetX,
-            float offsetY, float width, float height)
-        {
-            orig(self, offsetX, offsetY, width, height);
-            WriteRoomTilemap(self);
-        }
-
-        private void WriteRoomTilemap(GameMap map)
-        {
-            var rmap = map.Reflect();
-            recording.WriteEntryPrefix(RecordingPrefixes.ROOM_DIMENSIONS);
-            recording.Write(serializer.serialize(new Vector2(rmap.originOffsetX, rmap.originOffsetY)));
-            recording.WriteSep();
-            recording.Write(serializer.serialize(new Vector2(rmap.sceneWidth, rmap.sceneHeight)));
-            recording.WriteNL();
-        }
-
-        private void ActiveSceneChanged(Scene oldScene, Scene newScene)
-        {
-            // only switch file here, so a scene event will always be the first thing inside a recording part.
-            recording.SwitchToNextPartIfNessessary();
-            PlayerPositionWriter.Instance.ResetFrequency();
-            EnemyWriter.Instance.ActiveSceneChanged(oldScene, newScene);
-            if (newScene.name != "Menu_Title")
-            {
-                recording.WriteEntry(RecordingPrefixes.SCENE_CHANGE, newScene.name);
-                RecordingFileManager.Instance.lastScene = newScene.name;
-            }
-            else
-            {
-                UploadManager.Instance.RetryFailedUploads();
-            }
-        }
-
-        // called when a save state is loaded or a new game is started
-        private void InitializeRecorder()
-        {
-            recording.StartRecorder();
-
-            profileId = GameManager.instance.profileID;
-
-            HeroControllerWriter.Instance.InitializeRun();
-
-            // TODO instead log with playerData from start
-            // recording.WriteEntry("profile-id", profileId.ToString());
-            recording.WriteEntry(RecordingPrefixes.HZVIZ_MOD_VERSION, GetVersion());
-            ModWriter.Instance.OnRecordingInit();
-
-            // FSMs are initialized later, since otherwise the Decoration was not able to initialize
-            InitFsmIfNotAlreadyHappened();
-        }
-
-
-        private void NewGameHook()
-        {
-            InitializeRecorder();
-        }
-
-        private void SavegameLoadHook(int playerIndex)
-        {
-            InitializeRecorder();
-        }
-
-        private bool didInitFsm = false;
-
-        private void InitFsmIfNotAlreadyHappened()
-        {
-            if (didInitFsm)
-            {
-                return;
-            }
-
-            didInitFsm = true;
-            Log("Initializing FSMs");
-            // ---- SPELLS ----
-            // fireball
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Spell Control",
-                StateName: "Fireball Antic"
-            ), a => { recording.WriteEntry(RecordingPrefixes.SPELL_FIREBALL, facingDirectionChar()); });
-
-            // spell down
-            Hooks.HookStateExited(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Spell Control",
-                StateName: "Quake Antic"
-            ), a => { recording.WriteEntry(RecordingPrefixes.SPELL_DOWN); });
-
-            // spell up
-            Hooks.HookStateExited(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Spell Control",
-                StateName: "Scream Antic1"
-            ), a => { recording.WriteEntry(RecordingPrefixes.SPELL_UP); });
-            Hooks.HookStateExited(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Spell Control",
-                StateName: "Scream Antic2"
-            ), a => { recording.WriteEntry(RecordingPrefixes.SPELL_UP); });
-
-            // ----- HEALING / FOCUSING -----
-            PlayerHealthWriter.Instance.InitFsm();
-
-            // ----- NAIL ARTS -----
-            // cyclone
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Nail Arts",
-                StateName: "Cyclone Start"
-            ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_CYCLONE, facingDirectionChar()); });
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Nail Arts",
-                StateName: "Cyclone End"
-            ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_CYCLONE, "0"); });
-            // dslash
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Nail Arts",
-                StateName: "DSlash Start"
-            ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_D_SLASH, facingDirectionChar()); });
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Nail Arts",
-                StateName: "D Slash End"
-            ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_D_SLASH, "0"); });
-            // gslash
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Nail Arts",
-                StateName: "Flash 2"
-            ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_G_SLASH, facingDirectionChar()); });
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Nail Arts",
-                StateName: "G Slash End"
-            ), a => { recording.WriteEntry(RecordingPrefixes.NAIL_ART_G_SLASH, "0"); });
-
-            // ----- SUPER DASH ----
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Superdash",
-                StateName: "G Right"
-            ), a => { recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "r"); });
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Superdash",
-                StateName: "G Left"
-            ), a => { recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "l"); });
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Superdash",
-                StateName: "Regain Control"
-            ), a => { recording.WriteEntry(RecordingPrefixes.SUPER_DASH, "0"); });
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Dream Nail",
-                StateName: "Slash"
-            ), a => { recording.WriteEntry(RecordingPrefixes.DREAM_NAIL_SLASH); });
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Dream Nail",
-                StateName: "Warp Effect"
-            ), a => { recording.WriteEntry(RecordingPrefixes.DREAM_NAIL_GATE_WARP); });
-            Hooks.HookStateEntered(new FSMData(
-                // GameObjectName: knight.gameObject.name,
-                FsmName: "Dream Nail",
-                StateName: "Set"
-            ), a => { recording.WriteEntry(RecordingPrefixes.DREAM_NAIL_SET_GATE); });
-        }
-
-        private string facingDirectionChar() => HeroController.instance.cState.facingRight ? "r" : "l";
-
-        private void HeroUpdateHook()
-        {
-            var unixMillis = recording.GetUnixMillis();
-
-            KnightManager.Instance.UpdateKnight();
-            ModWriter.Instance.OnKnightUpdate();
-            GameManagerWriter.Instance.WriteChangedFields(unixMillis);
-            PlayerPositionWriter.Instance.WritePositionsIfNeeded(unixMillis);
-            HeroControllerWriter.Instance.WriteChangedStates(unixMillis);
-            PlayerDataWriter.Instance.WriteChangedValues(unixMillis);
-
-
-            //if (Input.GetKeyDown(KeyCode.J)) {
-            //    MapExport.Instance.Export();
-            //    PlayerDataExport.Instance.Export();
-            //    HeroControllerExport.Instance.Export();
-            //}
-        }
-
-        public override void Initialize()
-        {
-            Log("Initializing");
-
-            // put additional initialization logic here
-            BehaviourManager.Instance.gameObject.AddComponent<HKVizIMGUI>();
-            HKVizVersionChecker.Instance.Init();
-
-            Log("Initialized");
-        }
-
-        private LocalSettings loadedLocalSettings;
-
-        void ILocalSettings<LocalSettings>.OnLoadLocal(LocalSettings s)
-        {
-            loadedLocalSettings = s;
-
-            UserLocalSettings fromUser;
-            if (!s.perUser.TryGetValue(GameLauncherUser.Instance.GetUserId(), out fromUser))
-            {
-                fromUser = s.FromDeprecatedFields();
-                s.ResetDeprecatedSettings();
-            }
-
-            // TODO for new game initialize with defaults from config.
-            Log("Loading local settings" + fromUser);
-            PlayerDataWriter.Instance.InitFromLocalSave(fromUser.previousPlayerData);
-            RecordingFileManager.Instance.InitFromLocalSave(fromUser);
-            GameManagerWriter.Instance.InitFromLocalSave();
-            // InitializeRecorder();
-        }
-
-        LocalSettings ILocalSettings<LocalSettings>.OnSaveLocal()
-        {
-            Log("Save local settings");
-            var fromUser = new UserLocalSettings
-            {
-                previousPlayerData = PlayerDataWriter.Instance.previousPlayerData,
-                currentPart = RecordingFileManager.Instance.currentPart,
-                localRunId = RecordingFileManager.Instance.localRunId
-            };
-
-            loadedLocalSettings.perUser[GameLauncherUser.Instance.GetUserId()] = fromUser;
-            return loadedLocalSettings;
-        }
-
-        public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
-            => HKVizModUI.Instance.GetMenuScreen(modListMenu, toggleDelegates);
-
-        public void OnLoadGlobal(GlobalSettings s)
-        {
-            //Log("Steam-user" + GameLauncherUser.Instance.GetUserId());
-            GlobalSettingsManager.Instance.InitializeFromSavedSettings(s);
-            HKVizAuthManager.Instance.GlobalSettingsLoaded();
-            UploadManager.Instance.GlobalSettingsLoaded();
-            MainMenuUI.Instance.GlobalSettingsLoaded();
-        }
-
-        public GlobalSettings OnSaveGlobal()
-        {
-            UploadManager.Instance.GlobalSettingsBeforeSave();
-            return GlobalSettingsManager.Instance.GetForSave();
-        }
+    public GlobalSettings OnSaveGlobal() {
+        return GlobalSettingsManager.Instance.GetForSave();
     }
 }
