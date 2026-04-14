@@ -5830,169 +5830,211 @@
   },
   "enums": {
     "GlobalEnums.BellhomePaintColours": {
-      "Blue": 1,
-      "Bronze": 2,
-      "Chrome": 3,
-      "DarkGrey": 4,
-      "None": 5,
-      "Red": 6,
-      "White": 7
+      "isFlags": false,
+      "members": {
+        "None": 0,
+        "Red": 1,
+        "White": 2,
+        "DarkGrey": 3,
+        "Bronze": 4,
+        "Blue": 5,
+        "Chrome": 6
+      }
     },
     "GlobalEnums.BelltownHouseStates": {
-      "Full": 1,
-      "Half": 2,
-      "None": 3
+      "isFlags": false,
+      "members": {
+        "None": 0,
+        "Half": 1,
+        "Full": 2
+      }
     },
     "GlobalEnums.CaravanTroupeLocations": {
-      "Aqueduct": 1,
-      "Bone": 2,
-      "CoralJudge": 3,
-      "Greymoor": 4
+      "isFlags": false,
+      "members": {
+        "Bone": 0,
+        "Greymoor": 1,
+        "CoralJudge": 2,
+        "Aqueduct": 3
+      }
     },
     "GlobalEnums.EnvironmentTypes": {
-      "Bell": 1,
-      "Bone": 2,
-      "Dust": 3,
-      "FlowerField": 4,
-      "Grass": 5,
-      "Metal": 6,
-      "Moss": 7,
-      "NoEffect": 8,
-      "PeakPuff": 9,
-      "RunningWater": 10,
-      "Sand": 11,
-      "ShallowWater": 12,
-      "Silk": 13,
-      "ThinMetal": 14,
-      "WetMetal": 15,
-      "WetWood": 16,
-      "Wood": 17
+      "isFlags": false,
+      "members": {
+        "Dust": 0,
+        "Grass": 1,
+        "Bone": 2,
+        "ShallowWater": 3,
+        "Metal": 4,
+        "NoEffect": 5,
+        "Moss": 6,
+        "Sand": 7,
+        "Bell": 8,
+        "WetMetal": 9,
+        "ThinMetal": 10,
+        "Wood": 11,
+        "Silk": 12,
+        "WetWood": 13,
+        "RunningWater": 14,
+        "PeakPuff": 15,
+        "FlowerField": 16
+      }
     },
     "GlobalEnums.ExtraRestZones": {
-      "AboveCradle": 1,
-      "Bellhome": 2,
-      "BelltownHaunted": 3,
-      "Bellvein": 4,
-      "Bonegrave": 5,
-      "BonetownBroken": 6,
-      "CitadelShrine": 7,
-      "Citadelstation": 8,
-      "CoralBellshrine": 9,
-      "CoralTower": 10,
-      "Enclave": 11,
-      "FleaFestival": 12,
-      "Fleatopia": 13,
-      "GrandGate": 14,
-      "MemoryRed": 15,
-      "None": 16,
-      "Organ": 17,
-      "PinstressHut": 18,
-      "SeamstressHut": 19,
-      "SlabCell": 20,
-      "SprintmasterCave": 21,
-      "TubeHub": 22,
-      "WhiteLake": 23
+      "isFlags": false,
+      "members": {
+        "None": 0,
+        "PinstressHut": 1,
+        "SeamstressHut": 2,
+        "Bonegrave": 3,
+        "GrandGate": 4,
+        "TubeHub": 5,
+        "Organ": 6,
+        "Fleatopia": 7,
+        "FleaFestival": 8,
+        "Bellvein": 9,
+        "SlabCell": 10,
+        "Enclave": 11,
+        "CitadelShrine": 12,
+        "CoralTower": 13,
+        "BonetownBroken": 14,
+        "CoralBellshrine": 15,
+        "Bellhome": 16,
+        "Citadelstation": 17,
+        "MemoryRed": 18,
+        "AboveCradle": 19,
+        "SprintmasterCave": 20,
+        "BelltownHaunted": 21,
+        "WhiteLake": 22
+      }
     },
     "GlobalEnums.FastTravelLocations": {
-      "Aqueduct": 1,
-      "Belltown": 2,
-      "Bone": 3,
-      "BoneforestEast": 4,
-      "Bonetown": 5,
-      "City": 6,
-      "CoralTower": 7,
-      "Docks": 8,
-      "Greymoor": 9,
-      "None": 10,
-      "Peak": 11,
-      "Shadow": 12,
-      "Shellwood": 13
+      "isFlags": false,
+      "members": {
+        "None": 0,
+        "Bonetown": 1,
+        "Docks": 2,
+        "BoneforestEast": 3,
+        "Greymoor": 4,
+        "Belltown": 5,
+        "CoralTower": 6,
+        "City": 9,
+        "Peak": 11,
+        "Shellwood": 12,
+        "Bone": 13,
+        "Shadow": 14,
+        "Aqueduct": 15
+      }
     },
     "GlobalEnums.GreenPrinceLocations": {
-      "Clover": 1,
-      "CogDancers": 2,
-      "DustCage": 3,
-      "Song04": 4
+      "isFlags": false,
+      "members": {
+        "DustCage": 0,
+        "Song04": 1,
+        "CogDancers": 2,
+        "Clover": 3
+      }
     },
     "GlobalEnums.HeroDeathCocoonTypes": {
-      "Cursed": 1,
-      "Normal": 2,
-      "Rosaries": 3
+      "isFlags": true,
+      "members": {
+        "Normal": 0,
+        "Rosaries": 1,
+        "Cursed": 2
+      }
     },
     "GlobalEnums.MapZone": {
-      "ABYSS": 1,
-      "AQUEDUCT": 2,
-      "ARBORIUM": 3,
-      "BELLTOWN": 4,
-      "BONECHURCH": 5,
-      "BONETOWN": 6,
-      "CITY_OF_SONG": 7,
-      "CLOVER": 8,
-      "COG_CORE": 9,
-      "CORAL_CAVERNS": 10,
-      "CRADLE": 11,
-      "CRAWLSPACE": 12,
-      "DOCKS": 13,
-      "DUSTPENS": 14,
-      "DUST_MAZE": 15,
-      "FRONT_GATE": 16,
-      "GLOOM": 17,
-      "GREYMOOR": 18,
-      "HALFWAY_HOUSE": 19,
-      "HANG": 20,
-      "HUNTERS_NEST": 21,
-      "JUDGE_STEPS": 22,
-      "LIBRARY": 23,
-      "MEMORY": 24,
-      "MOSSTOWN": 25,
-      "MOSS_CAVE": 26,
-      "NONE": 27,
-      "PATH_OF_BONE": 28,
-      "PEAK": 29,
-      "PHARLOOM_BAY": 30,
-      "PILGRIMS_REST": 31,
-      "RED_CORAL_GORGE": 32,
-      "SHELLWOOD_THICKET": 33,
-      "SURFACE": 34,
-      "SWAMP": 35,
-      "TEST_AREA": 36,
-      "THE_SLAB": 37,
-      "UNDERSTORE": 38,
-      "WARD": 39,
-      "WEAVER_SHRINE": 40,
-      "WILDS": 41,
-      "WISP": 42
+      "isFlags": false,
+      "members": {
+        "NONE": 0,
+        "TEST_AREA": 1,
+        "PATH_OF_BONE": 2,
+        "GREYMOOR": 3,
+        "SHELLWOOD_THICKET": 4,
+        "RED_CORAL_GORGE": 5,
+        "CITY_OF_SONG": 6,
+        "THE_SLAB": 7,
+        "GLOOM": 8,
+        "DUSTPENS": 9,
+        "BELLTOWN": 10,
+        "HUNTERS_NEST": 11,
+        "BONETOWN": 12,
+        "MOSS_CAVE": 13,
+        "PHARLOOM_BAY": 14,
+        "DOCKS": 15,
+        "WILDS": 16,
+        "WEAVER_SHRINE": 17,
+        "BONECHURCH": 18,
+        "MOSSTOWN": 19,
+        "LIBRARY": 20,
+        "CLOVER": 21,
+        "UNDERSTORE": 22,
+        "COG_CORE": 23,
+        "PEAK": 24,
+        "DUST_MAZE": 25,
+        "WARD": 26,
+        "HANG": 27,
+        "ARBORIUM": 28,
+        "CRADLE": 29,
+        "PILGRIMS_REST": 30,
+        "HALFWAY_HOUSE": 31,
+        "JUDGE_STEPS": 32,
+        "MEMORY": 33,
+        "CRAWLSPACE": 34,
+        "WISP": 35,
+        "SWAMP": 36,
+        "ABYSS": 37,
+        "AQUEDUCT": 38,
+        "SURFACE": 39,
+        "FRONT_GATE": 40,
+        "CORAL_CAVERNS": 41
+      }
     },
     "GlobalEnums.NPCEncounterState": {
-      "AuthorisedToLeave": 1,
-      "HasLeft": 2,
-      "Met": 3,
-      "None": 4,
-      "ReadyToLeave": 5
+      "isFlags": false,
+      "members": {
+        "None": 0,
+        "Met": 1,
+        "ReadyToLeave": 2,
+        "AuthorisedToLeave": 3,
+        "HasLeft": 4
+      }
     },
     "GlobalEnums.PermadeathModes": {
-      "Dead": 1,
-      "Off": 2,
-      "On": 3
+      "isFlags": false,
+      "members": {
+        "Off": 0,
+        "On": 1,
+        "Dead": 2
+      }
     },
     "GlobalEnums.SethNpcLocations": {
-      "Absent": 1,
-      "Citadel": 2,
-      "Fleatopia": 3,
-      "Greymoor": 4,
-      "Shellwood": 5
+      "isFlags": false,
+      "members": {
+        "Absent": 0,
+        "Greymoor": 1,
+        "Shellwood": 2,
+        "Citadel": 3,
+        "Fleatopia": 4
+      }
     },
     "HazardRespawnMarker.FacingDirection": {
-      "Left": 1,
-      "None": 2,
-      "Right": 3
+      "isFlags": false,
+      "members": {
+        "None": 0,
+        "Left": 1,
+        "Right": 2
+      }
     },
     "SaveSlotCompletionIcons.CompletionState": {
-      "Act2Cursed": 1,
-      "Act2Regular": 2,
-      "Act2SoulSnare": 3,
-      "Act3Ending": 4,
-      "None": 5
+      "isFlags": true,
+      "members": {
+        "None": 0,
+        "Act2Regular": 1,
+        "Act2Cursed": 2,
+        "Act2SoulSnare": 4,
+        "Act3Ending": 8
+      }
     }
   }
 }

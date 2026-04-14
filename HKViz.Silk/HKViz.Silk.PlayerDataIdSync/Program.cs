@@ -42,7 +42,7 @@ if (playerDataType == null) {
 
 IdMaps idMaps = ReadIdMap(jsonPath);
 Dictionary<string, FieldSchema> fieldMap = idMaps.Fields;
-Dictionary<string, Dictionary<string, ushort>> enumMap = idMaps.Enums;
+Dictionary<string, EnumExportInfo> enumMap = idMaps.Enums;
 
 ushort nextFieldId = fieldMap.Count == 0 ? (ushort)1 : (ushort)(fieldMap.Values.Max(static v => v.Id) + 1);
 
@@ -64,7 +64,7 @@ List<ObservedField> supportedFields = observedPlayerDataFields
     .ToList();
 
 List<string> enumValidationErrors = [];
-Dictionary<string, HashSet<string>> observedEnumMembersByType = new(StringComparer.Ordinal);
+Dictionary<string, Dictionary<string, long>> observedEnumValuesByType = new(StringComparer.Ordinal);
 
 foreach (ObservedField field in supportedFields) {
     FieldSchema expectedSchema = GetExpectedFieldSchema(field.Type, field.Name);
@@ -87,17 +87,23 @@ foreach (ObservedField field in supportedFields) {
     }
 
     string enumTypeKey = ToEnumTypeKey(enumType);
-    if (!observedEnumMembersByType.TryGetValue(enumTypeKey, out HashSet<string>? members)) {
-        members = new HashSet<string>(StringComparer.Ordinal);
-        observedEnumMembersByType[enumTypeKey] = members;
+
+    if (!observedEnumValuesByType.TryGetValue(enumTypeKey, out Dictionary<string, long>? members)) {
+        members = new Dictionary<string, long>(StringComparer.Ordinal);
+        observedEnumValuesByType[enumTypeKey] = members;
     }
 
     foreach (FieldDefinition enumField in enumType.Fields.Where(static ef => ef.IsStatic && ef.HasConstant && ef.Name != "value__")) {
-        members.Add(enumField.Name);
-        if (!TryFitsIntoByte(enumField.Constant, out string valueText)) {
-            enumValidationErrors.Add($"Enum '{enumTypeKey}' member '{enumField.Name}' has value '{valueText}', expected range 0..255.");
+        if (!TryGetEnumConstantAsInt64(enumField.Constant, out long memberValue)) {
+            enumValidationErrors.Add($"Enum '{enumTypeKey}' member '{enumField.Name}' has unsupported value '{enumField.Constant ?? "<null>"}'.");
+            continue;
         }
+
+        members[enumField.Name] = memberValue;
     }
+
+    bool isFlags = IsFlagsEnum(enumType);
+    enumMap[enumTypeKey] = new EnumExportInfo(isFlags, members);
 }
 
 if (enumValidationErrors.Count > 0) {
@@ -106,23 +112,6 @@ if (enumValidationErrors.Count > 0) {
     }
 
     return 1;
-}
-
-foreach ((string enumTypeKey, HashSet<string> observedMembers) in observedEnumMembersByType.OrderBy(static kv => kv.Key, StringComparer.Ordinal)) {
-    if (!enumMap.TryGetValue(enumTypeKey, out Dictionary<string, ushort>? memberMap)) {
-        memberMap = new Dictionary<string, ushort>(StringComparer.Ordinal);
-        enumMap[enumTypeKey] = memberMap;
-    }
-
-    ushort nextMemberId = memberMap.Count == 0 ? (ushort)1 : (ushort)(memberMap.Values.Max() + 1);
-    foreach (string memberName in observedMembers.OrderBy(static name => name, StringComparer.Ordinal)) {
-        if (memberMap.ContainsKey(memberName)) {
-            continue;
-        }
-
-        memberMap[memberName] = nextMemberId;
-        nextMemberId++;
-    }
 }
 
 List<KeyValuePair<string, FieldSchema>> orderedFields = fieldMap
@@ -145,15 +134,18 @@ foreach ((string key, FieldSchema value) in orderedFields) {
 }
 
 Dictionary<string, object> outputEnums = new(StringComparer.Ordinal);
-foreach ((string enumTypeKey, Dictionary<string, ushort> memberMap) in enumMap.OrderBy(static kv => kv.Key, StringComparer.Ordinal)) {
-    Dictionary<string, ushort> orderedMembers = new(StringComparer.Ordinal);
-    foreach ((string memberName, ushort memberId) in memberMap
+foreach ((string enumTypeKey, EnumExportInfo enumInfo) in enumMap.OrderBy(static kv => kv.Key, StringComparer.Ordinal)) {
+    Dictionary<string, long> orderedMembers = new(StringComparer.Ordinal);
+    foreach ((string memberName, long memberId) in enumInfo.Members
                  .OrderBy(static kv => kv.Value)
                  .ThenBy(static kv => kv.Key, StringComparer.Ordinal)) {
         orderedMembers[memberName] = memberId;
     }
 
-    outputEnums[enumTypeKey] = orderedMembers;
+    outputEnums[enumTypeKey] = new Dictionary<string, object>(StringComparer.Ordinal) {
+        ["isFlags"] = enumInfo.IsFlags,
+        ["members"] = orderedMembers,
+    };
 }
 
 Directory.CreateDirectory(Path.GetDirectoryName(jsonPath) ?? ".");
@@ -167,7 +159,7 @@ string json = JsonSerializer.Serialize(outputRoot, new JsonSerializerOptions {
 });
 File.WriteAllText(jsonPath, json + Environment.NewLine);
 
-int enumMemberCount = observedEnumMembersByType.Values.Sum(static members => members.Count);
+int enumMemberCount = observedEnumValuesByType.Values.Sum(static members => members.Count);
 Console.WriteLine($"Synced {supportedFields.Count} PlayerData fields and {enumMemberCount} enum members from {sourceAssembly} into {jsonPath}");
 return 0;
 
@@ -175,7 +167,7 @@ static IdMaps ReadIdMap(string path) {
     if (!File.Exists(path)) {
         return new IdMaps(
             new Dictionary<string, FieldSchema>(StringComparer.Ordinal),
-            new Dictionary<string, Dictionary<string, ushort>>(StringComparer.Ordinal)
+            new Dictionary<string, EnumExportInfo>(StringComparer.Ordinal)
         );
     }
 
@@ -191,9 +183,9 @@ static IdMaps ReadIdMap(string path) {
             Dictionary<string, FieldSchema> fields = hasFields
                 ? ReadFieldMapObject(fieldsElement)
                 : new Dictionary<string, FieldSchema>(StringComparer.Ordinal);
-            Dictionary<string, Dictionary<string, ushort>> enums = hasEnums
+            Dictionary<string, EnumExportInfo> enums = hasEnums
                 ? ReadEnumMapObject(enumsElement)
-                : new Dictionary<string, Dictionary<string, ushort>>(StringComparer.Ordinal);
+                : new Dictionary<string, EnumExportInfo>(StringComparer.Ordinal);
             return new IdMaps(fields, enums);
         }
 
@@ -207,12 +199,12 @@ static IdMaps ReadIdMap(string path) {
 
         return new IdMaps(
             legacyFields,
-            new Dictionary<string, Dictionary<string, ushort>>(StringComparer.Ordinal)
+            new Dictionary<string, EnumExportInfo>(StringComparer.Ordinal)
         );
     } catch {
         return new IdMaps(
             new Dictionary<string, FieldSchema>(StringComparer.Ordinal),
-            new Dictionary<string, Dictionary<string, ushort>>(StringComparer.Ordinal)
+            new Dictionary<string, EnumExportInfo>(StringComparer.Ordinal)
         );
     }
 }
@@ -269,8 +261,8 @@ static Dictionary<string, FieldSchema> ReadFieldMapObject(JsonElement element) {
     return map;
 }
 
-static Dictionary<string, Dictionary<string, ushort>> ReadEnumMapObject(JsonElement element) {
-    Dictionary<string, Dictionary<string, ushort>> map = new(StringComparer.Ordinal);
+static Dictionary<string, EnumExportInfo> ReadEnumMapObject(JsonElement element) {
+    Dictionary<string, EnumExportInfo> map = new(StringComparer.Ordinal);
     if (element.ValueKind != JsonValueKind.Object) {
         return map;
     }
@@ -281,17 +273,38 @@ static Dictionary<string, Dictionary<string, ushort>> ReadEnumMapObject(JsonElem
             continue;
         }
 
-        Dictionary<string, ushort> members = new(StringComparer.Ordinal);
-        foreach (JsonProperty member in enumType.Value.EnumerateObject()) {
-            if (member.Value.ValueKind == JsonValueKind.Number && member.Value.TryGetUInt16(out ushort id)) {
-                members[member.Name] = id;
+        bool isFlags = false;
+        Dictionary<string, long> members = new(StringComparer.Ordinal);
+
+        if (TryGetPropertyIgnoreCase(enumType.Value, "members", out JsonElement membersElement)
+            && membersElement.ValueKind == JsonValueKind.Object) {
+            if (TryGetPropertyIgnoreCase(enumType.Value, "isFlags", out JsonElement isFlagsElement)
+                && (isFlagsElement.ValueKind is JsonValueKind.True or JsonValueKind.False)) {
+                isFlags = isFlagsElement.GetBoolean();
+            }
+
+            foreach (JsonProperty member in membersElement.EnumerateObject()) {
+                if (member.Value.ValueKind == JsonValueKind.Number && member.Value.TryGetInt64(out long id)) {
+                    members[member.Name] = id;
+                }
+            }
+        } else {
+            // Backward-compatible: legacy enum format had members directly on the enum object.
+            foreach (JsonProperty member in enumType.Value.EnumerateObject()) {
+                if (member.Value.ValueKind == JsonValueKind.Number && member.Value.TryGetInt64(out long id)) {
+                    members[member.Name] = id;
+                }
             }
         }
 
-        map[enumType.Name] = members;
+        map[enumType.Name] = new EnumExportInfo(isFlags, members);
     }
 
     return map;
+}
+
+static bool IsFlagsEnum(TypeDefinition enumType) {
+    return enumType.CustomAttributes.Any(static attr => attr.AttributeType.FullName == "System.FlagsAttribute");
 }
 
 static bool TryGetPropertyIgnoreCase(JsonElement root, string propertyName, out JsonElement value) {
@@ -531,19 +544,36 @@ static bool IsNamedMapType(TypeReference type) {
     return PlayerDataSchemaRules.IsNamedMapTypeName(type.FullName);
 }
 
-static bool TryFitsIntoByte(object? value, out string valueText) {
-    valueText = value?.ToString() ?? "<null>";
-    return value switch {
-        byte => true,
-        sbyte v => v >= 0,
-        short v => v is >= byte.MinValue and <= byte.MaxValue,
-        ushort v => v <= byte.MaxValue,
-        int v => v is >= byte.MinValue and <= byte.MaxValue,
-        uint v => v <= byte.MaxValue,
-        long v => v is >= byte.MinValue and <= byte.MaxValue,
-        ulong v => v <= byte.MaxValue,
-        _ => false,
-    };
+static bool TryGetEnumConstantAsInt64(object? value, out long result) {
+    switch (value) {
+        case byte v:
+            result = v;
+            return true;
+        case sbyte v:
+            result = v;
+            return true;
+        case short v:
+            result = v;
+            return true;
+        case ushort v:
+            result = v;
+            return true;
+        case int v:
+            result = v;
+            return true;
+        case uint v:
+            result = (long)v;
+            return true;
+        case long v:
+            result = v;
+            return true;
+        case ulong v when v <= long.MaxValue:
+            result = (long)v;
+            return true;
+        default:
+            result = 0;
+            return false;
+    }
 }
 
 readonly struct FieldSchema {
@@ -559,13 +589,23 @@ readonly struct FieldSchema {
 }
 
 readonly struct IdMaps {
-    public IdMaps(Dictionary<string, FieldSchema> fields, Dictionary<string, Dictionary<string, ushort>> enums) {
+    public IdMaps(Dictionary<string, FieldSchema> fields, Dictionary<string, EnumExportInfo> enums) {
         Fields = fields;
         Enums = enums;
     }
 
     public Dictionary<string, FieldSchema> Fields { get; }
-    public Dictionary<string, Dictionary<string, ushort>> Enums { get; }
+    public Dictionary<string, EnumExportInfo> Enums { get; }
+}
+
+readonly struct EnumExportInfo {
+    public EnumExportInfo(bool isFlags, Dictionary<string, long> members) {
+        IsFlags = isFlags;
+        Members = members;
+    }
+
+    public bool IsFlags { get; }
+    public Dictionary<string, long> Members { get; }
 }
 
 readonly struct ObservedField {
