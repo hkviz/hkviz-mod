@@ -54,8 +54,15 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
     private void Update() {
         // TODO dont compile in release
         if (Input.GetKeyDown(KeyCode.F8)) {
-            Logger.LogInfo("Data extraction triggered");
-            _extractor.Extract();
+            if (SceneManager.GetActiveScene().name == "Menu_Title") {
+                Logger.LogInfo("Menu save state extraction triggered");
+                _extractor.ExtractMenuSaveSlots();
+            } else {
+                Logger.LogInfo("Ingame map view extraction triggered");
+                _extractor.ExtractIngameMap();
+            }
+            
+        } else if (Input.GetKeyDown(KeyCode.F8) && Input.GetKey(KeyCode.RightArrow)) {
         }
         
         CurrentRunWriter?.Update();

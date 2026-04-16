@@ -6,15 +6,23 @@ public class Extractor {
     private readonly ExtractionFiles _extractionFiles;
     private readonly MapExtraction _mapExtractor;
     private readonly LocalizationExtraction _localizationExtraction;
+    private readonly SaveSlotBackgroundsExtraction _saveSlotBackgroundsExtractor;
 
     public Extractor(ManualLogSource logger) {
         _extractionFiles = new ExtractionFiles(logger);
-        _localizationExtraction = new LocalizationExtraction(_extractionFiles);
+        _localizationExtraction = new LocalizationExtraction(_extractionFiles, logger);
         _mapExtractor = new MapExtraction(_extractionFiles, _localizationExtraction, logger);
+        _saveSlotBackgroundsExtractor = new SaveSlotBackgroundsExtraction(_extractionFiles, _localizationExtraction, logger);
     }
     
-    public void Extract() {
+
+    public void ExtractIngameMap() {
         _mapExtractor.Extract();
+        _localizationExtraction.Extract();
+    }
+
+    public void ExtractMenuSaveSlots() {
+        _saveSlotBackgroundsExtractor.Extract();
         _localizationExtraction.Extract();
     }
 }
