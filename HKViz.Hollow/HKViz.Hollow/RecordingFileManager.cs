@@ -124,27 +124,27 @@ namespace HKViz {
                     partNumber = partNumber,
                     profileId = GameManager.instance.profileID,
 
-                    hkVersion = pd("version"),
+                    // -- shared --
                     playTime = pdFloat("playTime"),
+                    firstUnixSeconds = partFirstUnixMillis,
+                    lastUnixSeconds = DateTimeUtils.GetUnixSeconds(),
+
+                    unlockedCompletionRate = pdBool("unlockedCompletionRate"),
+                    completionPercentage = pdInt("completionPercentage"),
                     maxHealth = pdInt("maxHealth"),
-                    mpReserveMax = pdInt("MPReserveMax"),
                     geo = pdInt("geo"),
-                    dreamOrbs = pdInt("dreamOrbs"),
                     permadeathMode = pdInt("permadeathMode"),
+                    lastScene = lastScene,
+
+                    // -- game specific --
+                    hkVersion = pd("version"),
                     mapZone = pd("mapZone"),
                     killedHollowKnight = pdBool("killedHollowKnight"),
                     killedFinalBoss = pdBool("killedFinalBoss"),
                     killedVoidIdol = (pdBool("killedVoidIdol_1") ?? false) || (pdBool("killedVoidIdol_2") ?? false),
-                    completionPercentage = pdInt("completionPercentage"),
-                    unlockedCompletionRate = pdBool("unlockedCompletionRate"),
-
-
-
                     dreamNailUpgraded = pdBool("dreamNailUpgraded"),
-                    lastScene = lastScene,
-
-                    firstUnixSeconds = partFirstUnixMillis,
-                    lastUnixSeconds = DateTimeUtils.GetUnixSeconds(),
+                    dreamOrbs = pdInt("dreamOrbs"),
+                    mpReserveMax = pdInt("MPReserveMax"),
                 });
             }
         }

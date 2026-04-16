@@ -5,29 +5,47 @@ namespace HKViz.Silk.Upload;
 
 [Serializable]
 public class SilkUploadQueueEntry : IUploadQueueEntry<SilkCreateUploadPartUrlRequest> {
-    public string localRunId;
+    public string localRunId = "";
     public int partNumber;
     public int profileId;
 
+    // -- shared --
     // metadata, so it can easily be displayed in the UI without parsing recording files
-    public string? hkVersion;
     public float? playTime;
-    public int? maxHealth;
-    public int? mpReserveMax;
-    public int? geo;
-    public int? dreamOrbs;
-    public int? permadeathMode;
-    public string? mapZone;
-    public bool? killedHollowKnight;
-    public bool? killedFinalBoss;
-    public bool? killedVoidIdol;
-    public int? completionPercentage;
-    public bool? unlockedCompletionRate;
-    public bool? dreamNailUpgraded;
-    public string? lastScene;
-
     public long firstUnixSeconds;
     public long lastUnixSeconds;
+
+    // bools
+    public bool? unlockedCompletionRate;
+
+    // ints
+    public int? completionPercentage;
+    public int? maxHealth;
+    public int? geo;
+    public int? permadeathMode;
+
+    // strings
+    public string? lastScene;
+
+    // -- game specific --
+    public string? gameVersion;
+    public string? mapZone;
+
+    // bools
+    public bool? endingAct2Regular;
+    public bool? endingAct2Cursed;
+    public bool? endingAct2SoulSnare;
+    public bool? endingAct3;
+    public bool? isAct3;
+
+    // ints
+    public int? shellShards;
+    public int? silkSpoolParts;
+    public int? extraRestZones;
+    public int? belltownHouseColour;
+    
+    // strings
+    public string? currentCrestId;
 
     public long finishedUploadAtUnixSeconds;
 
@@ -50,23 +68,39 @@ public class SilkUploadQueueEntry : IUploadQueueEntry<SilkCreateUploadPartUrlReq
             localRunId = localRunId,
             partNumber = partNumber,
 
-            hkVersion = hkVersion,
+            // -- shared --
             playTime = playTime,
-            maxHealth = maxHealth,
-            mpReserveMax = mpReserveMax,
-            geo = geo,
-            dreamOrbs = dreamOrbs,
-            permadeathMode = permadeathMode,
-            mapZone = mapZone,
-            killedHollowKnight = killedHollowKnight,
-            killedFinalBoss = killedFinalBoss,
-            killedVoidIdol = killedVoidIdol,
-            completionPercentage = completionPercentage,
-            unlockedCompletionRate = unlockedCompletionRate,
-            dreamNailUpgraded = dreamNailUpgraded,
-            lastScene = lastScene,
             firstUnixSeconds = firstUnixSeconds,
             lastUnixSeconds = lastUnixSeconds,
+
+            unlockedCompletionRate = unlockedCompletionRate,
+            completionPercentage = completionPercentage,
+            maxHealth = maxHealth,
+            geo = geo,
+            permadeathMode = permadeathMode,
+            lastScene = lastScene,
+            
+            // strings
+            gameVersion = gameVersion,
+
+            // -- game specific --
+            mapZone = mapZone,
+
+            // bools
+            endingAct2Regular = endingAct2Regular,
+            endingAct2Cursed = endingAct2Cursed,
+            endingAct2SoulSnare = endingAct2SoulSnare,
+            endingAct3 = endingAct3,
+            isAct3 = isAct3,
+
+            // ints
+            shellShards = shellShards,
+            silkSpoolParts = silkSpoolParts,
+            extraRestZones = extraRestZones,
+            belltownHouseColour = belltownHouseColour,
+            
+            // strings
+            currentCrestId = currentCrestId,
         };
     }
 }

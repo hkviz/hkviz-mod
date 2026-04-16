@@ -1,34 +1,41 @@
 using System;
 using HKViz.Shared.Upload;
-using HKViz.Upload;
 
 namespace HKViz.Upload;
 
 [Serializable]
 public class HollowUploadQueueEntry : IUploadQueueEntry<HollowCreateUploadPartUrlRequest> {
-    public string localRunId;
+    public string localRunId = "";
     public int partNumber;
     public int profileId;
 
+    // -- shared --
     // metadata, so it can easily be displayed in the UI without parsing recording files
-    public string? hkVersion;
     public float? playTime;
+    public long firstUnixSeconds;
+    public long lastUnixSeconds;
+
+    public string? hkVersion;
+
+    public bool? unlockedCompletionRate;
+    public int? completionPercentage;
     public int? maxHealth;
-    public int? mpReserveMax;
     public int? geo;
-    public int? dreamOrbs;
     public int? permadeathMode;
+    public string? lastScene;
+
+    // -- game specific --
     public string? mapZone;
+    
+    // bool
     public bool? killedHollowKnight;
     public bool? killedFinalBoss;
     public bool? killedVoidIdol;
-    public int? completionPercentage;
-    public bool? unlockedCompletionRate;
     public bool? dreamNailUpgraded;
-    public string? lastScene;
-
-    public long firstUnixSeconds;
-    public long lastUnixSeconds;
+    
+    // int
+    public int? dreamOrbs;
+    public int? mpReserveMax;
 
     public long finishedUploadAtUnixSeconds;
 
@@ -51,23 +58,27 @@ public class HollowUploadQueueEntry : IUploadQueueEntry<HollowCreateUploadPartUr
             localRunId = localRunId,
             partNumber = partNumber,
 
-            hkVersion = hkVersion,
+            // -- shared --
             playTime = playTime,
+            firstUnixSeconds = firstUnixSeconds,
+            lastUnixSeconds = lastUnixSeconds,
+
+            unlockedCompletionRate = unlockedCompletionRate,
+            completionPercentage = completionPercentage,
             maxHealth = maxHealth,
-            mpReserveMax = mpReserveMax,
             geo = geo,
-            dreamOrbs = dreamOrbs,
             permadeathMode = permadeathMode,
+            lastScene = lastScene,
+
+            // -- game specific --
+            hkVersion = hkVersion,
             mapZone = mapZone,
             killedHollowKnight = killedHollowKnight,
             killedFinalBoss = killedFinalBoss,
             killedVoidIdol = killedVoidIdol,
-            completionPercentage = completionPercentage,
-            unlockedCompletionRate = unlockedCompletionRate,
             dreamNailUpgraded = dreamNailUpgraded,
-            lastScene = lastScene,
-            firstUnixSeconds = firstUnixSeconds,
-            lastUnixSeconds = lastUnixSeconds,
+            dreamOrbs = dreamOrbs,
+            mpReserveMax = mpReserveMax,
         };
     }
 }

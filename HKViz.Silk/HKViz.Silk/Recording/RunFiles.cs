@@ -24,7 +24,11 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
     private bool _wroteTimeForUpdate;
     private long _lastWrittenTime;
     
+    private string previousScene;
+    
     private BinaryWriter? _writer;
+
+    public event Action<(long runPart, long partFirstUnixMillis, string previousScene)>? OnFileFinished;
 
 
     public void NextFileIfNeeded() {
@@ -38,6 +42,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
 
     public void NextFile() {
         if (_isClosed) return;
+        var oldScene = previousScene;
         var previousPartFirstUnixMillis = currentFileFirstUnixSeconds;
         var previousRunPart = CurrentRunPart;
         var oldWriter = _writer;
@@ -63,17 +68,17 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
 
         // TODO add new file to global storage of known files
         //  even before upload. so upload can happen after crash
-        FinishFile(oldWriter, previousRunPart, previousPartFirstUnixMillis);
+        FinishFile(oldWriter, previousRunPart, previousPartFirstUnixMillis, oldScene);
     }
 
     public void Close() {
         if (_isClosed) return;
         _isClosed = true;
-        FinishFile(_writer, CurrentRunPart, currentFileFirstUnixSeconds);
+        FinishFile(_writer, CurrentRunPart, currentFileFirstUnixSeconds, previousScene);
         _writer = null;
     }
 
-    private void FinishFile(BinaryWriter? writer, long partNumber, long partFirstUnixMillis) {
+    private void FinishFile(BinaryWriter? writer, long partNumber, long partFirstUnixMillis, string previousScene) {
         if (writer == null) {
             return;
         }
@@ -85,36 +90,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
             //return hasValue ? value : null;
         // }
         
-        uploadManager.QueueFile(new SilkUploadQueueEntry {
-            localRunId = LocalRunId.ToString(),
-            partNumber = (int)partNumber,
-            profileId = GameManager.instance.profileID,
-
-            hkVersion = PlayerData.instance.version,
-            playTime = PlayerData.instance.playTime,
-            maxHealth = PlayerData.instance.maxHealth,
-            mpReserveMax = PlayerData.instance.silkSpoolParts,
-            geo = PlayerData.instance.geo,
-            dreamOrbs = PlayerData.instance.ShellShards,
-            permadeathMode = PlayerData.instance.permadeathMode switch {
-                PermadeathModes.Off => 0,
-                PermadeathModes.On => 1,
-                PermadeathModes.Dead => 2,
-                _ => -1,
-            },
-            mapZone = PlayerData.instance.mapZone.ToString(),
-            killedHollowKnight = false,
-            killedFinalBoss = false,
-            killedVoidIdol = false,
-            completionPercentage = Mathf.RoundToInt(PlayerData.instance.completionPercentage),
-            unlockedCompletionRate = PlayerData.instance.ConstructedFarsight,
-
-            dreamNailUpgraded = false,
-            lastScene = "", // TODO
-
-            firstUnixSeconds = partFirstUnixMillis,
-            lastUnixSeconds = DateTimeUtils.GetUnixSeconds(),
-        });
+        OnFileFinished?.Invoke((runPart: partNumber, partFirstUnixMillis: partFirstUnixMillis, previousScene: previousScene));
     }
 
     public void WriteHeader(BinaryWriter writer) {
@@ -171,6 +147,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
             return;
         }
         var sceneName = scene.name;
+        previousScene = sceneName;
         var hasId = SilkSongScenes.Scenes.TryGetValue(sceneName.ToLowerInvariant(), out var id);
 
         WriteTimeIfChanged(writer);

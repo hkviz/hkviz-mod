@@ -70,11 +70,13 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
     }
 
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode) {
-        if (scene.name is "Menu_Title") { // or "Quit_To_Menu") {
+        if (scene.name is "Menu_Title" or "Quit_To_Menu") {
             CurrentRunWriter?.Close();
             CurrentRunWriter = null;
-            // TODO upload retry + if not just did (since 2 scenes?)
-            // UploadManager.Instance.RetryFailedUploads();
+            if (scene.name == "Menu_Title") {
+                uploadManager.RetryFailedUploads();
+            }
+
             return;
         }
 
@@ -91,6 +93,11 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
             );
         }
         set {
+            if (SceneManager.GetActiveScene().name != "Menu_Title") {
+                Logger.LogInfo("Skipping init from save, since not load from main menu. Likely unload.");
+                return;
+            }
+            //Logger.LogInfo("Initializing HKViz from run save state: " + GameManager.instance.profileID + "  " + SceneManager.GetActiveScene().name);
             CurrentRunWriter?.Close();
             Guid localRunId = value == null ? Guid.NewGuid() : Guid.Parse(value.LocalRunId);
             long nextRunPart = value?.NextRunPart ?? 0L;
