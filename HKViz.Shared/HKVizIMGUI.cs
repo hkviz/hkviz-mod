@@ -13,7 +13,7 @@ internal class HkVizIMGUI : MonoBehaviour {
     private static readonly Color MutedGreen = new Color32(109, 206, 104, 255);
 
     private readonly IRecordingManager recordingManager = HkVizSharedInstances.Instance!.recordingManager;
-    private readonly UploadManager uploadManager = HkVizSharedInstances.Instance.uploadManager;
+    private readonly IUploadManager uploadManager = HkVizSharedInstances.Instance.uploadManager;
     private readonly AuthManager authManager = HkVizSharedInstances.Instance.authManager;
     private readonly VersionChecker versionChecker = HkVizSharedInstances.Instance.versionChecker;
     private GameManager? gm;

@@ -7,12 +7,12 @@ namespace HKViz.Silk.UI;
 
 public class HkVizMenuScreen {
     private readonly AuthManager authManager;
-    private readonly UploadManager uploadManager;
+    private readonly IUploadManager uploadManager;
     
     private TextButton? loginButton;
     
 
-    public HkVizMenuScreen(AuthManager authManager, UploadManager uploadManager) {
+    public HkVizMenuScreen(AuthManager authManager, IUploadManager uploadManager) {
         this.authManager = authManager;
         this.uploadManager = uploadManager;
         authManager.StateChanged += AuthStateChanged;

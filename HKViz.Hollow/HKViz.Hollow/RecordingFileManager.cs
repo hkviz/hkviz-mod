@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using HKViz.Shared;
 using HKViz.Shared.Recording;
-using HKViz.Shared.Upload;
+using HKViz.Upload;
 using UnityEngine;
 
 namespace HKViz {
@@ -119,7 +119,7 @@ namespace HKViz {
 
             writer?.Close();
             if (GlobalSettingsManager.SettingsOfCurrentUser.autoUpload) {
-                HkVizSharedInstances.Instance!.uploadManager.QueueFile(new UploadQueueEntry {
+                ((HollowUploadManager)HkVizSharedInstances.Instance!.uploadManager).QueueFile(new HollowUploadQueueEntry {
                     localRunId = localRunId,
                     partNumber = partNumber,
                     profileId = GameManager.instance.profileID,

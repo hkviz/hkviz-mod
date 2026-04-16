@@ -17,7 +17,7 @@ namespace HKViz {
         }
 
         private AuthManager authManager = HkVizSharedInstances.Instance!.authManager;
-        private UploadManager uploadManager = HkVizSharedInstances.Instance.uploadManager;
+        private IUploadManager uploadManager = HkVizSharedInstances.Instance.uploadManager;
 
         private Menu? MenuRef;
         private MenuButton? LoginButton;

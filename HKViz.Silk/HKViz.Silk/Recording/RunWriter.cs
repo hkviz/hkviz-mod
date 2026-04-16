@@ -1,6 +1,6 @@
 using System;
 using BepInEx.Logging;
-using HKViz.Shared.Upload;
+using HKViz.Silk.Upload;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,7 +15,7 @@ public class RunWriter {
     private readonly PlayerDataWriter playerDataWriter;
     private readonly ManualLogSource logger;
     
-    public RunWriter(Guid localRunId, long nextRunPart, UploadManager uploadManager, ManualLogSource logger) {
+    public RunWriter(Guid localRunId, long nextRunPart, SilkUploadManager uploadManager, ManualLogSource logger) {
         LocalRunId = localRunId;
         this.logger = logger;
         runFiles = new RunFiles(localRunId, nextRunPart, uploadManager, logger);

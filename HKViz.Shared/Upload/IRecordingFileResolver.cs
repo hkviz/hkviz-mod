@@ -1,5 +1,5 @@
 namespace HKViz.Shared.Upload;
 
-public interface IUploadPathResolver {
-    public string GetPath(UploadQueueEntry entry);
+public interface IUploadPathResolver<in TQueueEntry> {
+    public string GetPath(TQueueEntry entry);
 }

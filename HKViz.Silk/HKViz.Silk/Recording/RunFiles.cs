@@ -3,15 +3,14 @@ using System.IO;
 using BepInEx.Logging;
 using GlobalEnums;
 using HKViz.Shared;
-using HKViz.Shared.Upload;
 using HKViz.Silk.GameData;
-using HKViz.Silk.Recording.DataHelpers;
+using HKViz.Silk.Upload;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace HKViz.Silk.Recording;
 
-public class RunFiles(Guid localRunId, long currentRunPart, UploadManager uploadManager, ManualLogSource logger) {
+public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager uploadManager, ManualLogSource logger) {
     public event Action? OnNewFileCreated;
 
     public Guid LocalRunId { get; } = localRunId;
@@ -86,7 +85,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
             //return hasValue ? value : null;
         // }
         
-        uploadManager.QueueFile(new UploadQueueEntry {
+        uploadManager.QueueFile(new SilkUploadQueueEntry {
             localRunId = LocalRunId.ToString(),
             partNumber = (int)partNumber,
             profileId = GameManager.instance.profileID,

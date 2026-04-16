@@ -1,9 +1,10 @@
 using System;
+using HKViz.Shared;
 
-namespace HKViz.Shared.Upload;
+namespace HKViz.Silk.Upload;
 
 [Serializable]
-internal class CreateUploadPartUrlRequest {
+public class SilkCreateUploadPartUrlRequest {
     public string modVersion;
     public string game = GameFlavor.GAME_ID;
 

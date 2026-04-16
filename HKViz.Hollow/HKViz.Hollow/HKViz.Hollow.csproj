@@ -343,5 +343,11 @@
     <Compile Include="..\..\HKViz.Shared\**\*.cs">
       <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
+    <Compile Update="Upload\HollowCreateUploadPartUrlRequest.cs">
+      <Link>Shared\Upload\HollowCreateUploadPartUrlRequest.cs</Link>
+    </Compile>
+    <Compile Update="Upload\HollowUploadQueueEntry.cs">
+      <Link>Shared\Upload\HollowUploadQueueEntry.cs</Link>
+    </Compile>
   </ItemGroup>
 </Project>
