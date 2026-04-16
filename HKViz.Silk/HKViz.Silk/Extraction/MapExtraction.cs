@@ -12,39 +12,22 @@ using UnityEngine;
 
 namespace HKViz.Silk.Extraction;
 
-public class MapExtraction(ManualLogSource? logger = null) {
+public class MapExtraction(ExtractionFiles extractionFiles, LocalizationExtraction localizationExtraction, ManualLogSource logger) {
     private void Log(string message) {
-        if (logger != null)
-            logger.LogInfo(message);
-        Debug.Log($"[HKViz MapExporter] {message}");
+        logger.LogInfo(message);
     }
 
     private void LogError(string message, Exception? ex = null) {
-        if (logger != null) {
-            logger.LogError(message);
-            if (ex != null)
-                logger.LogError(ex);
-        }
-
-        Debug.LogError($"[HKViz MapExporter] {message}");
+        logger.LogError(message);
         if (ex != null)
-            Debug.LogException(ex);
+            logger.LogError(ex);
     }
 
-    public MapData? Extract(string? outputPath = null) {
+    public MapData? Extract() {
         try {
             Log("Started Silksong map export.");
 
-            outputPath ??= Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "HKViz",
-                "map-export.json"
-            );
-
             // Ensure output directory exists
-            var outputDir = Path.GetDirectoryName(outputPath);
-            if (!string.IsNullOrEmpty(outputDir))
-                Directory.CreateDirectory(outputDir);
 
             var rooms = new List<MapRoomData>();
             GameObject? gameMapGo = GameObject.Find("Game_Map_Hornet(Clone)");
@@ -53,12 +36,7 @@ public class MapExtraction(ManualLogSource? logger = null) {
                 LogError("Could not find Game_Map_Hornet(Clone) in the scene!");
                 return null;
             }
-
-            var hierarchyLogPath = Path.Combine(
-                string.IsNullOrEmpty(outputDir) ? Directory.GetCurrentDirectory() : outputDir,
-                "map-hierarchy-components.txt"
-            );
-            WriteMapHierarchyLog(gameMapGo, hierarchyLogPath);
+            WriteMapHierarchyLog(gameMapGo);
 
             Log($"Found Game_Map at position {gameMapGo.transform.position}");
             var gameMapPos = gameMapGo.transform.position;
@@ -92,21 +70,9 @@ public class MapExtraction(ManualLogSource? logger = null) {
                 AreaNames = areaNames,
             };
 
-            var jsonSettings = new JsonSerializerSettings {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                NullValueHandling = NullValueHandling.Include,
-                Converters = new List<JsonConverter> {
-                    new StringEnumConverter()
-                },
-                ContractResolver = new DefaultContractResolver {
-                    NamingStrategy = new CamelCaseNamingStrategy()
-                }
-            };
-            var json = JsonConvert.SerializeObject(mapData, Formatting.Indented, jsonSettings);
 
             // Write to file
-            File.WriteAllText(outputPath, json);
-            Log($"Map export saved to: {outputPath}");
+            extractionFiles.ExportJson("map-export.json", mapData);
 
             return mapData;
         }
@@ -116,7 +82,7 @@ public class MapExtraction(ManualLogSource? logger = null) {
         }
     }
 
-    private void WriteMapHierarchyLog(GameObject mapRoot, string hierarchyLogPath) {
+    private void WriteMapHierarchyLog(GameObject mapRoot) {
         try {
             var builder = new StringBuilder();
             builder.AppendLine("HKViz Map Hierarchy Snapshot");
@@ -126,11 +92,10 @@ public class MapExtraction(ManualLogSource? logger = null) {
 
             AppendTransformTree(builder, mapRoot.transform, 0);
 
-            File.WriteAllText(hierarchyLogPath, builder.ToString());
-            Log($"Map hierarchy snapshot saved to: {hierarchyLogPath}");
+            extractionFiles.ExportText("map-hierarchy-components.txt", builder.ToString());
         }
         catch (Exception ex) {
-            LogError($"Failed to write map hierarchy snapshot to '{hierarchyLogPath}'", ex);
+            LogError($"Failed to write map hierarchy snapshot", ex);
         }
     }
 
@@ -246,10 +211,13 @@ public class MapExtraction(ManualLogSource? logger = null) {
             return null;
         }
 
+        var localizedString = setText.text;
+        
+        var key = localizationExtraction.RequestExport(localizedString.Sheet, localizedString.Key);
+
         return new TextData {
             ObjectPath = GetObjectPath(go, mapRoot),
-            ConvoName = setText.convName,
-            SheetName = setText.sheetName,
+            TextKey = key,
             Position = Vector3Data.FromVector3(go.transform.position - gameMapPos),
             FontSize = Mathf.RoundToInt(tmp.fontSize),
             FontWeight = ReadFontWeightAsInt(tmp),
@@ -316,7 +284,7 @@ public class MapExtraction(ManualLogSource? logger = null) {
                     continue;
                 }
 
-                var key = $"{textData.ObjectPath}|{textData.ConvoName}|{textData.SheetName}";
+                var key = $"{textData.ObjectPath}|{textData.TextKey}";
                 if (dedupe.Add(key))
                     result.Add(textData);
             }
@@ -421,6 +389,8 @@ public class MapExtraction(ManualLogSource? logger = null) {
         if (string.IsNullOrEmpty(roomData.MapZone) || roomData.MapZone == "Unknown") {
             roomData.MapZone = "Unknown";
         }
+        
+        // TODO export GameMapScene.BoundsSprite?
 
         // Get SpriteRenderer for bounds calculation
         var spriteRenderer = mapScene.GetComponent<SpriteRenderer>();
@@ -434,7 +404,7 @@ public class MapExtraction(ManualLogSource? logger = null) {
         if (mapScene.initialSprite != null) {
             roomData.InitialSprite = SpriteInfo.FromSprite(mapScene.initialSprite);
         }
-
+        
         // Export sprite information
         if (mapScene.fullSprite != null) {
             roomData.FullSprite = SpriteInfo.FromSprite(mapScene.fullSprite); //, mapScene.gameObject.name);

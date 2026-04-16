@@ -3,8 +3,8 @@ using System.Collections.Generic;
 namespace HKViz.Silk.GameData;
 
 public static class SilkSongScenes {
-    public static readonly Dictionary<string, short> Scenes = new() {
-        ["abandoned_town"] = 0,
+    public static readonly Dictionary<string, int> Scenes = new() {
+        ["abandoned_town"] = 590,
         ["abyss_01"] = 1,
         ["abyss_02"] = 2,
         ["abyss_02b"] = 3,

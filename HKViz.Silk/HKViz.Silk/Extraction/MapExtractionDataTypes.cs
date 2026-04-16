@@ -228,8 +228,7 @@ public class ColorConditionData {
 [Serializable]
 public class TextData {
     public string? ObjectPath { get; set; }
-    public string? ConvoName { get; set; }
-    public string? SheetName { get; set; }
+    public string? TextKey { get; set; }
     public Vector3Data? Position { get; set; }
     public int FontSize { get; set; }
     public int FontWeight { get; set; }
