@@ -24,11 +24,13 @@ if (assemblyPaths.Length == 0) {
 
 TypeDefinition? playerDataType = null;
 TypeDefinition? heroControllerStatesType = null;
+TypeDefinition? gameManagerType = null;
 string sourceAssembly = string.Empty;
 foreach (string assemblyPath in assemblyPaths) {
     using AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyPath);
     playerDataType = assembly.MainModule.Types.FirstOrDefault(t => t.Name == typeName || t.FullName == typeName);
     heroControllerStatesType ??= assembly.MainModule.Types.FirstOrDefault(t => t.Name == "HeroControllerStates" || t.FullName == "HeroControllerStates");
+    gameManagerType ??= assembly.MainModule.Types.FirstOrDefault(t => t.Name == "GameManager" || t.FullName == "GameManager");
     if (playerDataType != null) {
         sourceAssembly = assemblyPath;
         break;
@@ -57,8 +59,13 @@ List<ObservedField> observedHeroStateFields = heroControllerStatesType == null
     ? []
     : GetObservedHeroStateFields(heroControllerStatesType).ToList();
 
+List<ObservedField> observedGameManagerFields = gameManagerType == null
+    ? []
+    : GetSyntheticGameManagerFields(gameManagerType).ToList();
+
 List<ObservedField> supportedFields = observedPlayerDataFields
     .Concat(observedHeroStateFields)
+    .Concat(observedGameManagerFields)
     .Where(static f => IsSupported(f.Type, f.Name))
     .OrderBy(static f => f.Name, StringComparer.Ordinal)
     .ToList();
@@ -72,13 +79,13 @@ foreach (ObservedField field in supportedFields) {
     if (fieldMap.TryGetValue(field.Name, out FieldSchema existingField)) {
         if (string.Equals(expectedSchema.Type, "enum", StringComparison.Ordinal)) {
             string normalizedEnumType = string.IsNullOrWhiteSpace(existingField.EnumType) ? expectedSchema.EnumType : existingField.EnumType;
-            fieldMap[field.Name] = new FieldSchema(existingField.Id, "enum", normalizedEnumType);
+            fieldMap[field.Name] = new FieldSchema(existingField.Id, "enum", normalizedEnumType, existingField.IsFrequentChangeField || PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(field.Name));
         } else {
             string normalizedType = string.IsNullOrWhiteSpace(existingField.Type) ? expectedSchema.Type : existingField.Type;
-            fieldMap[field.Name] = new FieldSchema(existingField.Id, normalizedType, string.Empty);
+            fieldMap[field.Name] = new FieldSchema(existingField.Id, normalizedType, string.Empty, existingField.IsFrequentChangeField || PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(field.Name));
         }
     } else {
-        fieldMap[field.Name] = new FieldSchema(nextFieldId, expectedSchema.Type, expectedSchema.EnumType);
+        fieldMap[field.Name] = new FieldSchema(nextFieldId, expectedSchema.Type, expectedSchema.EnumType, PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(field.Name));
         nextFieldId++;
     }
 
@@ -128,6 +135,10 @@ foreach ((string key, FieldSchema value) in orderedFields) {
 
     if (!string.IsNullOrWhiteSpace(value.EnumType)) {
         outputField["enumType"] = value.EnumType;
+    }
+
+    if (value.IsFrequentChangeField) {
+        outputField["isFrequentChangeField"] = true;
     }
 
     outputFields[key] = outputField;
@@ -229,6 +240,7 @@ static Dictionary<string, FieldSchema> ReadFieldMapObject(JsonElement element) {
         bool hasId = false;
         string type = string.Empty;
         string enumType = string.Empty;
+        bool isFrequentChangeField = false;
 
         foreach (JsonProperty child in prop.Value.EnumerateObject()) {
             if (string.Equals(child.Name, "id", StringComparison.OrdinalIgnoreCase)
@@ -248,6 +260,12 @@ static Dictionary<string, FieldSchema> ReadFieldMapObject(JsonElement element) {
             if (string.Equals(child.Name, "enumType", StringComparison.OrdinalIgnoreCase)
                 && child.Value.ValueKind == JsonValueKind.String) {
                 enumType = child.Value.GetString() ?? string.Empty;
+                continue;
+            }
+
+            if (string.Equals(child.Name, "isFrequentChangeField", StringComparison.OrdinalIgnoreCase)
+                && child.Value.ValueKind is JsonValueKind.True or JsonValueKind.False) {
+                isFrequentChangeField = child.Value.GetBoolean();
             }
         }
 
@@ -255,7 +273,7 @@ static Dictionary<string, FieldSchema> ReadFieldMapObject(JsonElement element) {
             continue;
         }
 
-        map[prop.Name] = new FieldSchema(id, type, enumType);
+        map[prop.Name] = new FieldSchema(id, type, enumType, isFrequentChangeField);
     }
 
     return map;
@@ -426,6 +444,14 @@ static IEnumerable<ObservedField> GetObservedHeroStateFields(TypeDefinition hero
     }
 }
 
+static IEnumerable<ObservedField> GetSyntheticGameManagerFields(TypeDefinition gameManagerType) {
+    foreach (PropertyDefinition prop in gameManagerType.Properties.Where(static p => p.GetMethod != null).OrderBy(static p => p.Name, StringComparer.Ordinal)) {
+        if (prop.Name is "GameState") {
+            yield return new ObservedField("gameManager_" + prop.Name, prop.PropertyType);
+        }
+    }
+} 
+
 static bool IsFlattenedWrapperType(TypeReference type) {
     return PlayerDataSchemaRules.IsFlattenedWrapperTypeName(type.FullName);
 }
@@ -577,15 +603,17 @@ static bool TryGetEnumConstantAsInt64(object? value, out long result) {
 }
 
 readonly struct FieldSchema {
-    public FieldSchema(ushort id, string type, string enumType = "") {
+    public FieldSchema(ushort id, string type, string enumType = "", bool isFrequentChangeField = false) {
         Id = id;
         Type = type;
         EnumType = enumType;
+        IsFrequentChangeField = isFrequentChangeField;
     }
 
     public ushort Id { get; }
     public string Type { get; }
     public string EnumType { get; }
+    public bool IsFrequentChangeField { get; }
 }
 
 readonly struct IdMaps {
@@ -617,4 +645,3 @@ readonly struct ObservedField {
     public string Name { get; }
     public TypeReference Type { get; }
 }
-

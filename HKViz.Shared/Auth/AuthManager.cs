@@ -83,7 +83,7 @@ public class AuthManager {
             },
             onSuccess: data => {
                 AuthId = data.id;
-                _logger.LogInfo("Got session token " + AuthId);
+                _logger.LogInfo("Got session token");
                 isUserTriggeredLoginFlow = true;
                 Application.OpenURL(HkVizSharedConstants.LOGIN_URL + data.urlId);
                 State = LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER;

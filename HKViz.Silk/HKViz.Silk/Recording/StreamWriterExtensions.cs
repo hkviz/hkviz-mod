@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using HKViz.Silk.GameData;
 using UnityEngine;
 
 namespace HKViz.Silk.Recording;
@@ -13,29 +15,29 @@ public static class BinaryWriterExtensions {
         writer.Write(value);
     }
 
-    public static void WriteCollectableItemsData(this BinaryWriter writer, global::CollectableItemsData.Data value) {
+    public static void WriteCollectableItemsData(this BinaryWriter writer, CollectableItemsData.Data value) {
         writer.Write(value.Amount);
         writer.Write(value.IsSeenMask);
         writer.Write(value.AmountWhileHidden);
     }
 
-    public static void WriteCollectableRelicsData(this BinaryWriter writer, global::CollectableRelicsData.Data value) {
+    public static void WriteCollectableRelicsData(this BinaryWriter writer, CollectableRelicsData.Data value) {
         writer.Write(value.IsCollected);
         writer.Write(value.IsDeposited);
         writer.Write(value.HasSeenInRelicBoard);
     }
 
-    public static void WriteCollectableMementosData(this BinaryWriter writer, global::CollectableMementosData.Data value) {
+    public static void WriteCollectableMementosData(this BinaryWriter writer, CollectableMementosData.Data value) {
         writer.Write(value.IsDeposited);
         writer.Write(value.HasSeenInRelicBoard);
     }
 
-    public static void WriteQuestRumourData(this BinaryWriter writer, global::QuestRumourData.Data value) {
+    public static void WriteQuestRumourData(this BinaryWriter writer, QuestRumourData.Data value) {
         writer.Write(value.HasBeenSeen);
         writer.Write(value.IsAccepted);
     }
 
-    public static void WriteQuestCompletionData(this BinaryWriter writer, global::QuestCompletionData.Completion value) {
+    public static void WriteQuestCompletionData(this BinaryWriter writer, QuestCompletionData.Completion value) {
         writer.Write(value.HasBeenSeen);
         writer.Write(value.IsAccepted);
         writer.Write(value.CompletedCount);
@@ -43,18 +45,18 @@ public static class BinaryWriterExtensions {
         writer.Write(value.WasEverCompleted);
     }
 
-    public static void WriteMateriumItemsData(this BinaryWriter writer, global::MateriumItemsData.Data value) {
+    public static void WriteMateriumItemsData(this BinaryWriter writer, MateriumItemsData.Data value) {
         writer.Write(value.IsCollected);
         writer.Write(value.HasSeenInRelicBoard);
     }
 
-    public static void WriteToolItemLiquidsData(this BinaryWriter writer, global::ToolItemLiquidsData.Data value) {
+    public static void WriteToolItemLiquidsData(this BinaryWriter writer, ToolItemLiquidsData.Data value) {
         writer.Write(value.RefillsLeft);
         writer.Write(value.SeenEmptyState);
         writer.Write(value.UsedExtra);
     }
 
-    public static void WriteToolItemsData(this BinaryWriter writer, global::ToolItemsData.Data value) {
+    public static void WriteToolItemsData(this BinaryWriter writer, ToolItemsData.Data value) {
         writer.Write(value.IsUnlocked);
         writer.Write(value.IsHidden);
         writer.Write(value.HasBeenSeen);
@@ -62,12 +64,13 @@ public static class BinaryWriterExtensions {
         writer.Write(value.AmountLeft);
     }
 
-    public static void WriteToolCrestsSlotData(this BinaryWriter writer, global::ToolCrestsData.SlotData value) {
-        writer.WriteStringCompat(value.EquippedTool);
+    public static void WriteToolCrestsSlotData(this BinaryWriter writer, ToolCrestsData.SlotData value) {
+        // TODO provide ids
+        writer.WriteIdOrStringCompat(new(), value.EquippedTool);
         writer.Write(value.IsUnlocked);
     }
 
-    public static void WriteToolCrestsData(this BinaryWriter writer, global::ToolCrestsData.Data value) {
+    public static void WriteToolCrestsData(this BinaryWriter writer, ToolCrestsData.Data value) {
         writer.Write(value.IsUnlocked);
         writer.Write(value.Slots?.Count ?? 0);
         if (value.Slots != null) {
@@ -78,18 +81,18 @@ public static class BinaryWriterExtensions {
         writer.Write(value.DisplayNewIndicator);
     }
 
-    public static void WriteEnemyJournalKillData(this BinaryWriter writer, global::EnemyJournalKillData.KillData value) {
+    public static void WriteEnemyJournalKillData(this BinaryWriter writer, EnemyJournalKillData.KillData value) {
         writer.Write(value.Kills);
         writer.Write(value.HasBeenSeen);
     }
 
-    public static void WriteStoryEventInfoData(this BinaryWriter writer, global::PlayerStory.EventInfo value) {
+    public static void WriteStoryEventInfoData(this BinaryWriter writer, PlayerStory.EventInfo value) {
         writer.Write((int)value.EventType);
-        writer.WriteStringCompat(value.SceneName);
+        writer.WriteIdOrStringCompat(SilkSongScenes.SCENES, value.SceneName);
         writer.Write(value.PlayTime);
     }
 
-    public static void WriteWrappedVector2List(this BinaryWriter writer, global::WrappedVector2List? value) {
+    public static void WriteWrappedVector2List(this BinaryWriter writer, WrappedVector2List? value) {
         var items = value?.List;
         int count = items?.Count ?? 0;
         writer.Write(count);
@@ -119,10 +122,42 @@ public static class BinaryWriterExtensions {
         writer.Write(bytes);
     }
 
-    public static void WriteStringArray(this BinaryWriter writer, string[] values) {
+    /// <summary>
+    /// Write a string, where the value is usually known to be a certain value of a set,
+    /// but could also not be.
+    /// 
+    /// If the value is known / is part of valueToId, only the id is written, unless the id is zero.
+    /// Make sure the id can never be zero, or get less storage efficiency.
+    /// (ushort)id
+    ///
+    /// If the value is not known, the written data is
+    /// (ushort)0
+    /// (int)length of value
+    /// (value as utf8 bytes)
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="valueToId"></param>
+    /// <param name="value"></param>
+    public static void WriteIdOrStringCompat(this BinaryWriter writer, Dictionary<string, ushort> valueToId, string value) {
+        bool hasId = valueToId.TryGetValue(value, out ushort id);
+        if (hasId && id != 0) {
+            // check for zero for safety. Should never be null if the valueToId maps are created 
+            // correctly. If they are not, it will write the string for id zero, bc otherwise file would be corrupted.
+            writer.Write(id);
+        } else {
+            writer.Write((ushort)0);
+            writer.WriteStringCompat(value);
+        }
+    }
+
+    public static void WriteIdOrStringArray(
+        this BinaryWriter writer,
+        Dictionary<string, ushort> valueToId,
+        string[] values
+    ) {
         writer.Write(values.Length);
         for (int i = 0; i < values.Length; i++) {
-            writer.WriteStringCompat(values[i]);
+            writer.WriteIdOrStringCompat(valueToId, values[i]);
         }
     }
 

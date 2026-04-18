@@ -672,11 +672,13 @@
     },
     "FisherWalkerIdleTimeLeft": {
       "id": 166,
-      "type": "float"
+      "type": "float",
+      "isFrequentChangeField": true
     },
     "FisherWalkerTimer": {
       "id": 167,
-      "type": "float"
+      "type": "float",
+      "isFrequentChangeField": true
     },
     "FixedDustBellBench": {
       "id": 168,
@@ -5826,6 +5828,11 @@
     "StoryEvents": {
       "id": 1452,
       "type": "list\u003Cplayerstory.eventinfo\u003E"
+    },
+    "gameManager_GameState": {
+      "id": 1453,
+      "type": "enum",
+      "enumType": "GlobalEnums.GameState"
     }
   },
   "enums": {
@@ -5924,6 +5931,20 @@
         "Bone": 13,
         "Shadow": 14,
         "Aqueduct": 15
+      }
+    },
+    "GlobalEnums.GameState": {
+      "isFlags": false,
+      "members": {
+        "INACTIVE": 0,
+        "MAIN_MENU": 1,
+        "LOADING": 2,
+        "ENTERING_LEVEL": 3,
+        "PLAYING": 4,
+        "PAUSED": 5,
+        "EXITING_LEVEL": 6,
+        "CUTSCENE": 7,
+        "PRIMER": 8
       }
     },
     "GlobalEnums.GreenPrinceLocations": {

@@ -8,7 +8,7 @@ namespace HKViz.Silk.Recording;
 
 public partial class PlayerDataWriter(RunFiles runFiles) {
     public partial void WriteAll();
-    public partial void WriteChanged();
+    public partial void WriteChanged(bool writeFrequentChangeFields);
 
     public void WriteBoolIfChanged(ushort fieldId, bool oldValue, bool newValue) {
         if (oldValue != newValue) {
@@ -170,11 +170,21 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         }
     }
 
-    public void WriteStringListIfChanged(ushort fieldId, ref List<string>? oldValue, List<string>? newValue) {
-        CompareStringCollections(fieldId, ref oldValue, newValue);
+    public void WriteStringListIfChanged(
+        ushort fieldId,
+        Dictionary<string, ushort> valueToId,
+        ref List<string>? oldValue,
+        List<string>? newValue
+    ) {
+        CompareStringCollections(fieldId, valueToId, ref oldValue, newValue);
     }
 
-    public void WriteStringSetIfChanged(ushort fieldId, ref HashSet<string>? oldValue, HashSet<string>? newValue) {
+    public void WriteStringSetIfChanged(
+        ushort fieldId, 
+        Dictionary<string, ushort> valueToId,
+        ref HashSet<string>? oldValue,
+        HashSet<string>? newValue
+    ) {
         HashSet<string> oldSet = oldValue ?? [];
         HashSet<string> newSet = newValue ?? [];
 
@@ -201,9 +211,9 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         int fullPayloadEstimate = sizeof(byte) + sizeof(int) + newSet.Count * 32;
 
         if (deltaPayloadEstimate < fullPayloadEstimate && (added.Count > 0 || removed.Count > 0)) {
-            runFiles.WritePlayerDataStringSetDeltaChange(fieldId, added, removed);
+            runFiles.WritePlayerDataStringSetDeltaChange(fieldId, valueToId, added, removed);
         } else {
-            runFiles.WritePlayerDataStringSetFullChange(fieldId, newSet);
+            runFiles.WritePlayerDataStringSetFullChange(fieldId, valueToId, newSet);
         }
 
         UpdateStringSetSnapshot(ref oldValue, newSet);
@@ -529,7 +539,12 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         }
     }
 
-    private void CompareStringCollections(ushort fieldId, ref List<string>? oldValue, List<string>? newValue) {
+    private void CompareStringCollections(
+        ushort fieldId,
+        Dictionary<string, ushort> valueToId,
+        ref List<string>? oldValue,
+        List<string>? newValue
+    ) {
         List<string> oldList = oldValue ?? [];
         List<string> newList = newValue ?? [];
 
@@ -571,9 +586,9 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
                 writeIndex++;
             }
 
-            runFiles.WritePlayerDataStringCollectionDeltaChange(fieldId, newCount, changedIndices, changedValues);
+            runFiles.WritePlayerDataStringCollectionDeltaChange(fieldId, valueToId, newCount, changedIndices, changedValues);
         } else {
-            runFiles.WritePlayerDataStringCollectionFullChange(fieldId, newList.ToArray());
+            runFiles.WritePlayerDataStringCollectionFullChange(fieldId, valueToId, newList.ToArray());
         }
 
         UpdateStringListSnapshot(ref oldValue, newList);

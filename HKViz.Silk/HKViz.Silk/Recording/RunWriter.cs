@@ -27,12 +27,18 @@ public class RunWriter {
         runFiles = new RunFiles(localRunId, nextRunPart, uploadManager, logger);
         heroLocationWriter = new HeroLocationWriter(runFiles);
         playerDataWriter = new PlayerDataWriter(runFiles);
-        runFiles.OnNewFileCreated += playerDataWriter.WriteAll;
+        runFiles.OnNewFileCreated += OnNewFileCreated;
         runFiles.OnFileFinished += OnFileFinished;
         
         profileId = GameManager.instance.profileID;
 
         GameMapLevelReadyPatch.OnGameMapLevelReady += OnGameMapLevelReady;
+    }
+
+    private void OnNewFileCreated(bool isFirstFile) {
+        if (isFirstFile) {
+            playerDataWriter.WriteAll();
+        }
     }
 
     private void OnFileFinished((long runPart, long partFirstUnixMillis, string previousScene) file) {
@@ -82,7 +88,7 @@ public class RunWriter {
         if (isClosed) return;
         isClosed = true;
         runFiles.Close();
-        runFiles.OnNewFileCreated -= playerDataWriter.WriteAll;
+        runFiles.OnNewFileCreated -= OnNewFileCreated;
         GameMapLevelReadyPatch.OnGameMapLevelReady -= OnGameMapLevelReady;
     }
 
@@ -109,7 +115,7 @@ public class RunWriter {
         var gm = GameManager._instance;
         if (!gm || gm.IsGamePaused()) return;
         runFiles.Update();
-        heroLocationWriter.Update();
-        playerDataWriter.WriteChanged();
+        bool writeFrequentChangeFields = heroLocationWriter.Update();
+        playerDataWriter.WriteChanged(writeFrequentChangeFields);
     }
 }
