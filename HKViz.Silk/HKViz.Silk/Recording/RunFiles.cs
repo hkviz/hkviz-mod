@@ -600,7 +600,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
         writer.Write(fieldId);
         writer.WriteIdOrStringCompat(valueToId, value);
     }
-
+ 
     public void WritePlayerDataGuidChange(ushort fieldId, Guid value) {
         var writer = _writer;
         if (writer == null) {

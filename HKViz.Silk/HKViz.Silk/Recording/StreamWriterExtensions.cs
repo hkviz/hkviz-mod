@@ -138,13 +138,25 @@ public static class BinaryWriterExtensions {
     /// <param name="writer"></param>
     /// <param name="valueToId"></param>
     /// <param name="value"></param>
-    public static void WriteIdOrStringCompat(this BinaryWriter writer, Dictionary<string, ushort> valueToId, string value) {
+    public static void WriteIdOrStringCompat(this BinaryWriter writer, Dictionary<string, ushort> valueToId, string? value) {
+        if (value == null) {
+            // (case 0) null
+            writer.Write(ushort.MaxValue);
+            return;
+        }
+        if (value.Length == 0) {
+            // (case 1) empty string
+            writer.Write((ushort)(ushort.MaxValue - 1));
+            return;
+        }
         bool hasId = valueToId.TryGetValue(value, out ushort id);
         if (hasId && id != 0) {
-            // check for zero for safety. Should never be null if the valueToId maps are created 
+            // (case 2) has id
+            // check for zero for safety. Should never be zero if the valueToId maps are created 
             // correctly. If they are not, it will write the string for id zero, bc otherwise file would be corrupted.
             writer.Write(id);
         } else {
+            // (case 3) no id
             writer.Write((ushort)0);
             writer.WriteStringCompat(value);
         }

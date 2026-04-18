@@ -153,63 +153,7 @@ public class PlayerDataTestData {
     public List<PlayerDataTestGroupData>? TestGroups { get; set; }
 
     public static PlayerDataTestData? FromPlayerDataTest(PlayerDataTest? test) {
-        if (test?.TestGroups == null || test.TestGroups.Length == 0)
-            return null;
-        
-        
-        var data = new PlayerDataTestData {
-            TestGroups = [],
-        };
-
-        foreach (var group in test.TestGroups) {
-            var groupData = new PlayerDataTestGroupData {
-                Tests = [],
-            };
-
-            if (group.Tests != null) {
-                foreach (var testEntry in group.Tests) {
-                    var entryData = new PlayerDataTestEntryData {
-                        Type = (SilkPlayerDataTestType)testEntry.Type,
-                        FieldName = testEntry.FieldName,
-                    };
-
-                    // Only populate relevant fields based on type
-                    switch (testEntry.Type) {
-                        case PlayerDataTest.TestType.Bool:
-                            entryData.BoolValue = testEntry.BoolValue;
-                            break;
-
-                        case PlayerDataTest.TestType.Int:
-                            entryData.NumType = (SilkNumTestType?)testEntry.NumType;
-                            entryData.IntValue = testEntry.IntValue;
-                            break;
-
-                        case PlayerDataTest.TestType.Float:
-                            entryData.NumType = (SilkNumTestType?)testEntry.NumType;
-                            entryData.FloatValue = testEntry.FloatValue;
-                            break;
-
-                        case PlayerDataTest.TestType.String:
-                            entryData.StringType = (SilkStringTestType?)testEntry.StringType;
-                            entryData.StringValue = testEntry.StringValue;
-                            break;
-
-                        case PlayerDataTest.TestType.Enum:
-                            entryData.IntValue = testEntry.IntValue;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException($"Unsupported PlayerDataTest type: {testEntry.Type}");
-                    }
-
-                    groupData.Tests.Add(entryData);
-                }
-            }
-
-            if (groupData.Tests.Count > 0)
-                data.TestGroups.Add(groupData);
-        }
-
-        return data.TestGroups?.Count > 0 ? data : null;
+        return test.ToExportData();
     }
 }
 
