@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace HKViz.Silk.GameData;
 
-public static class SilkSongCrests {
-    public static readonly Dictionary<string, ushort> CRESTS = new(StringComparer.OrdinalIgnoreCase) {
+public static class SilkSongToolCrestIds {
+    public static readonly Dictionary<string, ushort> VALUE_TO_ID = new(StringComparer.OrdinalIgnoreCase) {
         ["Hunter"] = 1,
         ["Hunter_v2"] = 2,
         ["Hunter_v3"] = 3,

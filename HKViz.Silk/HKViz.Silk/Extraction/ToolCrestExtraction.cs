@@ -22,7 +22,7 @@ public class ToolCrestExtraction(ExtractionFiles extractionFiles, LocalizationEx
 
             var crests = ToolItemManager.GetAllCrests();
             var data = new ToolCrestExportData {
-                Crests = [],
+                All = [],
             };
 
             foreach (var crest in crests) {
@@ -36,16 +36,15 @@ public class ToolCrestExtraction(ExtractionFiles extractionFiles, LocalizationEx
                 }
 
                 var crestData = new ToolCrestData {
-                    Name = crest.name,
-                    Id = crestId,
+                    Id = crestId, // same as crest.name
                     DisplayName = displayName,
                     CrestSprite = crest.CrestSprite ? SpriteInfo.FromSprite(crest.CrestSprite) : null,
                 };
-                data.Crests.Add(crestData);
+                data.All.Add(crestData);
             }
 
             extractionFiles.ExportJson("tool-crest-export.json", data);
-            Log($"Finished tool crest extraction. Exported {data.Crests.Count} crest entries.");
+            Log($"Finished tool crest extraction. Exported {data.All.Count} crest entries.");
 
             return data;
         }

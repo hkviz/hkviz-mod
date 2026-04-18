@@ -5,7 +5,6 @@ namespace HKViz.Silk.Extraction;
 
 [Serializable]
 public class ToolItemData {
-    public string? Name { get; set; }
     public string? Id { get; set; }
     public string? DisplayName { get; set; }
     public string? Type { get; set; }
@@ -15,6 +14,6 @@ public class ToolItemData {
 
 [Serializable]
 public class ToolItemExportData {
-    public List<ToolItemData>? Tools { get; set; }
+    public List<ToolItemData>? All { get; set; }
 }
 

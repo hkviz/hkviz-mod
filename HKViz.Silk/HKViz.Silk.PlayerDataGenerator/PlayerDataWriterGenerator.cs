@@ -52,7 +52,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     );
 
     private static readonly string SceneIds = "SilkSongScenes.SCENES";
-    private static readonly string CrestIds = "SilkSongCrests.CRESTS";
+    private static readonly string CrestIds = "SilkSongToolCrestIds.VALUE_TO_ID";
     private static readonly string NoIds = "EmptyCollections.EMPTY_STRING_ID_LOOKUP";
 
     private static readonly Dictionary<string, string> fieldToStringIdDict = new(StringComparer.Ordinal) {

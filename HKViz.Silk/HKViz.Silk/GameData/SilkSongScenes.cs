@@ -904,5 +904,18 @@ public static class SilkSongScenes {
         ["Wisp_07"] = 895,
         ["Wisp_08"] = 896,
         ["Wisp_09"] = 897,
+        ["Abyss_12_top"] = 898,
+        ["Ant_02b"] = 899,
+        ["Bone_East_15_right"] = 900,
+        ["Coral_29_joiner"] = 901,
+        ["Coral_29_left"] = 902,
+        ["Coral_29_right"] = 903,
+        ["Coral_35_break_base"] = 904,
+        ["Coral_35_break_base_bottom"] = 905,
+        ["Dock_02_bot"] = 906,
+        ["Greymoor_02b"] = 907,
+        ["Slab_07_ascent"] = 908,
+        ["Slab_07_top_left"] = 909,
+        ["Song_05_right"] = 910,
     };
 }

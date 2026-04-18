@@ -21,7 +21,7 @@ public class ToolItemExtraction(ExtractionFiles extractionFiles, LocalizationExt
 
             var tools = ToolItemManager.GetAllTools();
             ToolItemExportData data = new() {
-                Tools = [],
+                All = [],
             };
 
             foreach (ToolItem tool in tools) {
@@ -38,19 +38,18 @@ public class ToolItemExtraction(ExtractionFiles extractionFiles, LocalizationExt
                 var toolSprite = tool.GetInventorySprite(ToolItem.IconVariants.Default);
 
                 ToolItemData toolData = new() {
-                    Name = tool.name,
-                    Id = toolId,
+                    Id = toolId, // same as tool.name
                     DisplayName = displayName,
                     Type = tool.Type.ToString(),
                     ToolSprite = toolSprite ? SpriteInfo.FromSprite(toolSprite) : null,
                     AlternateUnlockedTest = tool.GetAlternateUnlockedTest().ToExportData(),
                 };
 
-                data.Tools.Add(toolData);
+                data.All.Add(toolData);
             }
 
             extractionFiles.ExportJson("tool-item-export.json", data);
-            Log($"Finished tool item extraction. Exported {data.Tools.Count} tool entries.");
+            Log($"Finished tool item extraction. Exported {data.All.Count} tool entries.");
 
             return data;
         }

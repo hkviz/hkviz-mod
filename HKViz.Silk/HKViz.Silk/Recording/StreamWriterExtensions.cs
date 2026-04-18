@@ -65,8 +65,7 @@ public static class BinaryWriterExtensions {
     }
 
     public static void WriteToolCrestsSlotData(this BinaryWriter writer, ToolCrestsData.SlotData value) {
-        // TODO provide ids
-        writer.WriteIdOrStringCompat(new(), value.EquippedTool);
+        writer.WriteIdOrStringCompat(SilkSongToolItemIds.VALUE_TO_ID, value.EquippedTool);
         writer.Write(value.IsUnlocked);
     }
 
