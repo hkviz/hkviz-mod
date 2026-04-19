@@ -54,6 +54,13 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     private static readonly string SceneIds = "SilkSongScenes.SCENES";
     private static readonly string CrestIds = "SilkSongToolCrestIds.VALUE_TO_ID";
     private static readonly string ToolIds = "SilkSongToolItemIds.VALUE_TO_ID";
+    private static readonly string EnemyIds = "SilkSongEnemyJournalIds.VALUE_TO_ID";
+    private static readonly string CollectableIds = "SilkSongCollectableIds.VALUE_TO_ID";
+    private static readonly string RelicIds = "SilkSongCollectableRelicIds.VALUE_TO_ID";
+    private static readonly string QuestIds = "SilkSongQuestIds.VALUE_TO_ID";
+    private static readonly string MateriumIds = "SilkSongMateriumIds.VALUE_TO_ID";
+    private static readonly string TransitionGateIds = "SilkSongTransitionGateIds.VALUE_TO_ID";
+    private static readonly string RespawnPointIds = "SilkSongRespawnPointIds.VALUE_TO_ID";
     private static readonly string NoIds = "EmptyCollections.EMPTY_STRING_ID_LOOKUP";
 
     private static readonly Dictionary<string, string> fieldToStringIdDict = new(StringComparer.Ordinal) {
@@ -61,6 +68,37 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         ["scenesEncounteredCocoon"] = SceneIds,
         ["scenesMapped"] = SceneIds,
         ["scenesVisited"] = SceneIds,
+        ["respawnScene"] = SceneIds,
+        ["tempRespawnScene"] = SceneIds,
+        ["SteelQuestSpots"] = SceneIds,
+        ["HeroCorpseScene"] = SceneIds,
+        ["nonLethalRespawnScene"] = SceneIds,
+        ["MazeEntranceInitialScene"] = SceneIds,
+        ["MazeEntranceScene"] = SceneIds,
+        ["CaravanSpiderTargetScene"] = SceneIds,
+        ["CrowSummonsAppearedScene"] = SceneIds,
+        ["PreviousMazeScene"] = SceneIds,
+        ["dreamReturnScene"] = SceneIds,
+        ["nextScene"] = SceneIds,
+
+        ["BelltownHousePlayingInfo_RelicName"] = RelicIds,
+        ["LibrarianPlayingInfo_RelicName"] = RelicIds,
+        ["Relics"] = RelicIds,
+        ["Collectables"] = CollectableIds,
+        ["QuestCompletionData"] = QuestIds,
+        ["MateriumCollected"] = MateriumIds,
+        ["MementosDeposited"] = CollectableIds,
+        
+        ["MazeEntranceDoor"] = TransitionGateIds,
+        ["PreviousMazeDoor"] = TransitionGateIds,
+        ["MazeEntranceInitialDoor"] = TransitionGateIds,
+        ["bossReturnEntryGate"] = TransitionGateIds,
+        
+        ["respawnMarkerName"] = RespawnPointIds,
+        ["nonLethalRespawnMarker"] = RespawnPointIds,
+        ["tempRespawnMarker"] = RespawnPointIds,
+        
+        ["EnemyJournalKillData"] = EnemyIds,
 
         ["CurrentCrestID"] = CrestIds,
         ["PreviousCrestID"] = CrestIds,

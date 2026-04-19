@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using BepInEx.Logging;
-using UnityEngine;
 
 namespace HKViz.Silk.Extraction;
 
@@ -38,7 +36,7 @@ public class ToolCrestExtraction(ExtractionFiles extractionFiles, LocalizationEx
                 var crestData = new ToolCrestData {
                     Id = crestId, // same as crest.name
                     DisplayName = displayName,
-                    CrestSprite = crest.CrestSprite ? SpriteInfo.FromSprite(crest.CrestSprite) : null,
+                    CrestSprite = crest.CrestSprite.ToSpriteInfoSafe(logger, $"ToolCrest:{crestId}:CrestSprite"),
                 };
                 data.All.Add(crestData);
             }

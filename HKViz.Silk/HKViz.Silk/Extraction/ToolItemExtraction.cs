@@ -41,7 +41,7 @@ public class ToolItemExtraction(ExtractionFiles extractionFiles, LocalizationExt
                     Id = toolId, // same as tool.name
                     DisplayName = displayName,
                     Type = tool.Type.ToString(),
-                    ToolSprite = toolSprite ? SpriteInfo.FromSprite(toolSprite) : null,
+                    ToolSprite = toolSprite.ToSpriteInfoSafe(logger, $"ToolItem:{toolId}:ToolSprite"),
                     AlternateUnlockedTest = tool.GetAlternateUnlockedTest().ToExportData(),
                 };
 

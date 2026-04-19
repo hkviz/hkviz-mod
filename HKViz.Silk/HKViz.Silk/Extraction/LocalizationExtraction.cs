@@ -6,7 +6,6 @@ using BepInEx.Logging;
 using GlobalEnums;
 using TeamCherry.Localization;
 using Newtonsoft.Json;
-using UnityEngine;
 
 namespace HKViz.Silk.Extraction;
 

@@ -90,8 +90,8 @@ public class SaveSlotBackgroundsExtraction(ExtractionFiles extractionFiles, Loca
                 var bgData = new AreaBackgroundData {
                     NameOverride = nameOverrideKey,
                     Act3OverlayOptOut = bg.Act3OverlayOptOut,
-                    BackgroundImage = bg.BackgroundImage != null ? SpriteInfo.FromSprite(bg.BackgroundImage) : null,
-                    Act3BackgroundImage = bg.Act3BackgroundImage != null ? SpriteInfo.FromSprite(bg.Act3BackgroundImage) : null
+                    BackgroundImage = bg.BackgroundImage.ToSpriteInfoSafe(logger, $"SaveSlotBackgrounds:{fieldName}:{enumName}:BackgroundImage"),
+                    Act3BackgroundImage = bg.Act3BackgroundImage.ToSpriteInfoSafe(logger, $"SaveSlotBackgrounds:{fieldName}:{enumName}:Act3BackgroundImage")
                 };
                 
                 result[enumName] = bgData;
@@ -128,7 +128,10 @@ public class SaveSlotBackgroundsExtraction(ExtractionFiles extractionFiles, Loca
                     continue;
 
                 var colourName = colours[i].ToString();
-                result[colourName] = SpriteInfo.FromSprite(sprite);
+                var spriteInfo = sprite.ToSpriteInfoSafe(logger, $"SaveSlotBackgrounds:Bellhome:{colourName}");
+                if (spriteInfo != null) {
+                    result[colourName] = spriteInfo;
+                }
             }
         } catch (Exception ex) {
             LogError($"Error extracting bellhome backgrounds: {ex.Message}", ex);

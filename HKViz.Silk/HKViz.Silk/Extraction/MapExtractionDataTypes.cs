@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Sprites;
 
 namespace HKViz.Silk.Extraction;
 
@@ -98,22 +97,7 @@ public class SpriteInfo {
     public Vector4Data? Padding { get; set; }
 
     public static SpriteInfo FromSprite(Sprite sprite) {
-        // name alone is not unique, so some data is added to make it hopefully unique
-        // this could break with future SilkSong updates. 
-        // We can only use data available in the Unity runtime + in the python extraction scripts
-        int verticesCount = sprite.vertices.Length;
-        int width = Mathf.RoundToInt(sprite.rect.width);
-        int height = Mathf.RoundToInt(sprite.rect.height);
-        int physicsShapeCount = sprite.GetPhysicsShapeCount();
-        var uniqueName = $"{sprite.name}_{verticesCount}_{width}x{height}_{physicsShapeCount}";
-
-        return new SpriteInfo {
-            Name = uniqueName,
-            NameShort = sprite.name,
-            Size = new Vector2Data(sprite.rect.width, sprite.rect.height),
-            Padding = Vector4Data.FromVector4(
-                DataUtility.GetPadding(sprite)), // Vector4Data.FromVector4(sprite.border),
-        };
+        return sprite.ToSpriteInfo();
     }
 }
 
