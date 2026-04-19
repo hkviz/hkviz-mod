@@ -33,6 +33,10 @@ public class RunWriter {
         profileId = GameManager.instance.profileID;
 
         GameMapLevelReadyPatch.OnGameMapLevelReady += OnGameMapLevelReady;
+        
+        // initializing writer indirect by faking a change to the current scene
+        // bit odd, but we get the benefit that each file begins with a scene.
+        HandleSceneChange(SceneManager.GetActiveScene(), LoadSceneMode.Single);
     }
 
     private void OnNewFileCreated(bool isFirstFile) {

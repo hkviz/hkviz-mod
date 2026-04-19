@@ -19,7 +19,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
 
     private const float SwitchFileAfterSeconds = 60f * 10L; // 5 minutes
     
-    private float _lastPartCreatedTime;
+    private float _lastPartCreatedTime = float.NegativeInfinity;
     private bool _isClosed;
     private bool _wroteTimeForUpdate;
     private long _lastWrittenTime;
@@ -431,7 +431,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
     ) {
         var writer = _writer;
         if (writer == null) {
-            logger.LogDebug("Tried to write player data named map full but writer is null");
+            logger.LogDebug($"Tried to write player data named map full but writer is null (fieldId={fieldId}, values count={values?.Count ?? 0})");
             return;
         }
 
@@ -463,7 +463,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
     ) {
         var writer = _writer;
         if (writer == null) {
-            logger.LogDebug("Tried to write player data named map delta but writer is null");
+            logger.LogDebug($"Tried to write player data named map delta but writer is null (fieldId={fieldId}, upserts={upserts.Count}, removed={removed.Count})");
             return;
         }
 

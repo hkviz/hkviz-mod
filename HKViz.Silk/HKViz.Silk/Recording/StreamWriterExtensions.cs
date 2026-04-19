@@ -22,45 +22,66 @@ public static class BinaryWriterExtensions {
     }
 
     public static void WriteCollectableRelicsData(this BinaryWriter writer, CollectableRelicsData.Data value) {
-        writer.Write(value.IsCollected);
-        writer.Write(value.IsDeposited);
-        writer.Write(value.HasSeenInRelicBoard);
+        byte boolPack = 0;
+        if (value.IsCollected) boolPack |= 1 << 0;
+        if (value.IsDeposited) boolPack |= 1 << 1;
+        if (value.HasSeenInRelicBoard) boolPack |= 1 << 2;
+
+        writer.Write(boolPack);
     }
 
     public static void WriteCollectableMementosData(this BinaryWriter writer, CollectableMementosData.Data value) {
-        writer.Write(value.IsDeposited);
-        writer.Write(value.HasSeenInRelicBoard);
+        byte boolPack = 0;
+        if (value.IsDeposited)  boolPack |= 1 << 0;
+        if (value.HasSeenInRelicBoard) boolPack |= 1 << 1;
+
+        writer.Write(boolPack);
     }
 
     public static void WriteQuestRumourData(this BinaryWriter writer, QuestRumourData.Data value) {
-        writer.Write(value.HasBeenSeen);
-        writer.Write(value.IsAccepted);
+        byte boolPack = 0;
+        if (value.HasBeenSeen) boolPack |= 1 << 0;
+        if (value.IsAccepted) boolPack |= 1 << 1;
+
+        writer.Write(boolPack);
     }
 
     public static void WriteQuestCompletionData(this BinaryWriter writer, QuestCompletionData.Completion value) {
-        writer.Write(value.HasBeenSeen);
-        writer.Write(value.IsAccepted);
+        byte boolPack = 0;
+        if (value.HasBeenSeen) boolPack |= 1 << 0;
+        if (value.IsAccepted) boolPack |= 1 << 1;
+        if (value.IsCompleted) boolPack |= 1 << 2;
+        if (value.WasEverCompleted) boolPack |= 1 << 3;
+
+        writer.Write(boolPack);
         writer.Write(value.CompletedCount);
-        writer.Write(value.IsCompleted);
-        writer.Write(value.WasEverCompleted);
     }
 
     public static void WriteMateriumItemsData(this BinaryWriter writer, MateriumItemsData.Data value) {
-        writer.Write(value.IsCollected);
-        writer.Write(value.HasSeenInRelicBoard);
+        byte boolPack = 0;
+        if (value.IsCollected) boolPack |= 1 << 0;
+        if (value.HasSeenInRelicBoard) boolPack |= 1 << 1;
+
+        writer.Write(boolPack);
     }
 
     public static void WriteToolItemLiquidsData(this BinaryWriter writer, ToolItemLiquidsData.Data value) {
+        byte boolPack = 0;
+        if (value.SeenEmptyState) boolPack |= 1 << 0;
+        if (value.UsedExtra) boolPack |= 1 << 1;
+        
+        writer.Write(boolPack);
         writer.Write(value.RefillsLeft);
-        writer.Write(value.SeenEmptyState);
-        writer.Write(value.UsedExtra);
     }
 
     public static void WriteToolItemsData(this BinaryWriter writer, ToolItemsData.Data value) {
-        writer.Write(value.IsUnlocked);
-        writer.Write(value.IsHidden);
-        writer.Write(value.HasBeenSeen);
-        writer.Write(value.HasBeenSelected);
+        byte boolPack = 0;
+        if (value.IsUnlocked) boolPack |= 1 << 0;
+        if (value.IsHidden) boolPack |= 1 << 1;
+        if (value.HasBeenSeen) boolPack |= 1 << 2;
+        if (value.HasBeenSelected) boolPack |= 1 << 3;
+        
+        writer.Write(boolPack);
         writer.Write(value.AmountLeft);
     }
 
@@ -70,19 +91,22 @@ public static class BinaryWriterExtensions {
     }
 
     public static void WriteToolCrestsData(this BinaryWriter writer, ToolCrestsData.Data value) {
-        writer.Write(value.IsUnlocked);
+        byte boolPack = 0;
+        if (value.IsUnlocked) boolPack |= 1 << 0;
+        if (value.DisplayNewIndicator) boolPack |= 1 << 1;
+        
+        writer.Write(boolPack);
         writer.Write(value.Slots?.Count ?? 0);
         if (value.Slots != null) {
             for (int i = 0; i < value.Slots.Count; i++) {
                 writer.WriteToolCrestsSlotData(value.Slots[i]);
             }
         }
-        writer.Write(value.DisplayNewIndicator);
     }
 
     public static void WriteEnemyJournalKillData(this BinaryWriter writer, EnemyJournalKillData.KillData value) {
-        writer.Write(value.Kills);
         writer.Write(value.HasBeenSeen);
+        writer.Write(value.Kills);
     }
 
     public static void WriteStoryEventInfoData(this BinaryWriter writer, PlayerStory.EventInfo value) {
@@ -121,22 +145,6 @@ public static class BinaryWriterExtensions {
         writer.Write(bytes);
     }
 
-    /// <summary>
-    /// Write a string, where the value is usually known to be a certain value of a set,
-    /// but could also not be.
-    /// 
-    /// If the value is known / is part of valueToId, only the id is written, unless the id is zero.
-    /// Make sure the id can never be zero, or get less storage efficiency.
-    /// (ushort)id
-    ///
-    /// If the value is not known, the written data is
-    /// (ushort)0
-    /// (int)length of value
-    /// (value as utf8 bytes)
-    /// </summary>
-    /// <param name="writer"></param>
-    /// <param name="valueToId"></param>
-    /// <param name="value"></param>
     public static void WriteIdOrStringCompat(this BinaryWriter writer, Dictionary<string, ushort> valueToId, string? value) {
         if (value == null) {
             // (case 0) null
