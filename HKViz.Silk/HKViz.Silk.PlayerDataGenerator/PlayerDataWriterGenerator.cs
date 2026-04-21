@@ -61,6 +61,11 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     private static readonly string MateriumIds = "SilkSongMateriumIds.VALUE_TO_ID";
     private static readonly string TransitionGateIds = "SilkSongTransitionGateIds.VALUE_TO_ID";
     private static readonly string RespawnPointIds = "SilkSongRespawnPointIds.VALUE_TO_ID";
+    private static readonly string PlayerDataFieldIds = "PlayerDataWriter.FieldIds.NAME_TO_ID";
+    private static readonly string ExtraToolSlotIds = "SilkSongExtraToolSlotIds.VALUE_TO_ID";
+    private static readonly string LiquidIds = "SilkSongToolLiquidIds.VALUE_TO_ID";
+    private static readonly string VersionIds = "SilkSongSilksongVersionIds.VALUE_TO_ID";
+    
     private static readonly string NoIds = "EmptyCollections.EMPTY_STRING_ID_LOOKUP";
 
     private static readonly Dictionary<string, string> fieldToStringIdDict = new(StringComparer.Ordinal) {
@@ -97,6 +102,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         ["respawnMarkerName"] = RespawnPointIds,
         ["nonLethalRespawnMarker"] = RespawnPointIds,
         ["tempRespawnMarker"] = RespawnPointIds,
+
+        ["LastSetFieldName"] = PlayerDataFieldIds,
         
         ["EnemyJournalKillData"] = EnemyIds,
 
@@ -105,6 +112,12 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         
         ["Tools"] = ToolIds,
         ["ToolEquips"] = CrestIds,
+
+
+        ["ExtraToolEquips"] = ExtraToolSlotIds,
+        ["ToolLiquids"] = LiquidIds,
+        
+        ["version"] = VersionIds,
 
         ["BelltownCouriersGenericQuests"] = NoIds,
         ["unlockedBossScenes"] = NoIds,
@@ -270,6 +283,19 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             source.Append(fieldSchemaMap[field.FieldName].Id);
             source.AppendLine(";");
         }
+
+        source.AppendLine();
+        source.AppendLine("        public static readonly global::System.Collections.Generic.Dictionary<string, ushort> NAME_TO_ID = new(global::System.StringComparer.Ordinal) {");
+
+        foreach (ObservedField field in supportedFields) {
+            source.Append("            [\"");
+            source.Append(field.FieldName);
+            source.Append("\"] = ");
+            source.Append(field.FieldIdName);
+            source.AppendLine(",");
+        }
+
+        source.AppendLine("        };");
 
         source.AppendLine("    }");
         source.AppendLine();
