@@ -80,6 +80,13 @@ public class LocalizationExtraction( ExtractionFiles extractionFiles, ManualLogS
     public string RequestExport(LocalisedString s) {
         return RequestExport(s.Sheet, s.Key);
     }
+
+    private string[] alwaysExport = [
+        "UI.INV_NAME_COIN",
+        "Quests.UI_PROMPT_ACCEPTED",
+        "Quests.UI_TITLE_QUESTS_COMPLETE",
+        "UI.COLLECTION_HEADING_RELICDEALER",
+    ];
     
     public void Extract() {
         Log("Starting localization extraction");
@@ -87,6 +94,10 @@ public class LocalizationExtraction( ExtractionFiles extractionFiles, ManualLogS
         // Load previously persisted keys
         LoadPersistedKeys();
         var keysBeforeQueuing = exportKeys.Count;
+
+        foreach (var exportKey in alwaysExport) {
+            exportKeys.Add(exportKey);
+        }
         
         foreach (MapZone zone in GetEnumList<MapZone>()) {
             RequestExport(SHEET_MAP_ZONES, zone.ToString());

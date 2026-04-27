@@ -32,6 +32,7 @@ public class CollectableExtraction(ExtractionFiles extractionFiles, Localization
             var descriptionKeysBySource = BuildDescriptionKeysBySource(item);
             var extraDescriptionKeys = BuildExtraDescriptionKeys(item);
             var useResponseDescriptionKeys = BuildUseResponseDescriptionKeys(item);
+            var useResponses = BuildUseResponses(item);
 
             var iconInventory = TryGetIcon(item, CollectableItem.ReadSource.Inventory);
             var iconPopup = TryGetIcon(item, CollectableItem.ReadSource.GetPopup);
@@ -53,6 +54,7 @@ public class CollectableExtraction(ExtractionFiles extractionFiles, Localization
                 DescriptionKeysBySource = HasAnyKeys(descriptionKeysBySource) ? descriptionKeysBySource : null,
                 ExtraDescriptionKeys = extraDescriptionKeys.Count > 0 ? extraDescriptionKeys : null,
                 UseResponseDescriptionKeys = useResponseDescriptionKeys.Count > 0 ? useResponseDescriptionKeys : null,
+                UseResponses = useResponses.Count > 0 ? useResponses : null,
 
                 IconInventory = iconInventory.ToSpriteInfoSafe(logger, $"Collectable:{item.name}:IconInventory"),
                 IconPopup = iconPopup.ToSpriteInfoSafe(logger, $"Collectable:{item.name}:IconPopup"),
@@ -178,6 +180,64 @@ public class CollectableExtraction(ExtractionFiles extractionFiles, Localization
         }
 
         return keys;
+    }
+
+    private List<CollectableUseResponseData> BuildUseResponses(CollectableItem item) {
+        var responses = new List<CollectableUseResponseData>();
+
+        AddUseResponses(responses, ReadFieldEnumerable(item, "useResponses"), "Item", null);
+
+        if (item is CollectableItemGrower growerItem) {
+            var stateIndex = 0;
+            foreach (var state in ReadFieldEnumerable(growerItem, "states")) {
+                AddUseResponses(responses, ReadFieldEnumerable(state, "UseResponses"), "GrowerState", stateIndex);
+                stateIndex++;
+            }
+        }
+
+        return responses;
+    }
+
+    private void AddUseResponses(List<CollectableUseResponseData> target, IEnumerable<object> useResponses, string sourceKind, int? stateIndex) {
+        foreach (var response in useResponses) {
+            var responseData = BuildUseResponseData(response, sourceKind, stateIndex);
+            if (responseData != null) {
+                target.Add(responseData);
+            }
+        }
+    }
+
+    private CollectableUseResponseData? BuildUseResponseData(object response, string sourceKind, int? stateIndex) {
+        var descriptionKey = TryReadLocalisedField(response, "Description", out var description) ? TryRequestExport(description) : null;
+        var useType = ReadFieldValue(response, "UseType")?.ToString();
+
+        var amount = 0;
+        if (ReadFieldValue(response, "Amount") is int amountValue) {
+            amount = amountValue;
+        }
+
+        var amountRangeStart = 0;
+        var amountRangeEnd = 0;
+        var amountRange = ReadFieldValue(response, "AmountRange");
+        if (amountRange != null) {
+            if (ReadFieldValue(amountRange, "Start") is int startValue) {
+                amountRangeStart = startValue;
+            }
+
+            if (ReadFieldValue(amountRange, "End") is int endValue) {
+                amountRangeEnd = endValue;
+            }
+        }
+
+        return new CollectableUseResponseData {
+            SourceKind = sourceKind,
+            StateIndex = stateIndex,
+            UseType = useType,
+            Amount = amount,
+            AmountRangeStart = amountRangeStart,
+            AmountRangeEnd = amountRangeEnd,
+            DescriptionKey = descriptionKey,
+        };
     }
 
     private void AddUseResponseDescriptionKeys(List<string> keys, IEnumerable<object> useResponses) {
@@ -435,6 +495,11 @@ public class CollectableExtraction(ExtractionFiles extractionFiles, Localization
 
         localisedString = default;
         return false;
+    }
+
+    private static object? ReadFieldValue(object target, string fieldName) {
+        var field = GetFieldInHierarchy(target.GetType(), fieldName);
+        return field?.GetValue(target);
     }
 
     private static IEnumerable<object> ReadFieldEnumerable(object target, string fieldName) {

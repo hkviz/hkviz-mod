@@ -28,6 +28,19 @@ public class CollectableData {
     public bool IsVisibleWithBareInventory { get; set; }
     public bool HideInShopCounters { get; set; }
     public bool TakeItemOnConsume { get; set; }
+    public List<CollectableUseResponseData>? UseResponses { get; set; }
+}
+
+[Serializable]
+public class CollectableUseResponseData {
+    public string? SourceKind { get; set; }
+    public int? StateIndex { get; set; }
+
+    public string? UseType { get; set; }
+    public int Amount { get; set; }
+    public int AmountRangeStart { get; set; }
+    public int AmountRangeEnd { get; set; }
+    public string? DescriptionKey { get; set; }
 }
 
 [Serializable]

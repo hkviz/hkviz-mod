@@ -47,6 +47,11 @@ public enum WriteEntryType : byte {
     PlayerDataWrappedVector2ListDelta = 0x1F,
     PlayerDataWrappedVector2ListAppend = 0x20,
     
+    // SceneData
+    SceneDataBool       = 0x21,
+    SceneDataInt        = 0x22,
+    SceneDataGeoRock    = 0x23,
+    
     // MISSING FROM HOLLOW KNIGHT MOD:
     
     // public static readonly string ENTITY_POSITIONS = ""; // no prefix = positions

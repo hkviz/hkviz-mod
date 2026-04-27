@@ -15,6 +15,7 @@ public class RunWriter {
     private readonly RunFiles runFiles;
     private readonly HeroLocationWriter heroLocationWriter;
     private readonly PlayerDataWriter playerDataWriter;
+    private readonly SceneDataWriter sceneDataWriter;
     private readonly SilkUploadManager uploadManager;
     private readonly ManualLogSource logger;
 
@@ -27,6 +28,7 @@ public class RunWriter {
         runFiles = new RunFiles(localRunId, nextRunPart, uploadManager, logger);
         heroLocationWriter = new HeroLocationWriter(runFiles);
         playerDataWriter = new PlayerDataWriter(runFiles);
+        sceneDataWriter = new SceneDataWriter(runFiles);
         runFiles.OnNewFileCreated += OnNewFileCreated;
         runFiles.OnFileFinished += OnFileFinished;
         
@@ -42,6 +44,7 @@ public class RunWriter {
     private void OnNewFileCreated(bool isFirstFile) {
         if (isFirstFile) {
             playerDataWriter.WriteAll();
+            sceneDataWriter.WriteAll();
         }
     }
 
@@ -121,5 +124,6 @@ public class RunWriter {
         runFiles.Update();
         bool writeFrequentChangeFields = heroLocationWriter.Update();
         playerDataWriter.WriteChanged(writeFrequentChangeFields);
+        sceneDataWriter.WriteChanged();
     }
 }

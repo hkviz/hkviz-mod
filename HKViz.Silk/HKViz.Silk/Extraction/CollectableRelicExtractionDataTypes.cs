@@ -7,6 +7,7 @@ namespace HKViz.Silk.Extraction;
 public class CollectableRelicData {
     public string? Id { get; set; }
     public string? RuntimeType { get; set; }
+    public int? RewardAmount { get; set; }
     public string? TypeNameKey { get; set; }
     public string? TypeDescriptionKey { get; set; }
     public string? AppendDescriptionKey { get; set; }

@@ -612,4 +612,41 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
         writer.Write(fieldId);
         writer.Write(value.ToByteArray());
     }
+    
+    public void WriteSceneDataBool(string sceneName, string key, bool value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write scene data bool but writer is null");
+            return;
+        }
+        logger.LogDebug("WriteSceneDataBool");
+        // TODO could pack scene booleans per scenes into bytes?
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.SceneDataBool);
+        writer.WriteIdOrStringCompat(SilkSongScenes.SCENES, sceneName);
+        writer.WriteIdOrStringCompat(SilkSongSceneDataBoolIds.VALUE_TO_ID, key);
+        writer.WriteBool(value);
+    }
+
+    public void WriteSceneDataInt(string sceneName, string key, int value) {
+        WriteSceneDataIntInternal(WriteEntryType.SceneDataInt, SilkSongSceneDataIntIds.VALUE_TO_ID, sceneName, key, value);
+    }
+
+    public void WriteSceneDataGeoRock(string sceneName, string key, int value) {
+        WriteSceneDataIntInternal(WriteEntryType.SceneDataGeoRock, SilkSongSceneDataGeoRockIds.VALUE_TO_ID, sceneName, key, value);
+    }
+
+    private void WriteSceneDataIntInternal(WriteEntryType type, Dictionary<string, ushort> fieldNameLookup, string sceneName, string key, int value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write scene data int but writer is null");
+            return;
+        }
+        logger.LogDebug("WriteSceneDataIntInternal");
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(type);
+        writer.WriteIdOrStringCompat(SilkSongScenes.SCENES, sceneName);
+        writer.WriteIdOrStringCompat(fieldNameLookup, key);
+        writer.WriteInt(value);
+    }
 }

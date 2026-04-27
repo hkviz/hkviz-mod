@@ -61,7 +61,8 @@ public class AuthManager {
 
         if (AuthId != null) {
             serverApi.ApiDelete<Empty>(
-                path: "ingameauth/" + AuthId,
+                path: "ingameauth/",
+                secretSuffix: AuthId,
                 onSuccess: data => {
                     _logger.LogInfo("Deleted session in backend");
                 },
@@ -104,7 +105,8 @@ public class AuthManager {
         }
 
         serverApi.ApiGet<SessionInfo>(
-            path: "ingameauth/" + AuthId,
+            path: "ingameauth/",
+            secretSuffix: AuthId,
             onSuccess: data => {
                 AuthId = data.id;
                 _logger.LogInfo("Got session info " + data.user?.id + " " + data.user?.name);

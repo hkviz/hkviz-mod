@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using BepInEx.Logging;
 using UnityEngine;
 using HKViz.Silk.Recording.DataHelpers;
 
@@ -395,7 +394,9 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
 
     private static void UpdateIntArraySnapshot(ref int[]? oldValue, int[]? newValue) {
         if (newValue is null) {
-            oldValue = Array.Empty<int>();
+            if (oldValue is not { Length: 0 }) {
+                oldValue = [];
+            }
             return;
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using BepInEx.Logging;
@@ -28,6 +29,7 @@ public class CollectableRelicExtraction(ExtractionFiles extractionFiles, Localiz
             var collectionIcon = relic.GetCollectionIcon();
             var popupIcon = relic.GetPopupIcon();
             var relicTypeInventoryIcon = relicType != null ? relicType.GetIcon(CollectableItem.ReadSource.Inventory) : null;
+            var rewardAmount = relicType != null ? TryReadIntField(relicType, flags, "rewardAmount", "RewardAmount", "reward", "Reward") : null;
 
             string? typeNameKey = null;
             string? typeDescriptionKey = null;
@@ -58,6 +60,7 @@ public class CollectableRelicExtraction(ExtractionFiles extractionFiles, Localiz
                 TypeNameKey = typeNameKey,
                 TypeDescriptionKey = typeDescriptionKey,
                 AppendDescriptionKey = appendDescriptionKey,
+                RewardAmount = rewardAmount,
 
                 CollectionIcon = collectionIcon.ToSpriteInfoSafe(logger, $"CollectableRelic:{relic.name}:CollectionIcon"),
                 PopupIcon = popupIcon.ToSpriteInfoSafe(logger, $"CollectableRelic:{relic.name}:PopupIcon"),
@@ -100,6 +103,34 @@ public class CollectableRelicExtraction(ExtractionFiles extractionFiles, Localiz
         }
 
         return result;
+    }
+
+    private static int? TryReadIntField(object target, BindingFlags flags, params string[] fieldNames) {
+        var targetType = target.GetType();
+
+        foreach (var fieldName in fieldNames) {
+            var field = GetFieldInHierarchy(targetType, fieldName, flags);
+            if (field?.GetValue(target) is int value) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
+    private static FieldInfo? GetFieldInHierarchy(Type type, string fieldName, BindingFlags flags) {
+        var current = type;
+
+        while (current != null) {
+            var field = current.GetField(fieldName, flags | BindingFlags.DeclaredOnly);
+            if (field != null) {
+                return field;
+            }
+
+            current = current.BaseType;
+        }
+
+        return null;
     }
 
 }

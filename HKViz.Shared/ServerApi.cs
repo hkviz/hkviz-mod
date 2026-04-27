@@ -22,16 +22,16 @@ public class ServerApi(
         return WrapWWW(request, onSuccess, onError);
     }
 
-    public IEnumerator ApiGet<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
-        var url = HkVizSharedConstants.API_URL + path + HkVizSharedConstants.API_URL_SUFFIX;
-        logger.LogInfo(url);
+    public IEnumerator ApiGet<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError, string secretSuffix = "") {
+        var url = HkVizSharedConstants.API_URL + path + secretSuffix + HkVizSharedConstants.API_URL_SUFFIX;
+        logger.LogInfo("Get request " + path);
         var request = UnityWebRequest.Get(url);
         return WrapWWW(request, onSuccess, onError);
     }
 
-    public IEnumerator ApiDelete<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError) {
-        var url = HkVizSharedConstants.API_URL + path + HkVizSharedConstants.API_URL_SUFFIX;
-        logger.LogInfo(url);
+    public IEnumerator ApiDelete<TResponse>(string path, Action<TResponse> onSuccess, Action<UnityWebRequest> onError, string secretSuffix = "") {
+        var url = HkVizSharedConstants.API_URL + path + secretSuffix + HkVizSharedConstants.API_URL_SUFFIX;
+        logger.LogInfo("Delete request " + path);
         var request = UnityWebRequest.Delete(url);
         return WrapWWW(request, onSuccess, onError);
     }

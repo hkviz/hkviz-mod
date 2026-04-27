@@ -14,6 +14,7 @@ public class Extractor {
     private readonly QuestExtraction _questExtraction;
     private readonly MateriumExtraction _materiumExtraction;
     private readonly TransitionGateExtraction _transitionGateExtraction;
+    private readonly SceneDataExtraction _sceneDataExtraction;
 
     public Extractor(ManualLogSource logger) {
         var extractionFiles = new ExtractionFiles(logger);
@@ -28,6 +29,7 @@ public class Extractor {
         _questExtraction = new QuestExtraction(extractionFiles, _localizationExtraction, logger);
         _materiumExtraction = new MateriumExtraction(extractionFiles, _localizationExtraction, logger);
         _transitionGateExtraction = new TransitionGateExtraction(extractionFiles, logger);
+        _sceneDataExtraction =  new SceneDataExtraction(extractionFiles, logger);
     }
     
 
@@ -41,6 +43,7 @@ public class Extractor {
         _questExtraction.Extract();
         _materiumExtraction.Extract();
         _transitionGateExtraction.Extract();
+        _sceneDataExtraction.Extract();
         _localizationExtraction.Extract();
     }
 
