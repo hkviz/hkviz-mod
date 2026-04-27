@@ -301,18 +301,6 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
             return;
         }
 
-        bool isPureAppend = newCount > oldCount && changedCount == (newCount - oldCount);
-        if (isPureAppend) {
-            WrappedVector2List[] appended = new WrappedVector2List[newCount - oldCount];
-            for (int i = oldCount; i < newCount; i++) {
-                appended[i - oldCount] = WrappedVector2ListDataHelper.Copy(newList[i]) ?? new WrappedVector2List();
-            }
-
-            runFiles.WritePlayerDataWrappedVector2ListAppendChange(fieldId, oldCount, appended);
-            oldValue = WrappedVector2ListDataHelper.CopyArray(newList);
-            return;
-        }
-
         int fullPayloadEstimate = sizeof(byte) + sizeof(int) + (newCount * 36);
         int deltaPayloadEstimate = sizeof(byte) + sizeof(int) + sizeof(int) + (changedCount * (sizeof(int) + 36));
         if (deltaPayloadEstimate < fullPayloadEstimate) {
@@ -344,14 +332,15 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         oldValue = WrappedVector2ListDataHelper.CopyArray(newList);
     }
 
-    public void WriteNamedMapIfChanged<TData>(
+    public void WriteNamedMapChanges<TData>(
         ushort fieldId,
         Dictionary<string, ushort> valueToId,
         ref Dictionary<string, TData>? oldValue,
         IEnumerable<KeyValuePair<string, TData>>? newValues,
         Func<TData, TData, bool> equals,
         Func<TData, TData> copy,
-        Action<BinaryWriter, TData> writeValue
+        Action<BinaryWriter, TData> writeValue,
+        bool writeAll
     ) {
         Dictionary<string, TData> oldSnapshot = oldValue ?? new Dictionary<string, TData>(StringComparer.Ordinal);
         Dictionary<string, TData> newSnapshot = new(StringComparer.Ordinal);
@@ -374,7 +363,7 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
             }
         }
 
-        if (upserts.Count == 0 && removed.Count == 0 && oldSnapshot.Count == newSnapshot.Count) {
+        if (!writeAll && upserts.Count == 0 && removed.Count == 0 && oldSnapshot.Count == newSnapshot.Count) {
             return;
         }
 
@@ -383,7 +372,7 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
 
         int fullPayloadEstimate = newSnapshot.Count * 32;
         int deltaPayloadEstimate = (upserts.Count * 32) + (removed.Count * 8);
-        if (deltaPayloadEstimate < fullPayloadEstimate) {
+        if (!writeAll && deltaPayloadEstimate < fullPayloadEstimate) {
             runFiles.WritePlayerDataNamedMapDeltaChange(fieldId, valueToId, upserts, removed, writeValue);
         } else {
             runFiles.WritePlayerDataNamedMapFullChange(fieldId, valueToId, newSnapshot, writeValue);

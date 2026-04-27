@@ -45,12 +45,18 @@ public enum WriteEntryType : byte {
     PlayerDataStoryEventListDelta = 0x1D,
     PlayerDataWrappedVector2ListFull = 0x1E,
     PlayerDataWrappedVector2ListDelta = 0x1F,
-    PlayerDataWrappedVector2ListAppend = 0x20,
     
     // SceneData
     SceneDataBool       = 0x21,
     SceneDataInt        = 0x22,
     SceneDataGeoRock    = 0x23,
+    
+    // Freed up:
+    // PlayerDataWrappedVector2ListAppend = 0x20,
+    
+    
+    
+    
     
     // MISSING FROM HOLLOW KNIGHT MOD:
     

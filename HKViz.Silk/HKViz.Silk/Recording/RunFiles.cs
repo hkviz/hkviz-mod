@@ -568,23 +568,6 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
         }
     }
 
-    public void WritePlayerDataWrappedVector2ListAppendChange(ushort fieldId, int oldLength, WrappedVector2List[] appendedValues) {
-        var writer = _writer;
-        if (writer == null) {
-            logger.LogDebug("Tried to write player data wrapped vector2 list append but writer is null");
-            return;
-        }
-
-        WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataWrappedVector2ListAppend);
-        writer.Write(fieldId);
-        writer.Write(oldLength);
-        writer.Write(appendedValues.Length);
-        for (int i = 0; i < appendedValues.Length; i++) {
-            writer.WriteWrappedVector2List(appendedValues[i]);
-        }
-    }
-
     public void WritePlayerDataStringChange(
         ushort fieldId,
         Dictionary<string, ushort> valueToId,
