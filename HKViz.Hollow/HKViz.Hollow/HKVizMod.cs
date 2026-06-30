@@ -29,7 +29,7 @@ public class HKVizMod : Mod, ILocalSettings<LocalSettings>, ICustomMenuMod, IGlo
         _instance = this;
         HkVizSharedInstances.CreateInstance(new HkVizSharedInstances(
             new HollowLogger(this),
-            new HollowUploadPathResolver(),
+            (serverApi, authManager, logger) => new HollowUploadManager(serverApi, authManager, logger),
             RecordingFileManager.Instance
         ));
         MainMenuUI.Instance.Initialize();

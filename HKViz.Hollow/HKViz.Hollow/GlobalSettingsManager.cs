@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HKViz.Shared.Auth;
-using HKViz.Shared.Upload;
+using HKViz.Upload;
 using Modding;
 
 namespace HKViz;
@@ -13,9 +13,9 @@ public class UserGlobalSettings {
     public string? userName = null;
     public bool autoUpload = true;
     public bool showLoginButtonInMainMenu = true;
-    public List<UploadQueueEntry> queuedUploadFiles = [];
-    public List<UploadQueueEntry> failedUploadFiles = [];
-    public List<UploadQueueEntry> finishedUploadFiles = [];
+    public List<HollowUploadQueueEntry> queuedUploadFiles = [];
+    public List<HollowUploadQueueEntry> failedUploadFiles = [];
+    public List<HollowUploadQueueEntry> finishedUploadFiles = [];
 }
 
 // inherits from userGlobal settings, for backwards compatibility to mod versions <= 1.5 where steam users where not considered
@@ -49,7 +49,7 @@ internal class GlobalSettingsManager: Loggable {
         }
     }
 
-    private UploadManager uploadManager = HkVizSharedInstances.Instance!.uploadManager;
+    private HollowUploadManager uploadManager = (HollowUploadManager)HkVizSharedInstances.Instance!.uploadManager;
     private AuthManager authManager = HkVizSharedInstances.Instance.authManager;
 
     public GlobalSettingsManager() {
@@ -108,9 +108,9 @@ internal class GlobalSettingsManager: Loggable {
         Log("GS loaded upload manager" + (SettingsOfCurrentUser.queuedUploadFiles.Count + "-" + SettingsOfCurrentUser.failedUploadFiles.Count));
         authManager.InitializeFromGlobalSettings(SettingsOfCurrentUser.authId, SettingsOfCurrentUser.userName);
         uploadManager.AddUploadEntries(
-            queuedFiles: SettingsOfCurrentUser.queuedUploadFiles,
-            failedUploads: SettingsOfCurrentUser.failedUploadFiles,
-            finishedUploadFiles: SettingsOfCurrentUser.finishedUploadFiles
+            queuedFilesToAdd: SettingsOfCurrentUser.queuedUploadFiles,
+            failedUploadsToAdd: SettingsOfCurrentUser.failedUploadFiles,
+            finishedUploadFilesToAdd: SettingsOfCurrentUser.finishedUploadFiles
         );
     }
 }

@@ -62,6 +62,12 @@
         <Compile Include="..\..\HKViz.Shared\**\*.cs">
             <Link>Shared\%(RecursiveDir)%(Filename)%(Extension)</Link>
         </Compile>
+        <Compile Update="Upload\SilkUploadQueueEntry.cs">
+          <Link>Shared\Upload\SilkUploadQueueEntry.cs</Link>
+        </Compile>
+        <Compile Update="Upload\SilkCreateUploadPartUrlRequest.cs">
+          <Link>Shared\Upload\SilkCreateUploadPartUrlRequest.cs</Link>
+        </Compile>
     </ItemGroup>
 
     <Target Name="SyncPlayerDataFieldIds" BeforeTargets="CoreCompile" DependsOnTargets="ResolveReferences">

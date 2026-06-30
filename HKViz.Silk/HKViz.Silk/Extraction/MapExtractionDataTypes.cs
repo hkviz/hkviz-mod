@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Sprites;
 
 namespace HKViz.Silk.Extraction;
 
@@ -98,22 +97,7 @@ public class SpriteInfo {
     public Vector4Data? Padding { get; set; }
 
     public static SpriteInfo FromSprite(Sprite sprite) {
-        // name alone is not unique, so some data is added to make it hopefully unique
-        // this could break with future SilkSong updates. 
-        // We can only use data available in the Unity runtime + in the python extraction scripts
-        int verticesCount = sprite.vertices.Length;
-        int width = Mathf.RoundToInt(sprite.rect.width);
-        int height = Mathf.RoundToInt(sprite.rect.height);
-        int physicsShapeCount = sprite.GetPhysicsShapeCount();
-        var uniqueName = $"{sprite.name}_{verticesCount}_{width}x{height}_{physicsShapeCount}";
-
-        return new SpriteInfo {
-            Name = uniqueName,
-            NameShort = sprite.name,
-            Size = new Vector2Data(sprite.rect.width, sprite.rect.height),
-            Padding = Vector4Data.FromVector4(
-                DataUtility.GetPadding(sprite)), // Vector4Data.FromVector4(sprite.border),
-        };
+        return sprite.ToSpriteInfo();
     }
 }
 
@@ -153,63 +137,7 @@ public class PlayerDataTestData {
     public List<PlayerDataTestGroupData>? TestGroups { get; set; }
 
     public static PlayerDataTestData? FromPlayerDataTest(PlayerDataTest? test) {
-        if (test?.TestGroups == null || test.TestGroups.Length == 0)
-            return null;
-        
-        
-        var data = new PlayerDataTestData {
-            TestGroups = [],
-        };
-
-        foreach (var group in test.TestGroups) {
-            var groupData = new PlayerDataTestGroupData {
-                Tests = [],
-            };
-
-            if (group.Tests != null) {
-                foreach (var testEntry in group.Tests) {
-                    var entryData = new PlayerDataTestEntryData {
-                        Type = (SilkPlayerDataTestType)testEntry.Type,
-                        FieldName = testEntry.FieldName,
-                    };
-
-                    // Only populate relevant fields based on type
-                    switch (testEntry.Type) {
-                        case PlayerDataTest.TestType.Bool:
-                            entryData.BoolValue = testEntry.BoolValue;
-                            break;
-
-                        case PlayerDataTest.TestType.Int:
-                            entryData.NumType = (SilkNumTestType?)testEntry.NumType;
-                            entryData.IntValue = testEntry.IntValue;
-                            break;
-
-                        case PlayerDataTest.TestType.Float:
-                            entryData.NumType = (SilkNumTestType?)testEntry.NumType;
-                            entryData.FloatValue = testEntry.FloatValue;
-                            break;
-
-                        case PlayerDataTest.TestType.String:
-                            entryData.StringType = (SilkStringTestType?)testEntry.StringType;
-                            entryData.StringValue = testEntry.StringValue;
-                            break;
-
-                        case PlayerDataTest.TestType.Enum:
-                            entryData.IntValue = testEntry.IntValue;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException($"Unsupported PlayerDataTest type: {testEntry.Type}");
-                    }
-
-                    groupData.Tests.Add(entryData);
-                }
-            }
-
-            if (groupData.Tests.Count > 0)
-                data.TestGroups.Add(groupData);
-        }
-
-        return data.TestGroups?.Count > 0 ? data : null;
+        return test.ToExportData();
     }
 }
 

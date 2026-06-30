@@ -9,6 +9,11 @@ internal static class PlayerDataSchemaRules {
         "currentBossSequence",
     };
 
+    private static readonly HashSet<string> FrequentChangePlayerDataFieldNamesSet = new(StringComparer.Ordinal) {
+        "FisherWalkerIdleTimeLeft",
+        "FisherWalkerTimer",
+    };
+
     private static readonly HashSet<string> IgnoredHeroStateFieldNamesSet = new(StringComparer.Ordinal) {
         "boolFieldAccessOptimizer",
         "fieldCache",
@@ -36,6 +41,9 @@ internal static class PlayerDataSchemaRules {
 
     public static bool IsIgnoredPlayerDataFieldName(string fieldName) =>
         IgnoredPlayerDataFieldNamesSet.Contains(fieldName);
+
+    public static bool IsFrequentChangePlayerDataFieldName(string fieldName) =>
+        FrequentChangePlayerDataFieldNamesSet.Contains(fieldName);
 
     public static bool IsIgnoredHeroStateFieldName(string fieldName) =>
         IgnoredHeroStateFieldNamesSet.Contains(fieldName);

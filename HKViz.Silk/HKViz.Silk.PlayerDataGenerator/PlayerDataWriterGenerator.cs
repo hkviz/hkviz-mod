@@ -42,20 +42,106 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         isEnabledByDefault: true
     );
 
+    private static readonly DiagnosticDescriptor MissingStringIdDictionary = new(
+        id: "HKVIZSILK004",
+        title: "Missing string-id dictionary",
+        messageFormat:
+        "PlayerData field '{0}' of type '{1}' has no configured string-id dictionary; falling back to EmptyCollections.EMPTY_STRING_ID_LOOKUP",
+        category: "HKViz.Silk.Generator",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true
+    );
+
+    private static readonly string SceneIds = "SilkSongScenes.SCENES";
+    private static readonly string CrestIds = "SilkSongToolCrestIds.VALUE_TO_ID";
+    private static readonly string ToolIds = "SilkSongToolItemIds.VALUE_TO_ID";
+    private static readonly string EnemyIds = "SilkSongEnemyJournalIds.VALUE_TO_ID";
+    private static readonly string CollectableIds = "SilkSongCollectableIds.VALUE_TO_ID";
+    private static readonly string RelicIds = "SilkSongCollectableRelicIds.VALUE_TO_ID";
+    private static readonly string QuestIds = "SilkSongQuestIds.VALUE_TO_ID";
+    private static readonly string MateriumIds = "SilkSongMateriumIds.VALUE_TO_ID";
+    private static readonly string TransitionGateIds = "SilkSongTransitionGateIds.VALUE_TO_ID";
+    private static readonly string RespawnPointIds = "SilkSongRespawnPointIds.VALUE_TO_ID";
+    private static readonly string PlayerDataFieldIds = "PlayerDataWriter.FieldIds.NAME_TO_ID";
+    private static readonly string ExtraToolSlotIds = "SilkSongExtraToolSlotIds.VALUE_TO_ID";
+    private static readonly string LiquidIds = "SilkSongToolLiquidIds.VALUE_TO_ID";
+    private static readonly string VersionIds = "SilkSongSilksongVersionIds.VALUE_TO_ID";
+
+    private static readonly string NoIds = "EmptyCollections.EMPTY_STRING_ID_LOOKUP";
+
+    private static readonly Dictionary<string, string> fieldToStringIdDict = new(StringComparer.Ordinal) {
+        ["scenesEncounteredBench"] = SceneIds,
+        ["scenesEncounteredCocoon"] = SceneIds,
+        ["scenesMapped"] = SceneIds,
+        ["scenesVisited"] = SceneIds,
+        ["respawnScene"] = SceneIds,
+        ["tempRespawnScene"] = SceneIds,
+        ["SteelQuestSpots"] = SceneIds,
+        ["HeroCorpseScene"] = SceneIds,
+        ["nonLethalRespawnScene"] = SceneIds,
+        ["MazeEntranceInitialScene"] = SceneIds,
+        ["MazeEntranceScene"] = SceneIds,
+        ["CaravanSpiderTargetScene"] = SceneIds,
+        ["CrowSummonsAppearedScene"] = SceneIds,
+        ["PreviousMazeScene"] = SceneIds,
+        ["dreamReturnScene"] = SceneIds,
+        ["nextScene"] = SceneIds,
+
+        ["BelltownHousePlayingInfo_RelicName"] = RelicIds,
+        ["LibrarianPlayingInfo_RelicName"] = RelicIds,
+        ["Relics"] = RelicIds,
+        ["Collectables"] = CollectableIds,
+        ["QuestCompletionData"] = QuestIds,
+        ["MateriumCollected"] = MateriumIds,
+        ["MementosDeposited"] = CollectableIds,
+
+        ["MazeEntranceDoor"] = TransitionGateIds,
+        ["PreviousMazeDoor"] = TransitionGateIds,
+        ["MazeEntranceInitialDoor"] = TransitionGateIds,
+        ["bossReturnEntryGate"] = TransitionGateIds,
+
+        ["respawnMarkerName"] = RespawnPointIds,
+        ["nonLethalRespawnMarker"] = RespawnPointIds,
+        ["tempRespawnMarker"] = RespawnPointIds,
+
+        ["LastSetFieldName"] = PlayerDataFieldIds,
+
+        ["EnemyJournalKillData"] = EnemyIds,
+
+        ["CurrentCrestID"] = CrestIds,
+        ["PreviousCrestID"] = CrestIds,
+
+        ["Tools"] = ToolIds,
+        ["ToolEquips"] = CrestIds,
+
+
+        ["ExtraToolEquips"] = ExtraToolSlotIds,
+        ["ToolLiquids"] = LiquidIds,
+
+        ["version"] = VersionIds,
+
+        ["BelltownCouriersGenericQuests"] = NoIds,
+        ["unlockedBossScenes"] = NoIds,
+    };
+
+    private static readonly Dictionary<string, string> namedMapToStringIdDict = new(StringComparer.Ordinal) {
+        // Example for scene-keyed maps:
+        // ["someNamedMapField"] = SceneIdFullName,
+    };
 
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         IncrementalValuesProvider<string> idMaps = context.AdditionalTextsProvider
             .Where(static file => file.Path.EndsWith(FieldIdsFileName, StringComparison.OrdinalIgnoreCase))
             .Select(static (file, ct) => file.GetText(ct)?.ToString() ?? "{}");
 
-        IncrementalValueProvider<(Compilation Compilation, ImmutableArray<string> Maps)> input = context.CompilationProvider.Combine(idMaps.Collect());
+        IncrementalValueProvider<(Compilation Compilation, ImmutableArray<string> Maps)> input =
+            context.CompilationProvider.Combine(idMaps.Collect());
 
-        context.RegisterSourceOutput(input, static (spc, data) => {
-            Generate(spc, data.Compilation, data.Maps);
-        });
+        context.RegisterSourceOutput(input, static (spc, data) => { Generate(spc, data.Compilation, data.Maps); });
     }
 
-    private static void Generate(SourceProductionContext context, Compilation compilation, ImmutableArray<string> maps) {
+    private static void Generate(SourceProductionContext context, Compilation compilation,
+        ImmutableArray<string> maps) {
         INamedTypeSymbol? playerDataType = null;
         string[] candidates = ["PlayerData", "Silksong.DataManager.PlayerData", "GlobalSettings.PlayerData"];
 
@@ -67,7 +153,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         }
 
         if (playerDataType == null) {
-            context.ReportDiagnostic(Diagnostic.Create(MissingPlayerDataType, Location.None, string.Join(", ", candidates)));
+            context.ReportDiagnostic(Diagnostic.Create(MissingPlayerDataType, Location.None,
+                string.Join(", ", candidates)));
             return;
         }
 
@@ -77,7 +164,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         List<ObservedField> observedFields = playerDataType
             .GetMembers()
             .OfType<IFieldSymbol>()
-            .Where(static field => field.DeclaredAccessibility == Accessibility.Public && !field.IsStatic && !field.IsConst)
+            .Where(static field =>
+                field.DeclaredAccessibility == Accessibility.Public && !field.IsStatic && !field.IsConst)
             .OrderBy(static field => field.Name, StringComparer.Ordinal)
             .SelectMany(ExpandObservedFields)
             .Where(static field => !PlayerDataSchemaRules.IsIgnoredPlayerDataFieldName(field.ContainingFieldName)
@@ -85,6 +173,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             .ToList();
 
         observedFields.AddRange(GetSyntheticHeroStateFields(compilation));
+        observedFields.AddRange(GetSyntheticGameManagerFields(compilation));
 
         List<ObservedField> allFields = observedFields
             .Select(field => {
@@ -120,7 +209,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             string expectedTypeName = isEnumField ? "enum" : GetTypeName(field);
             string expectedEnumType = isEnumField ? GetEnumTypeKey(field.FieldType) : string.Empty;
 
-            if (!fieldSchemaMap.TryGetValue(field.FieldName, out FieldSchema existingSchema) || existingSchema.Id == 0) {
+            if (!fieldSchemaMap.TryGetValue(field.FieldName, out FieldSchema existingSchema) ||
+                existingSchema.Id == 0) {
                 missingFieldIds.Add(field.FieldName);
                 continue;
             }
@@ -133,10 +223,15 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                         : string.IsNullOrWhiteSpace(existingSchema.Type)
                             ? expectedEnumType
                             : existingSchema.Type;
-                fieldSchemaMap[field.FieldName] = new FieldSchema(existingSchema.Id, "enum", normalizedEnumType);
-            } else {
-                string normalizedType = string.IsNullOrWhiteSpace(existingSchema.Type) ? expectedTypeName : existingSchema.Type;
-                fieldSchemaMap[field.FieldName] = new FieldSchema(existingSchema.Id, normalizedType, string.Empty);
+                fieldSchemaMap[field.FieldName] = new FieldSchema(existingSchema.Id, "enum", normalizedEnumType,
+                    existingSchema.IsFrequentChangeField);
+            }
+            else {
+                string normalizedType = string.IsNullOrWhiteSpace(existingSchema.Type)
+                    ? expectedTypeName
+                    : existingSchema.Type;
+                fieldSchemaMap[field.FieldName] = new FieldSchema(existingSchema.Id, normalizedType, string.Empty,
+                    existingSchema.IsFrequentChangeField);
             }
         }
 
@@ -146,6 +241,18 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             }
 
             return;
+        }
+
+        for (int i = 0; i < supportedFields.Count; i++) {
+            ObservedField field = supportedFields[i];
+            bool isFrequentChangeField = PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(field.FieldName);
+
+            if (fieldSchemaMap.TryGetValue(field.FieldName, out FieldSchema existingSchema)) {
+                isFrequentChangeField |= existingSchema.IsFrequentChangeField;
+            }
+
+            field.IsFrequentChangeField = isFrequentChangeField;
+            supportedFields[i] = field;
         }
 
         HashSet<string> usedIdentifiers = new(StringComparer.Ordinal);
@@ -161,17 +268,20 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             supportedFields[i] = field;
         }
 
-        bool hasHeroStateFields = supportedFields.Any(static field => string.Equals(field.ContainingFieldName, "heroState", StringComparison.Ordinal));
+        bool hasHeroStateFields = supportedFields.Any(static field =>
+            string.Equals(field.ContainingFieldName, "heroState", StringComparison.Ordinal));
 
         string playerDataTypeName = playerDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        HashSet<string> warnedMissingStringIdDicts = new(StringComparer.Ordinal);
 
-         StringBuilder source = new();
-         source.AppendLine("// <auto-generated />");
-         source.AppendLine("#nullable enable");
-         source.AppendLine();
-         source.AppendLine("using HKViz.Silk.Recording.DataHelpers;");
-         source.AppendLine();
-         source.AppendLine("namespace HKViz.Silk.Recording;");
+        StringBuilder source = new();
+        source.AppendLine("// <auto-generated />");
+        source.AppendLine("#nullable enable");
+        source.AppendLine();
+        source.AppendLine("using HKViz.Silk.Recording.DataHelpers;");
+        source.AppendLine("using HKViz.Silk.GameData;");
+        source.AppendLine();
+        source.AppendLine("namespace HKViz.Silk.Recording;");
         source.AppendLine();
         source.AppendLine("public partial class PlayerDataWriter {");
         source.AppendLine("    public static class FieldIds {");
@@ -183,6 +293,20 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             source.Append(fieldSchemaMap[field.FieldName].Id);
             source.AppendLine(";");
         }
+
+        source.AppendLine();
+        source.AppendLine(
+            "        public static readonly global::System.Collections.Generic.Dictionary<string, ushort> NAME_TO_ID = new(global::System.StringComparer.Ordinal) {");
+
+        foreach (ObservedField field in supportedFields) {
+            source.Append("            [\"");
+            source.Append(field.FieldName);
+            source.Append("\"] = ");
+            source.Append(field.FieldIdName);
+            source.AppendLine(",");
+        }
+
+        source.AppendLine("        };");
 
         source.AppendLine("    }");
         source.AppendLine();
@@ -215,21 +339,26 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         source.AppendLine("        if (playerData == null) {");
         source.AppendLine("            return;");
         source.AppendLine("        }");
-        if (hasHeroStateFields) {
-            source.AppendLine("        global::HeroController heroController = global::HeroController.instance;");
-        }
+        source.AppendLine("        HeroController heroController = HeroController.instance;");
+        source.AppendLine("        GameManager gameManager = GameManager._instance;");
         source.AppendLine();
 
         foreach (ObservedField field in supportedFields) {
             if (TryGetNamedMapInfo(field.FieldType, out NamedMapInfo namedMapInfo)) {
+                if (field.IsFrequentChangeField) {
+                    source.AppendLine("        if (writeFrequentChangeFields) {");
+                }
+
                 source.Append("        var ");
                 source.Append(field.CurrentName);
                 source.Append(" = ");
                 source.Append(GetReadExpression(field, "playerData"));
                 source.AppendLine(";");
 
-                source.Append("        WriteNamedMapIfChanged(FieldIds.");
+                source.Append("        WriteNamedMapChanges(FieldIds.");
                 source.Append(field.FieldIdName);
+                source.Append(", ");
+                source.Append(GetStringIdDict(context, warnedMissingStringIdDicts, field));
                 source.Append(", ref ");
                 source.Append(field.PreviousName);
                 source.Append(", ");
@@ -240,7 +369,13 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 source.Append(namedMapInfo.CopyMethodName);
                 source.Append(", ");
                 source.Append(namedMapInfo.WriteMethodName);
+                source.Append(", ");
+                source.Append("true");
                 source.AppendLine(");");
+                if (field.IsFrequentChangeField) {
+                    source.AppendLine("        }");
+                }
+
                 source.AppendLine();
                 continue;
             }
@@ -303,13 +438,15 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                         source.Append(", ");
                         source.Append(field.CurrentName);
                         source.AppendLine(");");
-                    } else {
+                    }
+                    else {
                         source.Append("        runFiles.WritePlayerDataIntArrayFullChange(FieldIds.");
                         source.Append(field.FieldIdName);
                         source.Append(", ");
                         source.Append(field.CurrentName);
                         source.AppendLine(");");
                     }
+
                     break;
                 case FieldKind.Float:
                     source.Append("        runFiles.WritePlayerDataFloatChange(FieldIds.");
@@ -318,31 +455,43 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     source.Append(field.CurrentName);
                     source.AppendLine(");");
                     break;
-                 case FieldKind.String:
+                case FieldKind.String: {
+                    string stringIdDict = GetStringIdDict(context, warnedMissingStringIdDicts, field);
                     source.Append("        runFiles.WritePlayerDataStringChange(FieldIds.");
                     source.Append(field.FieldIdName);
+                    source.Append(", ");
+                    source.Append(stringIdDict);
                     source.Append(", ");
                     source.Append(field.CurrentName);
                     source.Append(" ?? string.Empty");
                     source.AppendLine(");");
                     break;
-                case FieldKind.StringCollection:
+                }
+                case FieldKind.StringCollection: {
+                    string stringIdDict = GetStringIdDict(context, warnedMissingStringIdDicts, field);
                     if (IsStringSet(field.FieldType)) {
                         source.Append("        runFiles.WritePlayerDataStringSetFullChange(FieldIds.");
                         source.Append(field.FieldIdName);
                         source.Append(", ");
+                        source.Append(stringIdDict);
+                        source.Append(", ");
                         source.Append(field.CurrentName);
                         source.AppendLine(");");
-                    } else {
+                    }
+                    else {
                         source.Append("        runFiles.WritePlayerDataStringCollectionFullChange(FieldIds.");
                         source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append(stringIdDict);
                         source.Append(", ");
                         source.Append(field.CurrentName);
                         source.Append(" == null ? new string[0] : ");
                         source.Append(field.CurrentName);
                         source.AppendLine(".ToArray());");
                     }
+
                     break;
+                }
                 case FieldKind.StoryEventList:
                     source.Append("        runFiles.WritePlayerDataStoryEventListFullChange(FieldIds.");
                     source.Append(field.FieldIdName);
@@ -378,46 +527,21 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         source.AppendLine("        _hasPreviousPlayerDataValues = true;");
         source.AppendLine("    }");
         source.AppendLine();
-        source.AppendLine("    public partial void WriteChanged() {");
+        source.AppendLine("    public partial void WriteChanged(bool writeFrequentChangeFields) {");
         source.Append("        ");
         source.Append(playerDataTypeName);
         source.AppendLine(" playerData = global::PlayerData.instance;");
         source.AppendLine("        if (playerData == null) {");
         source.AppendLine("            return;");
         source.AppendLine("        }");
-        if (hasHeroStateFields) {
-            source.AppendLine("        global::HeroController heroController = global::HeroController.instance;");
-        }
+        source.AppendLine("        HeroController heroController = HeroController.instance;");
+        source.AppendLine("        GameManager gameManager = GameManager._instance;");
         source.AppendLine();
         source.AppendLine("        if (!_hasPreviousPlayerDataValues) {");
-         foreach (ObservedField field in supportedFields) {
-             if (TryGetNamedMapInfo(field.FieldType, out NamedMapInfo namedMapInfo)) {
-                 source.Append("            WriteNamedMapIfChanged(FieldIds.");
-                 source.Append(field.FieldIdName);
-                 source.Append(", ref ");
-                 source.Append(field.PreviousName);
-                 source.Append(", ");
-                 source.Append(GetReadExpression(field, "playerData"));
-                 source.Append(", ");
-                 source.Append(namedMapInfo.EqualsMethodName);
-                 source.Append(", ");
-                 source.Append(namedMapInfo.CopyMethodName);
-                 source.Append(", ");
-                 source.Append(namedMapInfo.WriteMethodName);
-                 source.AppendLine(");");
-                 continue;
-             }
-
-             source.Append("            ");
-             source.Append(field.PreviousName);
-             source.Append(" = ");
-             source.Append(GetPreviousAssignmentExpression(field, GetReadExpression(field, "playerData")));
-             source.AppendLine(";");
-         }
-         source.AppendLine("            _hasPreviousPlayerDataValues = true;");
-         source.AppendLine("            return;");
-         source.AppendLine("        }");
-         source.AppendLine();
+        source.AppendLine("            WriteAll();");
+        source.AppendLine("            return;");
+        source.AppendLine("        }");
+        source.AppendLine();
 
         foreach (ObservedField field in supportedFields) {
             if (TryGetNamedMapInfo(field.FieldType, out NamedMapInfo namedMapInfo)) {
@@ -427,8 +551,10 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 source.Append(GetReadExpression(field, "playerData"));
                 source.AppendLine(";");
 
-                source.Append("        WriteNamedMapIfChanged(FieldIds.");
+                source.Append("        WriteNamedMapChanges(FieldIds.");
                 source.Append(field.FieldIdName);
+                source.Append(", ");
+                source.Append(GetStringIdDict(context, warnedMissingStringIdDicts, field));
                 source.Append(", ref ");
                 source.Append(field.PreviousName);
                 source.Append(", ");
@@ -439,9 +565,15 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 source.Append(namedMapInfo.CopyMethodName);
                 source.Append(", ");
                 source.Append(namedMapInfo.WriteMethodName);
+                source.Append(", ");
+                source.Append("false");
                 source.AppendLine(");");
                 source.AppendLine();
                 continue;
+            }
+
+            if (field.IsFrequentChangeField) {
+                source.AppendLine("        if (writeFrequentChangeFields) {");
             }
 
             source.Append("        ");
@@ -507,7 +639,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     source.Append(field.CurrentName);
                     source.AppendLine(");");
                     break;
-                 case FieldKind.IntArray:
+                case FieldKind.IntArray:
                     if (IsIntList(field.FieldType)) {
                         source.Append("        WriteIntListIfChanged(FieldIds.");
                         source.Append(field.FieldIdName);
@@ -517,7 +649,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                         source.Append(", ");
                         source.Append(field.CurrentName);
                         source.AppendLine(");");
-                    } else {
+                    }
+                    else {
                         source.Append("        WriteIntArrayIfChanged(FieldIds.");
                         source.Append(field.FieldIdName);
                         source.Append(", ");
@@ -527,6 +660,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                         source.Append(field.CurrentName);
                         source.AppendLine(");");
                     }
+
                     break;
                 case FieldKind.Float:
                     source.Append("        WriteFloatIfChanged(FieldIds.");
@@ -537,28 +671,26 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     source.Append(field.CurrentName);
                     source.AppendLine(");");
                     break;
-                 case FieldKind.String:
+                case FieldKind.String: {
+                    string stringIdDict = GetStringIdDict(context, warnedMissingStringIdDicts, field);
                     source.Append("        WriteStringIfChanged(FieldIds.");
                     source.Append(field.FieldIdName);
+                    source.Append(", ");
+                    source.Append(stringIdDict);
                     source.Append(", ");
                     source.Append(field.PreviousName);
                     source.Append(", ");
                     source.Append(field.CurrentName);
                     source.AppendLine(");");
                     break;
-                case FieldKind.StringCollection:
+                }
+                case FieldKind.StringCollection: {
+                    string stringIdDict = GetStringIdDict(context, warnedMissingStringIdDicts, field);
                     if (IsStringSet(field.FieldType)) {
                         source.Append("        WriteStringSetIfChanged(FieldIds.");
                         source.Append(field.FieldIdName);
                         source.Append(", ");
-                        source.Append("ref ");
-                        source.Append(field.PreviousName);
-                        source.Append(", ");
-                        source.Append(field.CurrentName);
-                        source.AppendLine(");");
-                    } else {
-                        source.Append("        WriteStringListIfChanged(FieldIds.");
-                        source.Append(field.FieldIdName);
+                        source.Append(stringIdDict);
                         source.Append(", ");
                         source.Append("ref ");
                         source.Append(field.PreviousName);
@@ -566,7 +698,21 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                         source.Append(field.CurrentName);
                         source.AppendLine(");");
                     }
+                    else {
+                        source.Append("        WriteStringListIfChanged(FieldIds.");
+                        source.Append(field.FieldIdName);
+                        source.Append(", ");
+                        source.Append(stringIdDict);
+                        source.Append(", ");
+                        source.Append("ref ");
+                        source.Append(field.PreviousName);
+                        source.Append(", ");
+                        source.Append(field.CurrentName);
+                        source.AppendLine(");");
+                    }
+
                     break;
+                }
                 case FieldKind.StoryEventList:
                     source.Append("        WriteStoryEventListIfChanged(FieldIds.");
                     source.Append(field.FieldIdName);
@@ -596,49 +742,64 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                     break;
             }
 
-            if (field.Kind != FieldKind.IntArray && field.Kind != FieldKind.StringCollection && field.Kind != FieldKind.NamedMap && field.Kind != FieldKind.StoryEventList && field.Kind != FieldKind.WrappedVector2ListArray) {
+            if (field.Kind != FieldKind.IntArray && field.Kind != FieldKind.StringCollection &&
+                field.Kind != FieldKind.NamedMap && field.Kind != FieldKind.StoryEventList &&
+                field.Kind != FieldKind.WrappedVector2ListArray) {
                 source.Append("        ");
                 source.Append(field.PreviousName);
                 source.Append(" = ");
                 source.Append(GetPreviousAssignmentExpression(field, field.CurrentName));
                 source.AppendLine(";");
             }
+
+            if (field.IsFrequentChangeField) {
+                source.AppendLine("        }");
+            }
+
             source.AppendLine();
         }
 
         source.AppendLine("    }");
         source.AppendLine();
 
-        source.AppendLine("    private static global::System.Guid GuidFromBytesOrEmpty(global::System.Byte[]? value) {");
-        source.AppendLine("        return value is { Length: 16 } ? new global::System.Guid(value) : global::System.Guid.Empty;");
+        source.AppendLine(
+            "    private static global::System.Guid GuidFromBytesOrEmpty(global::System.Byte[]? value) {");
+        source.AppendLine(
+            "        return value is { Length: 16 } ? new global::System.Guid(value) : global::System.Guid.Empty;");
         source.AppendLine("    }");
         source.AppendLine();
-        source.AppendLine("    private static global::System.Collections.Generic.List<int>? CopyIntList(global::System.Collections.Generic.List<int>? value) {");
+        source.AppendLine(
+            "    private static global::System.Collections.Generic.List<int>? CopyIntList(global::System.Collections.Generic.List<int>? value) {");
         source.AppendLine("        if (value is null || value.Count == 0) {");
         source.AppendLine("            return null;");
         source.AppendLine("        }");
         source.AppendLine("        return new global::System.Collections.Generic.List<int>(value);");
         source.AppendLine("    }");
         source.AppendLine();
-        source.AppendLine("    private static global::System.Collections.Generic.List<string>? CopyStringList(global::System.Collections.Generic.List<string>? value) {");
+        source.AppendLine(
+            "    private static global::System.Collections.Generic.List<string>? CopyStringList(global::System.Collections.Generic.List<string>? value) {");
         source.AppendLine("        if (value is null || value.Count == 0) {");
         source.AppendLine("            return null;");
         source.AppendLine("        }");
         source.AppendLine("        return new global::System.Collections.Generic.List<string>(value);");
         source.AppendLine("    }");
         source.AppendLine();
-        source.AppendLine("    private static global::System.Collections.Generic.HashSet<string>? CopyStringSet(global::System.Collections.Generic.HashSet<string>? value) {");
+        source.AppendLine(
+            "    private static global::System.Collections.Generic.HashSet<string>? CopyStringSet(global::System.Collections.Generic.HashSet<string>? value) {");
         source.AppendLine("        if (value is null || value.Count == 0) {");
         source.AppendLine("            return null;");
         source.AppendLine("        }");
-        source.AppendLine("        return new global::System.Collections.Generic.HashSet<string>(value, global::System.StringComparer.Ordinal);");
+        source.AppendLine(
+            "        return new global::System.Collections.Generic.HashSet<string>(value, global::System.StringComparer.Ordinal);");
         source.AppendLine("    }");
         source.AppendLine();
-        source.AppendLine("    private static global::System.Collections.Generic.List<global::PlayerStory.EventInfo>? CopyStoryEventList(global::System.Collections.Generic.List<global::PlayerStory.EventInfo>? value) {");
+        source.AppendLine(
+            "    private static global::System.Collections.Generic.List<global::PlayerStory.EventInfo>? CopyStoryEventList(global::System.Collections.Generic.List<global::PlayerStory.EventInfo>? value) {");
         source.AppendLine("        if (value is null || value.Count == 0) {");
         source.AppendLine("            return null;");
         source.AppendLine("        }");
-        source.AppendLine("        return new global::System.Collections.Generic.List<global::PlayerStory.EventInfo>(value);");
+        source.AppendLine(
+            "        return new global::System.Collections.Generic.List<global::PlayerStory.EventInfo>(value);");
         source.AppendLine("    }");
         source.AppendLine();
         source.AppendLine("}");
@@ -674,7 +835,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             }
 
             return new IdMaps(legacyFields, new Dictionary<string, Dictionary<string, ushort>>(StringComparer.Ordinal));
-        } catch {
+        }
+        catch {
             return new IdMaps(
                 new Dictionary<string, FieldSchema>(StringComparer.Ordinal),
                 new Dictionary<string, Dictionary<string, ushort>>(StringComparer.Ordinal)
@@ -702,6 +864,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             ushort id = 0;
             string type = string.Empty;
             string enumType = string.Empty;
+            bool isFrequentChangeField = false;
 
             foreach (JsonProperty child in prop.Value.EnumerateObject()) {
                 if (string.Equals(child.Name, "id", StringComparison.OrdinalIgnoreCase)
@@ -721,6 +884,12 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 if (string.Equals(child.Name, "enumType", StringComparison.OrdinalIgnoreCase)
                     && child.Value.ValueKind == JsonValueKind.String) {
                     enumType = child.Value.GetString() ?? string.Empty;
+                    continue;
+                }
+
+                if (string.Equals(child.Name, "isFrequentChangeField", StringComparison.OrdinalIgnoreCase)
+                    && child.Value.ValueKind is JsonValueKind.True or JsonValueKind.False) {
+                    isFrequentChangeField = child.Value.GetBoolean();
                 }
             }
 
@@ -728,7 +897,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 continue;
             }
 
-            map[prop.Name] = new FieldSchema(id, type, enumType);
+            map[prop.Name] = new FieldSchema(id, type, enumType, isFrequentChangeField);
         }
 
         return map;
@@ -839,7 +1008,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         }
 
         if (field.Kind == FieldKind.NamedMap && TryGetNamedMapInfo(field.FieldType, out NamedMapInfo namedMapInfo)) {
-            return "global::System.Collections.Generic.Dictionary<string, " + namedMapInfo.SnapshotValueTypeDisplay + ">";
+            return "global::System.Collections.Generic.Dictionary<string, " + namedMapInfo.SnapshotValueTypeDisplay +
+                   ">";
         }
 
         if (field.Kind == FieldKind.IntArray && IsIntList(field.FieldType)) {
@@ -917,40 +1087,86 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         return valueExpression;
     }
 
-     private static bool TryGetNamedMapInfo(ITypeSymbol type, out NamedMapInfo info) {
-         if (IsSteelQuestSpotArray(type)) {
-             info = new NamedMapInfo("bool", ".EnumerateBySceneName()", "BoolDataHelper.Equals", "BoolDataHelper.Copy", "BinaryWriterExtensions.WriteBool");
-             return true;
-         }
+    private static string GetStringIdDict(SourceProductionContext context, HashSet<string> warnedMissingStringIdDicts,
+        ObservedField field) {
+        if (field.Kind == FieldKind.NamedMap &&
+            namedMapToStringIdDict.TryGetValue(field.FieldName, out string? namedMapDict)) {
+            return namedMapDict;
+        }
 
-         if (IsStringIntDictionary(type)) {
-             info = new NamedMapInfo("int", string.Empty, "IntDataHelper.Equals", "IntDataHelper.Copy", "BinaryWriterExtensions.WriteInt");
-             return true;
-         }
+        if (fieldToStringIdDict.TryGetValue(field.FieldName, out string? fieldDict)) {
+            return fieldDict;
+        }
 
-         if (type is not INamedTypeSymbol namedType) {
-             info = default;
-             return false;
-         }
+        if (warnedMissingStringIdDicts.Add(field.FieldName)) {
+            context.ReportDiagnostic(Diagnostic.Create(
+                MissingStringIdDictionary,
+                Location.None,
+                field.FieldName,
+                field.FieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+            ));
+        }
 
-         string typeName = namedType.Name;
-         info = typeName switch {
-             "CollectableItemsData" => new NamedMapInfo("global::CollectableItemsData.Data", ".Enumerate()", "CollectableItemsDataHelper.Equals", "CollectableItemsDataHelper.Copy", "BinaryWriterExtensions.WriteCollectableItemsData"),
-             "CollectableRelicsData" => new NamedMapInfo("global::CollectableRelicsData.Data", ".Enumerate()", "CollectableRelicsDataHelper.Equals", "CollectableRelicsDataHelper.Copy", "BinaryWriterExtensions.WriteCollectableRelicsData"),
-             "CollectableMementosData" => new NamedMapInfo("global::CollectableMementosData.Data", ".Enumerate()", "CollectableMementosDataHelper.Equals", "CollectableMementosDataHelper.Copy", "BinaryWriterExtensions.WriteCollectableMementosData"),
-             "MateriumItemsData" => new NamedMapInfo("global::MateriumItemsData.Data", ".Enumerate()", "MateriumItemsDataHelper.Equals", "MateriumItemsDataHelper.Copy", "BinaryWriterExtensions.WriteMateriumItemsData"),
-             "QuestCompletionData" => new NamedMapInfo("global::QuestCompletionData.Completion", ".Enumerate()", "QuestCompletionDataHelper.Equals", "QuestCompletionDataHelper.Copy", "BinaryWriterExtensions.WriteQuestCompletionData"),
-             "QuestRumourData" => new NamedMapInfo("global::QuestRumourData.Data", ".Enumerate()", "QuestRumourDataHelper.Equals", "QuestRumourDataHelper.Copy", "BinaryWriterExtensions.WriteQuestRumourData"),
-             "ToolItemLiquidsData" => new NamedMapInfo("global::ToolItemLiquidsData.Data", ".Enumerate()", "ToolItemLiquidsDataHelper.Equals", "ToolItemLiquidsDataHelper.Copy", "BinaryWriterExtensions.WriteToolItemLiquidsData"),
-             "ToolItemsData" => new NamedMapInfo("global::ToolItemsData.Data", ".Enumerate()", "ToolItemsDataHelper.Equals", "ToolItemsDataHelper.Copy", "BinaryWriterExtensions.WriteToolItemsData"),
-             "ToolCrestsData" => new NamedMapInfo("global::ToolCrestsData.Data", ".Enumerate()", "ToolCrestsDataHelper.Equals", "ToolCrestsDataHelper.Copy", "BinaryWriterExtensions.WriteToolCrestsData"),
-             "FloatingCrestSlotsData" => new NamedMapInfo("global::ToolCrestsData.SlotData", ".Enumerate()", "ToolCrestsDataHelper.EqualsSlotData", "ToolCrestsDataHelper.CopySlotData", "BinaryWriterExtensions.WriteToolCrestsSlotData"),
-             "EnemyJournalKillData" => new NamedMapInfo("global::EnemyJournalKillData.KillData", ".Dictionary", "EnemyJournalKillDataHelper.Equals", "EnemyJournalKillDataHelper.Copy", "BinaryWriterExtensions.WriteEnemyJournalKillData"),
-             _ => default,
-         };
+        return NoIds;
+    }
 
-         return !string.IsNullOrEmpty(info.SnapshotValueTypeDisplay);
-     }
+    private static bool TryGetNamedMapInfo(ITypeSymbol type, out NamedMapInfo info) {
+        if (IsSteelQuestSpotArray(type)) {
+            info = new NamedMapInfo("bool", ".EnumerateBySceneName()", "BoolDataHelper.Equals", "BoolDataHelper.Copy",
+                "BinaryWriterExtensions.WriteBool");
+            return true;
+        }
+
+        if (IsStringIntDictionary(type)) {
+            info = new NamedMapInfo("int", string.Empty, "IntDataHelper.Equals", "IntDataHelper.Copy",
+                "BinaryWriterExtensions.WriteInt");
+            return true;
+        }
+
+        if (type is not INamedTypeSymbol namedType) {
+            info = default;
+            return false;
+        }
+
+        string typeName = namedType.Name;
+        info = typeName switch {
+            "CollectableItemsData" => new NamedMapInfo("global::CollectableItemsData.Data", ".Enumerate()",
+                "CollectableItemsDataHelper.Equals", "CollectableItemsDataHelper.Copy",
+                "BinaryWriterExtensions.WriteCollectableItemsData"),
+            "CollectableRelicsData" => new NamedMapInfo("global::CollectableRelicsData.Data", ".Enumerate()",
+                "CollectableRelicsDataHelper.Equals", "CollectableRelicsDataHelper.Copy",
+                "BinaryWriterExtensions.WriteCollectableRelicsData"),
+            "CollectableMementosData" => new NamedMapInfo("global::CollectableMementosData.Data", ".Enumerate()",
+                "CollectableMementosDataHelper.Equals", "CollectableMementosDataHelper.Copy",
+                "BinaryWriterExtensions.WriteCollectableMementosData"),
+            "MateriumItemsData" => new NamedMapInfo("global::MateriumItemsData.Data", ".Enumerate()",
+                "MateriumItemsDataHelper.Equals", "MateriumItemsDataHelper.Copy",
+                "BinaryWriterExtensions.WriteMateriumItemsData"),
+            "QuestCompletionData" => new NamedMapInfo("global::QuestCompletionData.Completion", ".Enumerate()",
+                "QuestCompletionDataHelper.Equals", "QuestCompletionDataHelper.Copy",
+                "BinaryWriterExtensions.WriteQuestCompletionData"),
+            "QuestRumourData" => new NamedMapInfo("global::QuestRumourData.Data", ".Enumerate()",
+                "QuestRumourDataHelper.Equals", "QuestRumourDataHelper.Copy",
+                "BinaryWriterExtensions.WriteQuestRumourData"),
+            "ToolItemLiquidsData" => new NamedMapInfo("global::ToolItemLiquidsData.Data", ".Enumerate()",
+                "ToolItemLiquidsDataHelper.Equals", "ToolItemLiquidsDataHelper.Copy",
+                "BinaryWriterExtensions.WriteToolItemLiquidsData"),
+            "ToolItemsData" => new NamedMapInfo("global::ToolItemsData.Data", ".Enumerate()",
+                "ToolItemsDataHelper.Equals", "ToolItemsDataHelper.Copy", "BinaryWriterExtensions.WriteToolItemsData"),
+            "ToolCrestsData" => new NamedMapInfo("global::ToolCrestsData.Data", ".Enumerate()",
+                "ToolCrestsDataHelper.Equals", "ToolCrestsDataHelper.Copy",
+                "BinaryWriterExtensions.WriteToolCrestsData"),
+            "FloatingCrestSlotsData" => new NamedMapInfo("global::ToolCrestsData.SlotData", ".Enumerate()",
+                "ToolCrestsDataHelper.EqualsSlotData", "ToolCrestsDataHelper.CopySlotData",
+                "BinaryWriterExtensions.WriteToolCrestsSlotData"),
+            "EnemyJournalKillData" => new NamedMapInfo("global::EnemyJournalKillData.KillData", ".Dictionary",
+                "EnemyJournalKillDataHelper.Equals", "EnemyJournalKillDataHelper.Copy",
+                "BinaryWriterExtensions.WriteEnemyJournalKillData"),
+            _ => default,
+        };
+
+        return !string.IsNullOrEmpty(info.SnapshotValueTypeDisplay);
+    }
 
     private static string GetTypeName(ObservedField field) {
         if (IsGuidByteArray(field.FieldType, field.FieldName)) {
@@ -978,9 +1194,12 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             _ when IsStoryEventInfoList(field.FieldType) => "list<playerstory.eventinfo>",
             _ when IsWrappedVector2ListArray(field.FieldType) => "wrappedvector2list[]",
             _ when IsIntArray(field.FieldType) => "int[]",
-            _ when field.FieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::UnityEngine.Vector2" => "vector2",
-            _ when field.FieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::UnityEngine.Vector3" => "vector3",
-            _ when field.FieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.Guid" => "guid",
+            _ when field.FieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
+                   "global::UnityEngine.Vector2" => "vector2",
+            _ when field.FieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
+                   "global::UnityEngine.Vector3" => "vector3",
+            _ when field.FieldType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
+                   "global::System.Guid" => "guid",
             _ => field.FieldType.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat),
         };
     }
@@ -1033,9 +1252,12 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             SpecialType.System_UInt64 => FieldKind.ULong,
             SpecialType.System_Single => FieldKind.Float,
             SpecialType.System_String => FieldKind.String,
-            _ when symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::UnityEngine.Vector2" => FieldKind.Vector2,
-            _ when symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::UnityEngine.Vector3" => FieldKind.Vector3,
-            _ when symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.Guid" => FieldKind.Guid,
+            _ when symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::UnityEngine.Vector2" =>
+                FieldKind.Vector2,
+            _ when symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::UnityEngine.Vector3" =>
+                FieldKind.Vector3,
+            _ when symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.Guid" =>
+                FieldKind.Guid,
             _ => FieldKind.Unsupported,
         };
     }
@@ -1053,40 +1275,40 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
 
     private static bool IsIntList(ITypeSymbol type) {
         return type is INamedTypeSymbol {
-            IsGenericType: true,
-            Name: "List",
-            TypeArguments.Length: 1,
-        } namedType
+                   IsGenericType: true,
+                   Name: "List",
+                   TypeArguments.Length: 1,
+               } namedType
                && namedType.ContainingNamespace.ToDisplayString() == "System.Collections.Generic"
                && namedType.TypeArguments[0].SpecialType == SpecialType.System_Int32;
     }
 
     private static bool IsStringList(ITypeSymbol type) {
         return type is INamedTypeSymbol {
-            IsGenericType: true,
-            Name: "List",
-            TypeArguments.Length: 1,
-        } namedType
+                   IsGenericType: true,
+                   Name: "List",
+                   TypeArguments.Length: 1,
+               } namedType
                && namedType.ContainingNamespace.ToDisplayString() == "System.Collections.Generic"
                && namedType.TypeArguments[0].SpecialType == SpecialType.System_String;
     }
 
     private static bool IsStringSet(ITypeSymbol type) {
         return type is INamedTypeSymbol {
-            IsGenericType: true,
-            Name: "HashSet",
-            TypeArguments.Length: 1,
-        } namedType
+                   IsGenericType: true,
+                   Name: "HashSet",
+                   TypeArguments.Length: 1,
+               } namedType
                && namedType.ContainingNamespace.ToDisplayString() == "System.Collections.Generic"
                && namedType.TypeArguments[0].SpecialType == SpecialType.System_String;
     }
 
     private static bool IsStringIntDictionary(ITypeSymbol type) {
         return type is INamedTypeSymbol {
-            IsGenericType: true,
-            Name: "Dictionary",
-            TypeArguments.Length: 2,
-        } namedType
+                   IsGenericType: true,
+                   Name: "Dictionary",
+                   TypeArguments.Length: 2,
+               } namedType
                && namedType.ContainingNamespace.ToDisplayString() == "System.Collections.Generic"
                && namedType.TypeArguments[0].SpecialType == SpecialType.System_String
                && namedType.TypeArguments[1].SpecialType == SpecialType.System_Int32;
@@ -1094,20 +1316,23 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
 
     private static bool IsStoryEventInfoList(ITypeSymbol type) {
         return type is INamedTypeSymbol {
-            IsGenericType: true,
-            Name: "List",
-            TypeArguments.Length: 1,
-        } namedType
+                   IsGenericType: true,
+                   Name: "List",
+                   TypeArguments.Length: 1,
+               } namedType
                && namedType.ContainingNamespace.ToDisplayString() == "System.Collections.Generic"
-               && namedType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::PlayerStory.EventInfo";
+               && namedType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
+               "global::PlayerStory.EventInfo";
     }
 
     private static bool IsSteelQuestSpotArray(ITypeSymbol type) {
-        return PlayerDataSchemaRules.IsSteelQuestSpotArrayTypeName(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+        return PlayerDataSchemaRules.IsSteelQuestSpotArrayTypeName(
+            type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
     }
 
     private static bool IsWrappedVector2ListArray(ITypeSymbol type) {
-        return PlayerDataSchemaRules.IsWrappedVector2ListArrayTypeName(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+        return PlayerDataSchemaRules.IsWrappedVector2ListArrayTypeName(
+            type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
     }
 
     private static IEnumerable<ObservedField> ExpandObservedFields(IFieldSymbol field) {
@@ -1116,9 +1341,11 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         }
     }
 
-    private static IEnumerable<ObservedField> ExpandObservedFieldsRecursive(IFieldSymbol rootField, ITypeSymbol currentType, string fieldNamePrefix, string readSuffixPrefix) {
+    private static IEnumerable<ObservedField> ExpandObservedFieldsRecursive(IFieldSymbol rootField,
+        ITypeSymbol currentType, string fieldNamePrefix, string readSuffixPrefix) {
         if (!IsFlattenedWrapperType(currentType)) {
-            yield return new ObservedField(rootField, currentType, fieldNamePrefix, readSuffixPrefix);
+            yield return new ObservedField(rootField, currentType, fieldNamePrefix, readSuffixPrefix,
+                PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(fieldNamePrefix));
             yield break;
         }
 
@@ -1126,18 +1353,22 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             yield break;
         }
 
-        foreach (IFieldSymbol nestedField in wrapperType.GetMembers().OfType<IFieldSymbol>().Where(static f => f.DeclaredAccessibility == Accessibility.Public && !f.IsStatic && !f.IsConst).OrderBy(static f => f.Name, StringComparer.Ordinal)) {
+        foreach (IFieldSymbol nestedField in wrapperType.GetMembers().OfType<IFieldSymbol>()
+                     .Where(static f => f.DeclaredAccessibility == Accessibility.Public && !f.IsStatic && !f.IsConst)
+                     .OrderBy(static f => f.Name, StringComparer.Ordinal)) {
             string nestedFieldName = fieldNamePrefix + "_" + nestedField.Name;
             string nestedReadSuffix = readSuffixPrefix + "." + nestedField.Name;
 
-            foreach (ObservedField observed in ExpandObservedFieldsRecursive(rootField, nestedField.Type, nestedFieldName, nestedReadSuffix)) {
+            foreach (ObservedField observed in ExpandObservedFieldsRecursive(rootField, nestedField.Type,
+                         nestedFieldName, nestedReadSuffix)) {
                 yield return observed;
             }
         }
     }
 
     private static bool IsFlattenedWrapperType(ITypeSymbol type) {
-        return PlayerDataSchemaRules.IsFlattenedWrapperTypeName(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+        return PlayerDataSchemaRules.IsFlattenedWrapperTypeName(
+            type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
     }
 
     private static IEnumerable<ObservedField> GetSyntheticHeroStateFields(Compilation compilation) {
@@ -1146,14 +1377,52 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             yield break;
         }
 
-        foreach (IFieldSymbol field in heroStateType.GetMembers().OfType<IFieldSymbol>().Where(static f => !f.IsStatic && !f.IsConst).OrderBy(static f => f.Name, StringComparer.Ordinal)) {
+        foreach (IFieldSymbol field in heroStateType.GetMembers().OfType<IFieldSymbol>()
+                     .Where(static f => !f.IsStatic && !f.IsConst)
+                     .OrderBy(static f => f.Name, StringComparer.Ordinal)) {
             if (PlayerDataSchemaRules.IsIgnoredHeroStateFieldName(field.Name)) {
                 continue;
             }
 
             string fieldType = field.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            string readExpression = "heroController == null ? default(" + fieldType + ") : heroController.cState." + field.Name;
-            yield return ObservedField.CreateSynthetic(field.Type, "heroState_" + field.Name, "heroState", readExpression);
+            string readExpression = "heroController == null ? default(" + fieldType + ") : heroController.cState." +
+                                    field.Name;
+            string fieldName = "heroState_" + field.Name;
+            yield return ObservedField.CreateSynthetic(field.Type, fieldName, "heroState", readExpression,
+                PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(fieldName));
+        }
+    }
+
+    private static IEnumerable<ObservedField> GetSyntheticGameManagerFields(Compilation compilation) {
+        INamedTypeSymbol? gameManagerType = compilation.GetTypeByMetadataName("GameManager");
+        if (gameManagerType == null) {
+            yield break;
+        }
+
+        var members = gameManagerType.GetMembers()
+            .Where(m => !m.IsStatic)
+            .OrderBy(m => m.Name, StringComparer.Ordinal);
+
+        foreach (var member in members) {
+            if (member is IFieldSymbol field) {
+                if (field.IsConst)
+                    continue;
+
+                // no fields for now
+            }
+            else if (member is IPropertySymbol prop) {
+                if (prop.GetMethod == null)
+                    continue;
+
+                if (prop.Name is "GameState") {
+                    string propType = prop.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                    string readExpression =
+                        "gameManager == null ? default(" + propType + ") : gameManager." + prop.Name;
+                    string fieldName = "gameManager_" + prop.Name;
+                    yield return ObservedField.CreateSynthetic(prop.Type, fieldName, "heroState", readExpression,
+                        PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(fieldName));
+                }
+            }
         }
     }
 
@@ -1173,14 +1442,15 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         Float,
         String,
         Guid,
-        StringCollection,  // List<string> or HashSet<string>
+        StringCollection, // List<string> or HashSet<string>
         NamedMap,
         StoryEventList,
         WrappedVector2ListArray,
     }
 
     private readonly struct NamedMapInfo {
-        public NamedMapInfo(string snapshotValueTypeDisplay, string readExpressionSuffix, string equalsMethodName, string copyMethodName, string writeMethodName) {
+        public NamedMapInfo(string snapshotValueTypeDisplay, string readExpressionSuffix, string equalsMethodName,
+            string copyMethodName, string writeMethodName) {
             SnapshotValueTypeDisplay = snapshotValueTypeDisplay;
             ReadExpressionSuffix = readExpressionSuffix;
             EqualsMethodName = equalsMethodName;
@@ -1196,15 +1466,17 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     }
 
     private readonly struct FieldSchema {
-        public FieldSchema(ushort id, string type, string enumType = "") {
+        public FieldSchema(ushort id, string type, string enumType = "", bool isFrequentChangeField = false) {
             Id = id;
             Type = type;
             EnumType = enumType;
+            IsFrequentChangeField = isFrequentChangeField;
         }
 
         public ushort Id { get; }
         public string Type { get; }
         public string EnumType { get; }
+        public bool IsFrequentChangeField { get; }
     }
 
     private readonly struct IdMaps {
@@ -1232,7 +1504,8 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
     }
 
     private struct ObservedField {
-        public ObservedField(IFieldSymbol symbol, ITypeSymbol fieldType, string fieldName, string readExpressionSuffix) {
+        public ObservedField(IFieldSymbol symbol, ITypeSymbol fieldType, string fieldName, string readExpressionSuffix,
+            bool isFrequentChangeField) {
             Symbol = symbol;
             FieldType = fieldType;
             FieldName = fieldName;
@@ -1246,9 +1519,11 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             EnumMapperName = string.Empty;
             ContainingFieldName = symbol.Name;
             ReadExpressionOverride = string.Empty;
+            IsFrequentChangeField = isFrequentChangeField;
         }
 
-        public static ObservedField CreateSynthetic(ITypeSymbol fieldType, string fieldName, string containingFieldName, string readExpressionOverride) {
+        public static ObservedField CreateSynthetic(ITypeSymbol fieldType, string fieldName, string containingFieldName,
+            string readExpressionOverride, bool isFrequentChangeField) {
             return new ObservedField {
                 Symbol = null!,
                 FieldType = fieldType,
@@ -1263,6 +1538,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 EnumMapperName = string.Empty,
                 ContainingFieldName = containingFieldName,
                 ReadExpressionOverride = readExpressionOverride,
+                IsFrequentChangeField = isFrequentChangeField,
             };
         }
 
@@ -1279,8 +1555,6 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         public string EnumMapperName;
         public string ContainingFieldName;
         public string ReadExpressionOverride;
+        public bool IsFrequentChangeField;
     }
 }
-
-
-

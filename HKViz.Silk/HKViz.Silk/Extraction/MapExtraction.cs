@@ -395,31 +395,31 @@ public class MapExtraction(ExtractionFiles extractionFiles, LocalizationExtracti
         // Get SpriteRenderer for bounds calculation
         var spriteRenderer = mapScene.GetComponent<SpriteRenderer>();
 
-        // Export initial sprite
-        /*if (spriteRenderer != null && spriteRenderer.sprite != null) {
-            roomData.RendererSprite =
-                SpriteInfo.FromSprite(spriteRenderer.sprite); //, mapScene.gameObject.name + "_Initial");
-        }*/
 
-        if (mapScene.initialSprite != null) {
-            roomData.InitialSprite = SpriteInfo.FromSprite(mapScene.initialSprite);
-        }
+        roomData.InitialSprite = mapScene.initialSprite.ToSpriteInfoSafe(
+            logger,
+            $"MapScene:{roomData.SceneName ?? mapScene.gameObject.name}:InitialSprite");
         
         // Export sprite information
-        if (mapScene.fullSprite != null) {
-            roomData.FullSprite = SpriteInfo.FromSprite(mapScene.fullSprite); //, mapScene.gameObject.name);
-        }
+        roomData.FullSprite = mapScene.fullSprite.ToSpriteInfoSafe(
+            logger,
+            $"MapScene:{roomData.SceneName ?? mapScene.gameObject.name}:FullSprite"); //, mapScene.gameObject.name);
 
         // Export alternative sprites with conditions
         if (mapScene.altFullSprites != null && mapScene.altFullSprites.Length > 0) {
             var altSpritesWithConditions = new List<SpriteConditionData>();
             foreach (var altSprite in mapScene.altFullSprites) {
                 if (altSprite.Sprite == null) continue;
-                var spriteCondition = new SpriteConditionData {
-                    Sprite = SpriteInfo.FromSprite(altSprite.Sprite), // , mapScene.gameObject.name + "_Alt"),
-                    Condition = PlayerDataTestData.FromPlayerDataTest(altSprite.Condition)
-                };
-                altSpritesWithConditions.Add(spriteCondition);
+                var spriteInfo = altSprite.Sprite.ToSpriteInfoSafe(
+                    logger,
+                    $"MapScene:{roomData.SceneName ?? mapScene.gameObject.name}:AltFullSprite");
+                if (spriteInfo != null) {
+                    var spriteCondition = new SpriteConditionData {
+                        Sprite = spriteInfo, // , mapScene.gameObject.name + "_Alt"),
+                        Condition = PlayerDataTestData.FromPlayerDataTest(altSprite.Condition)
+                    };
+                    altSpritesWithConditions.Add(spriteCondition);
+                }
             }
 
             if (altSpritesWithConditions.Count > 0)

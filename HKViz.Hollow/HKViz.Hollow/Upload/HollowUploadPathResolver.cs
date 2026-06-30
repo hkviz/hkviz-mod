@@ -2,8 +2,8 @@ using HKViz.Shared.Upload;
 
 namespace HKViz.Upload;
 
-public class HollowUploadPathResolver: IUploadPathResolver {
-    public string GetPath(UploadQueueEntry entry) {
+public class HollowUploadPathResolver: IUploadPathResolver<HollowUploadQueueEntry> {
+    public string GetPath(HollowUploadQueueEntry entry) {
         return StoragePaths.GetRecordingPath(
             partNumber: entry.partNumber,
             localRunId: entry.localRunId,

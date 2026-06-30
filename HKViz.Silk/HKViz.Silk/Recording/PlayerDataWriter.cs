@@ -8,7 +8,7 @@ namespace HKViz.Silk.Recording;
 
 public partial class PlayerDataWriter(RunFiles runFiles) {
     public partial void WriteAll();
-    public partial void WriteChanged();
+    public partial void WriteChanged(bool writeFrequentChangeFields);
 
     public void WriteBoolIfChanged(ushort fieldId, bool oldValue, bool newValue) {
         if (oldValue != newValue) {
@@ -158,9 +158,14 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         }
     }
 
-    public void WriteStringIfChanged(ushort fieldId, string? oldValue, string? newValue) {
+    public void WriteStringIfChanged(
+        ushort fieldId,
+        Dictionary<string, ushort> valueToId,
+        string? oldValue,
+        string? newValue
+    ) {
         if (!string.Equals(oldValue, newValue, StringComparison.Ordinal)) {
-            runFiles.WritePlayerDataStringChange(fieldId, newValue ?? string.Empty);
+            runFiles.WritePlayerDataStringChange(fieldId, valueToId, newValue ?? string.Empty);
         }
     }
 
@@ -170,11 +175,21 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         }
     }
 
-    public void WriteStringListIfChanged(ushort fieldId, ref List<string>? oldValue, List<string>? newValue) {
-        CompareStringCollections(fieldId, ref oldValue, newValue);
+    public void WriteStringListIfChanged(
+        ushort fieldId,
+        Dictionary<string, ushort> valueToId,
+        ref List<string>? oldValue,
+        List<string>? newValue
+    ) {
+        CompareStringCollections(fieldId, valueToId, ref oldValue, newValue);
     }
 
-    public void WriteStringSetIfChanged(ushort fieldId, ref HashSet<string>? oldValue, HashSet<string>? newValue) {
+    public void WriteStringSetIfChanged(
+        ushort fieldId, 
+        Dictionary<string, ushort> valueToId,
+        ref HashSet<string>? oldValue,
+        HashSet<string>? newValue
+    ) {
         HashSet<string> oldSet = oldValue ?? [];
         HashSet<string> newSet = newValue ?? [];
 
@@ -201,9 +216,9 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         int fullPayloadEstimate = sizeof(byte) + sizeof(int) + newSet.Count * 32;
 
         if (deltaPayloadEstimate < fullPayloadEstimate && (added.Count > 0 || removed.Count > 0)) {
-            runFiles.WritePlayerDataStringSetDeltaChange(fieldId, added, removed);
+            runFiles.WritePlayerDataStringSetDeltaChange(fieldId, valueToId, added, removed);
         } else {
-            runFiles.WritePlayerDataStringSetFullChange(fieldId, newSet);
+            runFiles.WritePlayerDataStringSetFullChange(fieldId, valueToId, newSet);
         }
 
         UpdateStringSetSnapshot(ref oldValue, newSet);
@@ -286,18 +301,6 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
             return;
         }
 
-        bool isPureAppend = newCount > oldCount && changedCount == (newCount - oldCount);
-        if (isPureAppend) {
-            WrappedVector2List[] appended = new WrappedVector2List[newCount - oldCount];
-            for (int i = oldCount; i < newCount; i++) {
-                appended[i - oldCount] = WrappedVector2ListDataHelper.Copy(newList[i]) ?? new WrappedVector2List();
-            }
-
-            runFiles.WritePlayerDataWrappedVector2ListAppendChange(fieldId, oldCount, appended);
-            oldValue = WrappedVector2ListDataHelper.CopyArray(newList);
-            return;
-        }
-
         int fullPayloadEstimate = sizeof(byte) + sizeof(int) + (newCount * 36);
         int deltaPayloadEstimate = sizeof(byte) + sizeof(int) + sizeof(int) + (changedCount * (sizeof(int) + 36));
         if (deltaPayloadEstimate < fullPayloadEstimate) {
@@ -329,13 +332,15 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         oldValue = WrappedVector2ListDataHelper.CopyArray(newList);
     }
 
-    public void WriteNamedMapIfChanged<TData>(
+    public void WriteNamedMapChanges<TData>(
         ushort fieldId,
+        Dictionary<string, ushort> valueToId,
         ref Dictionary<string, TData>? oldValue,
         IEnumerable<KeyValuePair<string, TData>>? newValues,
         Func<TData, TData, bool> equals,
         Func<TData, TData> copy,
-        Action<BinaryWriter, TData> writeValue
+        Action<BinaryWriter, TData> writeValue,
+        bool writeAll
     ) {
         Dictionary<string, TData> oldSnapshot = oldValue ?? new Dictionary<string, TData>(StringComparer.Ordinal);
         Dictionary<string, TData> newSnapshot = new(StringComparer.Ordinal);
@@ -358,7 +363,7 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
             }
         }
 
-        if (upserts.Count == 0 && removed.Count == 0 && oldSnapshot.Count == newSnapshot.Count) {
+        if (!writeAll && upserts.Count == 0 && removed.Count == 0 && oldSnapshot.Count == newSnapshot.Count) {
             return;
         }
 
@@ -367,89 +372,20 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
 
         int fullPayloadEstimate = newSnapshot.Count * 32;
         int deltaPayloadEstimate = (upserts.Count * 32) + (removed.Count * 8);
-        if (deltaPayloadEstimate < fullPayloadEstimate) {
-            runFiles.WritePlayerDataNamedMapDeltaChange(fieldId, upserts, removed, writeValue);
+        if (!writeAll && deltaPayloadEstimate < fullPayloadEstimate) {
+            runFiles.WritePlayerDataNamedMapDeltaChange(fieldId, valueToId, upserts, removed, writeValue);
         } else {
-            runFiles.WritePlayerDataNamedMapFullChange(fieldId, newSnapshot, writeValue);
+            runFiles.WritePlayerDataNamedMapFullChange(fieldId, valueToId, newSnapshot, writeValue);
         }
 
         oldValue = newSnapshot;
     }
 
-    // Overloads for specific data types using helper classes
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, CollectableItemsData.Data>? oldValue,
-        IEnumerable<KeyValuePair<string, CollectableItemsData.Data>>? newValues,
-        Action<BinaryWriter, CollectableItemsData.Data>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableItemsDataHelper.Equals, CollectableItemsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteCollectableItemsData);
-
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, CollectableRelicsData.Data>? oldValue,
-        IEnumerable<KeyValuePair<string, CollectableRelicsData.Data>>? newValues,
-        Action<BinaryWriter, CollectableRelicsData.Data>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableRelicsDataHelper.Equals, CollectableRelicsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteCollectableRelicsData);
-
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, CollectableMementosData.Data>? oldValue,
-        IEnumerable<KeyValuePair<string, CollectableMementosData.Data>>? newValues,
-        Action<BinaryWriter, CollectableMementosData.Data>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, CollectableMementosDataHelper.Equals, CollectableMementosDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteCollectableMementosData);
-
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, MateriumItemsData.Data>? oldValue,
-        IEnumerable<KeyValuePair<string, MateriumItemsData.Data>>? newValues,
-        Action<BinaryWriter, MateriumItemsData.Data>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, MateriumItemsDataHelper.Equals, MateriumItemsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteMateriumItemsData);
-
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, QuestCompletionData.Completion>? oldValue,
-        IEnumerable<KeyValuePair<string, QuestCompletionData.Completion>>? newValues,
-        Action<BinaryWriter, QuestCompletionData.Completion>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, QuestCompletionDataHelper.Equals, QuestCompletionDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteQuestCompletionData);
-
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, QuestRumourData.Data>? oldValue,
-        IEnumerable<KeyValuePair<string, QuestRumourData.Data>>? newValues,
-        Action<BinaryWriter, QuestRumourData.Data>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, QuestRumourDataHelper.Equals, QuestRumourDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteQuestRumourData);
-
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, ToolItemsData.Data>? oldValue,
-        IEnumerable<KeyValuePair<string, ToolItemsData.Data>>? newValues,
-        Action<BinaryWriter, ToolItemsData.Data>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolItemsDataHelper.Equals, ToolItemsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteToolItemsData);
-
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, ToolItemLiquidsData.Data>? oldValue,
-        IEnumerable<KeyValuePair<string, ToolItemLiquidsData.Data>>? newValues,
-        Action<BinaryWriter, ToolItemLiquidsData.Data>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolItemLiquidsDataHelper.Equals, ToolItemLiquidsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteToolItemLiquidsData);
-
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, ToolCrestsData.Data>? oldValue,
-        IEnumerable<KeyValuePair<string, ToolCrestsData.Data>>? newValues,
-        Action<BinaryWriter, ToolCrestsData.Data>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, ToolCrestsDataHelper.Equals, ToolCrestsDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteToolCrestsData);
-
-    public void WriteNamedMapIfChanged(
-        ushort fieldId,
-        ref Dictionary<string, EnemyJournalKillData.KillData>? oldValue,
-        IEnumerable<KeyValuePair<string, EnemyJournalKillData.KillData>>? newValues,
-        Action<BinaryWriter, EnemyJournalKillData.KillData>? writeValue
-    ) => WriteNamedMapIfChanged(fieldId, ref oldValue, newValues, EnemyJournalKillDataHelper.Equals, EnemyJournalKillDataHelper.Copy, writeValue ?? BinaryWriterExtensions.WriteEnemyJournalKillData);
-
     private static void UpdateIntArraySnapshot(ref int[]? oldValue, int[]? newValue) {
         if (newValue is null) {
-            oldValue = Array.Empty<int>();
+            if (oldValue is not { Length: 0 }) {
+                oldValue = [];
+            }
             return;
         }
 
@@ -529,7 +465,12 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
         }
     }
 
-    private void CompareStringCollections(ushort fieldId, ref List<string>? oldValue, List<string>? newValue) {
+    private void CompareStringCollections(
+        ushort fieldId,
+        Dictionary<string, ushort> valueToId,
+        ref List<string>? oldValue,
+        List<string>? newValue
+    ) {
         List<string> oldList = oldValue ?? [];
         List<string> newList = newValue ?? [];
 
@@ -571,9 +512,9 @@ public partial class PlayerDataWriter(RunFiles runFiles) {
                 writeIndex++;
             }
 
-            runFiles.WritePlayerDataStringCollectionDeltaChange(fieldId, newCount, changedIndices, changedValues);
+            runFiles.WritePlayerDataStringCollectionDeltaChange(fieldId, valueToId, newCount, changedIndices, changedValues);
         } else {
-            runFiles.WritePlayerDataStringCollectionFullChange(fieldId, newList.ToArray());
+            runFiles.WritePlayerDataStringCollectionFullChange(fieldId, valueToId, newList.ToArray());
         }
 
         UpdateStringListSnapshot(ref oldValue, newList);

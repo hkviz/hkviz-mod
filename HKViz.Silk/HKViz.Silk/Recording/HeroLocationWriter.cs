@@ -8,15 +8,17 @@ public class HeroLocationWriter(RunFiles runFiles) {
     private float deltaPerFrame = 1f / FPS;
     private float lastWriteTime = 0f;
     
-    public void Update() {
+    public bool Update() {
         var hero = HeroController._instance;
-        if (!hero) return;
+        if (!hero) return false;
         
         var deltaSinceLastWrite = Time.unscaledTime - lastWriteTime;
         if (deltaSinceLastWrite >= deltaPerFrame) {
             var pos = hero.transform.position;
             runFiles.WriteHeroLocation(pos);
             lastWriteTime = Time.unscaledTime;
+            return true;
         }
+        return false;
     }
 }

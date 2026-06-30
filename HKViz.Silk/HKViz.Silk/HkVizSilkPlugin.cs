@@ -25,17 +25,18 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
     private RunWriter? CurrentRunWriter { get; set; }
     private HkVizMenuScreen menuScreen;
     private HkVizSharedInstances sharedInstances;
+    private SilkUploadManager uploadManager = null!;
 
     private void Awake() {
         try {
             sharedInstances = new HkVizSharedInstances(
                 new SilkLogger(Logger),
-                new SilkUploadPathResolver(),
+                (serverApi, authManager, logger) => uploadManager = new SilkUploadManager(serverApi, authManager, logger),
                 this
             );
             HkVizSharedInstances.CreateInstance(sharedInstances);
             HkVizSharedInstances.Instance!.Initialize();
-            menuScreen = new HkVizMenuScreen(sharedInstances.authManager, sharedInstances.uploadManager);
+            menuScreen = new HkVizMenuScreen(sharedInstances.authManager, uploadManager);
 
             // I think I should not have to call this given auto plugin
             // but does not run otherwise.
@@ -69,11 +70,13 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
     }
 
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode) {
-        if (scene.name is "Menu_Title") { // or "Quit_To_Menu") {
+        if (scene.name is "Menu_Title" or "Quit_To_Menu") {
             CurrentRunWriter?.Close();
             CurrentRunWriter = null;
-            // TODO upload retry + if not just did (since 2 scenes?)
-            // UploadManager.Instance.RetryFailedUploads();
+            if (scene.name == "Menu_Title") {
+                uploadManager.RetryFailedUploads();
+            }
+
             return;
         }
 
@@ -90,10 +93,15 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
             );
         }
         set {
+            if (SceneManager.GetActiveScene().name != "Menu_Title") {
+                Logger.LogInfo("Skipping init from save, since not load from main menu. Likely unload.");
+                return;
+            }
+            //Logger.LogInfo("Initializing HKViz from run save state: " + GameManager.instance.profileID + "  " + SceneManager.GetActiveScene().name);
             CurrentRunWriter?.Close();
             Guid localRunId = value == null ? Guid.NewGuid() : Guid.Parse(value.LocalRunId);
             long nextRunPart = value?.NextRunPart ?? 0L;
-            CurrentRunWriter = new RunWriter(localRunId, nextRunPart, sharedInstances.uploadManager, Logger);
+            CurrentRunWriter = new RunWriter(localRunId, nextRunPart, uploadManager, Logger);
         }
     }
 
@@ -114,13 +122,13 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
                 userName: sharedInstances.authManager.UserName,
                 autoUpload: true,
                 showLoginButtonInMainMenu: true,
-                queuedUploadFiles: sharedInstances.uploadManager.queuedFiles,
-                failedUploadFiles: sharedInstances.uploadManager.failedUploads,
-                finishedUploadFiles: sharedInstances.uploadManager.finishedUploadFiles
+                queuedUploadFiles: uploadManager.queuedFiles,
+                failedUploadFiles: uploadManager.failedUploads,
+                finishedUploadFiles: uploadManager.finishedUploadFiles
             );
         set {
             sharedInstances.authManager.InitializeFromGlobalSettings(value?.authId, value?.userName);
-            sharedInstances.uploadManager.AddUploadEntries(
+            uploadManager.AddUploadEntries(
                 value?.queuedUploadFiles,
                 value?.failedUploadFiles,
                 value?.finishedUploadFiles

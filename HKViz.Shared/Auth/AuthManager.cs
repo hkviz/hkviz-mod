@@ -61,7 +61,8 @@ public class AuthManager {
 
         if (AuthId != null) {
             serverApi.ApiDelete<Empty>(
-                path: "ingameauth/" + AuthId,
+                path: "ingameauth/",
+                secretSuffix: AuthId,
                 onSuccess: data => {
                     _logger.LogInfo("Deleted session in backend");
                 },
@@ -83,7 +84,7 @@ public class AuthManager {
             },
             onSuccess: data => {
                 AuthId = data.id;
-                _logger.LogInfo("Got session token " + AuthId);
+                _logger.LogInfo("Got session token");
                 isUserTriggeredLoginFlow = true;
                 Application.OpenURL(HkVizSharedConstants.LOGIN_URL + data.urlId);
                 State = LoginState.WAITING_FOR_USER_LOGIN_IN_BROWSER;
@@ -104,7 +105,8 @@ public class AuthManager {
         }
 
         serverApi.ApiGet<SessionInfo>(
-            path: "ingameauth/" + AuthId,
+            path: "ingameauth/",
+            secretSuffix: AuthId,
             onSuccess: data => {
                 AuthId = data.id;
                 _logger.LogInfo("Got session info " + data.user?.id + " " + data.user?.name);

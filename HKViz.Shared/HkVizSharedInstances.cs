@@ -1,3 +1,4 @@
+using System;
 using HKViz.Shared;
 using HKViz.Shared.Auth;
 using HKViz.Shared.Recording;
@@ -16,19 +17,19 @@ public class HkVizSharedInstances {
     public readonly IHkVizLogger logger;
     public readonly AuthManager authManager;
     public readonly IRecordingManager recordingManager;
-    public readonly UploadManager uploadManager;
+    public readonly IUploadManager uploadManager;
     public readonly VersionChecker versionChecker;
 
     public HkVizSharedInstances(
         IHkVizLogger logger,
-        IUploadPathResolver uploadPathResolver, 
+        Func<ServerApi, AuthManager, IHkVizLogger, IUploadManager> createUploadManager,
         IRecordingManager recordingManager
     ) {
         this.logger = logger;
         this.recordingManager = recordingManager;
         serverApi = new ServerApi(logger);
         authManager = new AuthManager(serverApi, logger);
-        uploadManager = new UploadManager(serverApi, authManager, logger, uploadPathResolver);
+        uploadManager = createUploadManager(serverApi, authManager, logger);
         versionChecker = new VersionChecker(serverApi, logger);
     }
     

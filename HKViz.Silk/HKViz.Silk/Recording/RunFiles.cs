@@ -1,18 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using BepInEx.Logging;
-using GlobalEnums;
 using HKViz.Shared;
-using HKViz.Shared.Upload;
 using HKViz.Silk.GameData;
-using HKViz.Silk.Recording.DataHelpers;
+using HKViz.Silk.Upload;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace HKViz.Silk.Recording;
 
-public class RunFiles(Guid localRunId, long currentRunPart, UploadManager uploadManager, ManualLogSource logger) {
-    public event Action? OnNewFileCreated;
+public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager uploadManager, ManualLogSource logger) {
+    public event Action<bool>? OnNewFileCreated;
 
     public Guid LocalRunId { get; } = localRunId;
     public long CurrentRunPart { get; private set; } = currentRunPart;
@@ -20,12 +19,18 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
     private const float SwitchFileAfterSeconds = 60f * 10L; // 5 minutes
     
-    private float _lastPartCreatedTime;
+    private float _lastPartCreatedTime = float.NegativeInfinity;
     private bool _isClosed;
     private bool _wroteTimeForUpdate;
     private long _lastWrittenTime;
     
+    private string previousScene;
+    
     private BinaryWriter? _writer;
+
+    private bool firstHeaderInSession = true;
+
+    public event Action<(long runPart, long partFirstUnixMillis, string previousScene)>? OnFileFinished;
 
 
     public void NextFileIfNeeded() {
@@ -39,6 +44,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
     public void NextFile() {
         if (_isClosed) return;
+        var oldScene = previousScene;
         var previousPartFirstUnixMillis = currentFileFirstUnixSeconds;
         var previousRunPart = CurrentRunPart;
         var oldWriter = _writer;
@@ -59,22 +65,24 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         WriteHeader(_writer);
         currentFileFirstUnixSeconds = DateTimeUtils.GetUnixSeconds();
         WriteTimeIfChanged(_writer);
-        OnNewFileCreated?.Invoke();
+        OnNewFileCreated?.Invoke(firstHeaderInSession);
+        firstHeaderInSession = false;
 
 
         // TODO add new file to global storage of known files
         //  even before upload. so upload can happen after crash
-        FinishFile(oldWriter, previousRunPart, previousPartFirstUnixMillis);
+        FinishFile(oldWriter, previousRunPart, previousPartFirstUnixMillis, oldScene);
     }
 
     public void Close() {
         if (_isClosed) return;
         _isClosed = true;
-        FinishFile(_writer, CurrentRunPart, currentFileFirstUnixSeconds);
+        _writer?.WriteEntryType(WriteEntryType.SessionEnd);
+        FinishFile(_writer, CurrentRunPart, currentFileFirstUnixSeconds, previousScene);
         _writer = null;
     }
 
-    private void FinishFile(BinaryWriter? writer, long partNumber, long partFirstUnixMillis) {
+    private void FinishFile(BinaryWriter? writer, long partNumber, long partFirstUnixMillis, string previousScene) {
         if (writer == null) {
             return;
         }
@@ -86,42 +94,16 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
             //return hasValue ? value : null;
         // }
         
-        uploadManager.QueueFile(new UploadQueueEntry {
-            localRunId = LocalRunId.ToString(),
-            partNumber = (int)partNumber,
-            profileId = GameManager.instance.profileID,
-
-            hkVersion = PlayerData.instance.version,
-            playTime = PlayerData.instance.playTime,
-            maxHealth = PlayerData.instance.maxHealth,
-            mpReserveMax = PlayerData.instance.silkSpoolParts,
-            geo = PlayerData.instance.geo,
-            dreamOrbs = PlayerData.instance.ShellShards,
-            permadeathMode = PlayerData.instance.permadeathMode switch {
-                PermadeathModes.Off => 0,
-                PermadeathModes.On => 1,
-                PermadeathModes.Dead => 2,
-                _ => -1,
-            },
-            mapZone = PlayerData.instance.mapZone.ToString(),
-            killedHollowKnight = false,
-            killedFinalBoss = false,
-            killedVoidIdol = false,
-            completionPercentage = Mathf.RoundToInt(PlayerData.instance.completionPercentage),
-            unlockedCompletionRate = PlayerData.instance.ConstructedFarsight,
-
-            dreamNailUpgraded = false,
-            lastScene = "", // TODO
-
-            firstUnixSeconds = partFirstUnixMillis,
-            lastUnixSeconds = DateTimeUtils.GetUnixSeconds(),
-        });
+        OnFileFinished?.Invoke((runPart: partNumber, partFirstUnixMillis: partFirstUnixMillis, previousScene: previousScene));
     }
 
     public void WriteHeader(BinaryWriter writer) {
         writer.Write(HKVizSilkConstants.FileVersion);
         writer.Write(LocalRunId.ToByteArray());
         writer.Write(CurrentRunPart);
+        if (firstHeaderInSession) {
+            writer.WriteEntryType(WriteEntryType.SessionStart);
+        }
     }
 
     public void Update() {
@@ -172,16 +154,11 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
             return;
         }
         var sceneName = scene.name;
-        var hasId = SilkSongScenes.Scenes.TryGetValue(sceneName.ToLowerInvariant(), out var id);
+        previousScene = sceneName;
 
         WriteTimeIfChanged(writer);
-        if (hasId) {
-            writer.WriteEntryType(mode == LoadSceneMode.Additive ? WriteEntryType.SceneChangeAddShort : WriteEntryType.SceneChangeSingleShort);
-            writer.Write(id);
-        } else {
-            writer.WriteEntryType(mode == LoadSceneMode.Additive ? WriteEntryType.SceneChangeAddLong : WriteEntryType.SceneChangeSingleLong);
-            writer.WriteStringCompat(sceneName);
-        }
+        writer.WriteEntryType(mode == LoadSceneMode.Additive ? WriteEntryType.SceneChangeAdd : WriteEntryType.SceneChangeSingle);
+        writer.WriteIdOrStringCompat(SilkSongScenes.SCENES, sceneName);
     }
 
     public void WriteHeroLocation(Vector2 pos) {
@@ -310,7 +287,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
     }
 
-    public void WritePlayerDataIntListFullChange(ushort fieldId, System.Collections.Generic.IReadOnlyList<int>? value) {
+    public void WritePlayerDataIntListFullChange(ushort fieldId, IReadOnlyList<int>? value) {
         var writer = _writer;
         if (writer == null) {
             logger.LogDebug("Tried to write player data int list full but writer is null");
@@ -354,7 +331,11 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
     }
 
-    public void WritePlayerDataStringCollectionFullChange(ushort fieldId, string[] values) {
+    public void WritePlayerDataStringCollectionFullChange(
+        ushort fieldId,
+        Dictionary<string, ushort> valueToId,
+        string[] values
+    ) {
         var writer = _writer;
         if (writer == null) {
             logger.LogDebug("Tried to write player data string collection full but writer is null");
@@ -364,11 +345,12 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         WriteTimeIfChanged(writer);
         writer.WriteEntryType(WriteEntryType.PlayerDataStringListFull);
         writer.Write(fieldId);
-        writer.WriteStringArray(values);
+        writer.WriteIdOrStringArray(valueToId, values);
     }
 
     public void WritePlayerDataStringCollectionDeltaChange(
         ushort fieldId,
+        Dictionary<string, ushort> valueToId,
         int collectionLength,
         int[] changedIndices,
         string[] changedValues
@@ -386,14 +368,15 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         writer.Write(changedIndices.Length);
         for (int i = 0; i < changedIndices.Length; i++) {
             writer.Write(changedIndices[i]);
-            writer.WriteStringCompat(changedValues[i]);
+            writer.WriteIdOrStringCompat(valueToId, changedValues[i]);
         }
     }
 
     public void WritePlayerDataStringSetDeltaChange(
         ushort fieldId,
-        System.Collections.Generic.List<string> added,
-        System.Collections.Generic.List<string> removed
+        Dictionary<string, ushort> valueToId,
+        List<string> added,
+        List<string> removed
     ) {
         var writer = _writer;
         if (writer == null) {
@@ -406,17 +389,18 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         writer.Write(fieldId);
         writer.Write(added.Count);
         for (int i = 0; i < added.Count; i++) {
-            writer.WriteStringCompat(added[i] ?? string.Empty);
+            writer.WriteIdOrStringCompat(valueToId, added[i] ?? string.Empty);
         }
         writer.Write(removed.Count);
         for (int i = 0; i < removed.Count; i++) {
-            writer.WriteStringCompat(removed[i] ?? string.Empty);
+            writer.WriteIdOrStringCompat(valueToId, removed[i] ?? string.Empty);
         }
     }
 
     public void WritePlayerDataStringSetFullChange(
         ushort fieldId,
-        System.Collections.Generic.ICollection<string>? values
+        Dictionary<string, ushort> valueToId,
+        ICollection<string>? values
     ) {
         var writer = _writer;
         if (writer == null) {
@@ -435,18 +419,19 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
 
         foreach (string value in values) {
-            writer.WriteStringCompat(value ?? string.Empty);
+            writer.WriteIdOrStringCompat(valueToId, value ?? string.Empty);
         }
     }
 
     public void WritePlayerDataNamedMapFullChange<TData>(
         ushort fieldId,
-        System.Collections.Generic.IReadOnlyDictionary<string, TData>? values,
+        Dictionary<string, ushort> valueToId,
+        IReadOnlyDictionary<string, TData>? values,
         Action<BinaryWriter, TData> writeValue
     ) {
         var writer = _writer;
         if (writer == null) {
-            logger.LogDebug("Tried to write player data named map full but writer is null");
+            logger.LogDebug($"Tried to write player data named map full but writer is null (fieldId={fieldId}, values count={values?.Count ?? 0})");
             return;
         }
 
@@ -460,24 +445,25 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
             return;
         }
 
-        System.Collections.Generic.List<string> names = new(values.Keys);
+        List<string> names = new(values.Keys);
         names.Sort(StringComparer.Ordinal);
         for (int i = 0; i < names.Count; i++) {
             string name = names[i];
-            writer.WriteStringCompat(name);
+            writer.WriteIdOrStringCompat(valueToId, name);
             writeValue(writer, values[name]);
         }
     }
 
     public void WritePlayerDataNamedMapDeltaChange<TData>(
         ushort fieldId,
-        System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string, TData>> upserts,
-        System.Collections.Generic.IReadOnlyList<string> removed,
+        Dictionary<string, ushort> valueToId,
+        IReadOnlyList<KeyValuePair<string, TData>> upserts,
+        IReadOnlyList<string> removed,
         Action<BinaryWriter, TData> writeValue
     ) {
         var writer = _writer;
         if (writer == null) {
-            logger.LogDebug("Tried to write player data named map delta but writer is null");
+            logger.LogDebug($"Tried to write player data named map delta but writer is null (fieldId={fieldId}, upserts={upserts.Count}, removed={removed.Count})");
             return;
         }
 
@@ -487,17 +473,17 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
 
         writer.Write(upserts.Count);
         for (int i = 0; i < upserts.Count; i++) {
-            writer.WriteStringCompat(upserts[i].Key);
+            writer.WriteIdOrStringCompat(valueToId, upserts[i].Key);
             writeValue(writer, upserts[i].Value);
         }
 
         writer.Write(removed.Count);
         for (int i = 0; i < removed.Count; i++) {
-            writer.WriteStringCompat(removed[i]);
+            writer.WriteIdOrStringCompat(valueToId, removed[i]);
         }
     }
 
-    public void WritePlayerDataStoryEventListFullChange(ushort fieldId, System.Collections.Generic.IReadOnlyList<PlayerStory.EventInfo>? values) {
+    public void WritePlayerDataStoryEventListFullChange(ushort fieldId, IReadOnlyList<PlayerStory.EventInfo>? values) {
         var writer = _writer;
         if (writer == null) {
             logger.LogDebug("Tried to write player data story event list full but writer is null");
@@ -582,24 +568,11 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         }
     }
 
-    public void WritePlayerDataWrappedVector2ListAppendChange(ushort fieldId, int oldLength, WrappedVector2List[] appendedValues) {
-        var writer = _writer;
-        if (writer == null) {
-            logger.LogDebug("Tried to write player data wrapped vector2 list append but writer is null");
-            return;
-        }
-
-        WriteTimeIfChanged(writer);
-        writer.WriteEntryType(WriteEntryType.PlayerDataWrappedVector2ListAppend);
-        writer.Write(fieldId);
-        writer.Write(oldLength);
-        writer.Write(appendedValues.Length);
-        for (int i = 0; i < appendedValues.Length; i++) {
-            writer.WriteWrappedVector2List(appendedValues[i]);
-        }
-    }
-
-    public void WritePlayerDataStringChange(ushort fieldId, string value) {
+    public void WritePlayerDataStringChange(
+        ushort fieldId,
+        Dictionary<string, ushort> valueToId,
+        string value
+    ) {
         var writer = _writer;
         if (writer == null) {
             logger.LogDebug("Tried to write player data string but writer is null");
@@ -608,9 +581,9 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         WriteTimeIfChanged(writer);
         writer.WriteEntryType(WriteEntryType.PlayerDataString);
         writer.Write(fieldId);
-        writer.WriteStringCompat(value);
+        writer.WriteIdOrStringCompat(valueToId, value);
     }
-
+ 
     public void WritePlayerDataGuidChange(ushort fieldId, Guid value) {
         var writer = _writer;
         if (writer == null) {
@@ -621,5 +594,42 @@ public class RunFiles(Guid localRunId, long currentRunPart, UploadManager upload
         writer.WriteEntryType(WriteEntryType.PlayerDataGuid);
         writer.Write(fieldId);
         writer.Write(value.ToByteArray());
+    }
+    
+    public void WriteSceneDataBool(string sceneName, string key, bool value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write scene data bool but writer is null");
+            return;
+        }
+        logger.LogDebug("WriteSceneDataBool");
+        // TODO could pack scene booleans per scenes into bytes?
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.SceneDataBool);
+        writer.WriteIdOrStringCompat(SilkSongScenes.SCENES, sceneName);
+        writer.WriteIdOrStringCompat(SilkSongSceneDataBoolIds.VALUE_TO_ID, key);
+        writer.WriteBool(value);
+    }
+
+    public void WriteSceneDataInt(string sceneName, string key, int value) {
+        WriteSceneDataIntInternal(WriteEntryType.SceneDataInt, SilkSongSceneDataIntIds.VALUE_TO_ID, sceneName, key, value);
+    }
+
+    public void WriteSceneDataGeoRock(string sceneName, string key, int value) {
+        WriteSceneDataIntInternal(WriteEntryType.SceneDataGeoRock, SilkSongSceneDataGeoRockIds.VALUE_TO_ID, sceneName, key, value);
+    }
+
+    private void WriteSceneDataIntInternal(WriteEntryType type, Dictionary<string, ushort> fieldNameLookup, string sceneName, string key, int value) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write scene data int but writer is null");
+            return;
+        }
+        logger.LogDebug("WriteSceneDataIntInternal");
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(type);
+        writer.WriteIdOrStringCompat(SilkSongScenes.SCENES, sceneName);
+        writer.WriteIdOrStringCompat(fieldNameLookup, key);
+        writer.WriteInt(value);
     }
 }
