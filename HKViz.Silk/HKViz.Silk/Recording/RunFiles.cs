@@ -1,9 +1,11 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using BepInEx.Logging;
 using HKViz.Shared;
 using HKViz.Silk.GameData;
+using HKViz.Silk.Recording.Behaviours;
 using HKViz.Silk.Upload;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -27,6 +29,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
     private string previousScene;
     
     private BinaryWriter? _writer;
+    private ArrayBufferWriter<byte> _entryBuffer = new();
 
     private bool firstHeaderInSession = true;
 
@@ -625,11 +628,201 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
             logger.LogDebug("Tried to write scene data int but writer is null");
             return;
         }
-        logger.LogDebug("WriteSceneDataIntInternal");
         WriteTimeIfChanged(writer);
         writer.WriteEntryType(type);
         writer.WriteIdOrStringCompat(SilkSongScenes.SCENES, sceneName);
         writer.WriteIdOrStringCompat(fieldNameLookup, key);
         writer.WriteInt(value);
+    }
+
+    public void WriteEnemyStart(ushort id, string journalName, int healthManagerHp) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write enemy start but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        _entryBuffer.Clear();
+        _entryBuffer.WriteEntryType(WriteEntryType.EnemyStart);
+        _entryBuffer.WriteUShort(id);
+        _entryBuffer.WriteIdOrString(SilkSongEnemyJournalIds.VALUE_TO_ID, journalName);
+        _entryBuffer.WriteInt(healthManagerHp);
+        writer.Write(_entryBuffer.WrittenSpan);
+    }
+
+    public void WriteEnemyLocationDiff(List<HKVizHealthManagerBehaviour> healthManagers) {
+        var writer = _writer;
+        if (writer == null) {
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        _entryBuffer.Clear();
+        _entryBuffer.WriteEntryType(WriteEntryType.EnemyLocations);
+        var lengthOffset = _entryBuffer.WrittenCount;
+        _entryBuffer.WriteUShort(0); // length - filled later
+        ushort count = 0;
+        foreach (var behaviour in healthManagers) {
+            var currPosition = behaviour.trans.position;
+            if (behaviour.lastWrittenPosition == currPosition) continue;
+            _entryBuffer.WriteVector2(currPosition);
+            behaviour.lastWrittenPosition = currPosition;
+            count++;
+        }
+
+        if (count == 0) {
+            _entryBuffer.Clear();
+            // no change -> no write
+            return;
+        }
+        _entryBuffer.WriteUShortAt(count, lengthOffset);
+        writer.Write(_entryBuffer.WrittenSpan);
+    }
+    
+    public void WriteEnemyHpDiff(List<HKVizHealthManagerBehaviour> healthManagers) {
+        var writer = _writer;
+        if (writer == null) {
+            return;
+        }
+        WriteTimeIfChanged(writer);
+        _entryBuffer.Clear();
+        _entryBuffer.WriteEntryType(WriteEntryType.EnemyHps);
+        var lengthOffset = _entryBuffer.WrittenCount;
+        _entryBuffer.WriteUShort(0); // length - filled later
+        ushort count = 0;
+        foreach (var behaviour in healthManagers) {
+            var currHp = behaviour.healthManager.hp;
+            if (behaviour.lastWrittenHp == currHp) continue;
+            _entryBuffer.WriteInt(currHp);
+            behaviour.lastWrittenHp = currHp;
+            count++;
+        }
+
+        if (count == 0) {
+            _entryBuffer.Clear();
+            // no change -> no write
+            return;
+        }
+        _entryBuffer.WriteUShortAt(count, lengthOffset);
+        writer.Write(_entryBuffer.WrittenSpan);
+    }
+
+    // Writes a HitInstance for the EnemyTakeDamage entry. Several HitInstance fields are
+    // intentionally dropped because they're derivable from AttackType/RepresentingTool, only
+    // relevant for target types we don't track, or purely cosmetic. See the per-field comments
+    // below for the reasoning on every field, including the dropped ones.
+    public void WriteEnemyTakeDamage(HKVizHealthManagerBehaviour behaviour, HitInstance hit) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write enemy damaged but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        _entryBuffer.Clear();
+        _entryBuffer.WriteEntryType(WriteEntryType.EnemyTakeDamage);
+        _entryBuffer.WriteUShort(behaviour.id);
+
+        // AttackType: the core categorizer of the hit (Nail, Spell, Lava, ...). Everything marked
+        // "derivable" below is derived against this (plus RepresentingTool), so it has to be kept.
+        _entryBuffer.WriteByte((byte)hit.AttackType);
+
+        // RepresentingTool: which crest/tool/skill dealt the hit, if any. Kept both for its own
+        // sake (tool usage stats) and as the lookup key a reader could use to derive
+        // ToolDamageFlags/PoisonDamageTicks/ZapDamageTicks/IsUsingNeedleDamageMult from static
+        // tool data instead of storing them redundantly per hit (see dropped fields below).
+        var representingTool = hit.RepresentingTool == null ? null : hit.RepresentingTool.name;
+        _entryBuffer.WriteIdOrString(SilkSongToolItemIds.VALUE_TO_ID, representingTool);
+
+        // SpecialType: orthogonal flag set (RapidBullet/RapidBomb/Piercer/Heavy/...) used for
+        // block-direction and projectile behaviour. Not expressible via AttackType - the would-be
+        // matching AttackTypes values (Piercer_OBSOLETE/RapidBullet_OBSOLETE) are obsolete - so
+        // this is real, non-derivable data. A byte is enough: the highest flag bit is 0x80.
+        _entryBuffer.WriteByte((byte)hit.SpecialType);
+
+        // SilkGeneration: how much silk this hit grants (Full/FirstHit/None). Matters for silk
+        // economy analysis and isn't implied by AttackType (e.g. a regular nail hit can still be
+        // tagged None for hitting non-silk-granting objects).
+        _entryBuffer.WriteByte((byte)hit.SilkGeneration);
+
+        // DamageDealt: final computed damage, depends on player stats/charms at hit time, so it
+        // can't be reconstructed from AttackType/Tool alone. A ushort is plenty of range: the
+        // only outlier value in the game is the 9999 instant-kill sentinel
+        // (EnemyKillEventListener), nowhere near ushort.MaxValue (65535).
+        _entryBuffer.WriteUShort((ushort)Math.Clamp(hit.DamageDealt, 0, ushort.MaxValue));
+
+        // DamageScalingLevel: nail/tool upgrade tier used for damage scaling. A small bounded
+        // count of upgrades, fits comfortably in a byte instead of a full int.
+        _entryBuffer.WriteByte((byte)Math.Clamp(hit.DamageScalingLevel, 0, byte.MaxValue));
+
+        // StunDamage: amount added to the target's stagger meter. Kept as a float rather than
+        // shrunk further: CheatManager.ForceStun sets it to float.MaxValue, and in normal play
+        // it's a small fractional value where precision matters for the stagger math.
+        _entryBuffer.WriteFloat(hit.StunDamage);
+
+        // MagnitudeMultiplier / Multiplier: knockback/damage multipliers. Continuous values not
+        // bounded by AttackType or Tool, kept as float.
+        _entryBuffer.WriteFloat(hit.MagnitudeMultiplier);
+        _entryBuffer.WriteFloat(hit.Multiplier);
+
+        // Direction: ExtraUpDirection (a hard override used e.g. for forced-upward pogo hits) is
+        // folded into the base Direction here instead of being its own nullable field, since it's
+        // only ever consumed as "ExtraUpDirection ?? Direction". CircleDirection/MoveDirection/
+        // MoveAngle are dropped: they only change the *effective* direction for homing/
+        // velocity-based attacks, and resolving them needs the source's live transform/rigidbody
+        // at hit time (GetActualDirection), which we don't have here. We accept the (rare)
+        // precision loss for those attacks rather than threading Source through the recorder.
+        _entryBuffer.WriteFloat(hit.ExtraUpDirection ?? hit.Direction);
+
+        // Bit-packed bools - each is real per-hit state that doesn't follow from AttackType/Tool:
+        //  - IsFirstHit: first hit of this swing/combo vs. a repeat/tick hit.
+        //  - IsHeroDamage: hit dealt by the player vs. an enemy/hazard.
+        //  - IgnoreInvulnerable: bypasses the target's invulnerability window.
+        //  - IgnoreNailPosition: skips nail-position-based effects (e.g. non-positional sources).
+        //  - IsManualTrigger: triggered by script/FSM rather than a normal collision.
+        //  - CanWeakHit / ForceNotWeakHit: weak-hit eligibility and its override - independent.
+        //  - NonLethal: hit can't reduce the target below 1 HP.
+        //  - RageHit / CriticalHit / HunterCombo: depend on the player's build/combo state at the
+        //    moment of the hit, not on the attack type itself.
+        ushort boolPack = 0;
+        if (hit.IsFirstHit) boolPack |= 1 << 0;
+        if (hit.IsHeroDamage) boolPack |= 1 << 1;
+        if (hit.IgnoreInvulnerable) boolPack |= 1 << 2;
+        if (hit.IgnoreNailPosition) boolPack |= 1 << 3;
+        if (hit.IsManualTrigger) boolPack |= 1 << 4;
+        if (hit.CanWeakHit) boolPack |= 1 << 5;
+        if (hit.ForceNotWeakHit) boolPack |= 1 << 6;
+        if (hit.NonLethal) boolPack |= 1 << 7;
+        if (hit.RageHit) boolPack |= 1 << 8;
+        if (hit.CriticalHit) boolPack |= 1 << 9;
+        if (hit.HunterCombo) boolPack |= 1 << 10;
+        _entryBuffer.WriteUShort(boolPack);
+
+        // --- Fields intentionally not written ---
+        // NailElement / NailImbuement: forced to None/null for every AttackType except Nail/Fire
+        // (AttackType.Fire always sets NailElement = Fire; NailImbuement is only ever non-null
+        // for the player's own nail attacks). The only remaining variance (active nail-imbuement
+        // charm during an AttackType.Nail hit) is loadout state, not per-hit data.
+        // IsUsingNeedleDamageMult: an inspector toggle fixed per (AttackType, Tool), not per hit -
+        // can be looked up from static attack/tool data instead of stored every hit.
+        // ToolDamageFlags: equals RepresentingTool.DamageFlags whenever a tool is involved (and
+        // is ~always None otherwise) - derivable from the RepresentingTool written above.
+        // PoisonDamageTicks / ZapDamageTicks: equal RepresentingTool.PoisonDamageTicks /
+        // .ZapDamageTicks gated by whether the Poison Pouch / Zap charm is equipped - derivable
+        // from RepresentingTool plus charm-equip state (tracked separately), not per-hit data.
+        // IsNailTag: IsNailDamage already treats AttackType == Nail as nail damage on its own;
+        // this flag only matters for the rare non-Nail attack that should still count as nail
+        // damage, which we accept losing for now.
+        // UseCorpseDirection/CorpseDirection, UseBouncePodDirection/BouncePodDirection/
+        // CanTriggerBouncePod, UseCorpseMagnitudeMult/CorpseMagnitudeMultiplier,
+        // UseCurrencyMagnitudeMult/CurrencyMagnitudeMult: all only affect non-regular target types
+        // (corpses, bounce pods, currency drops), which we don't track/visualize.
+        // CircleDirection/MoveDirection/MoveAngle/ExtraUpDirection: see Direction comment above.
+        // SlashEffectOverrides / HitEffectsType: purely cosmetic VFX selection, irrelevant to
+        // analytics/replay.
+        // Source: the GameObject that dealt the hit; not meaningfully serializable here - "who
+        // dealt the hit" is already covered by IsHeroDamage + AttackType + RepresentingTool.
+
+        writer.Write(_entryBuffer.WrittenSpan);
     }
 }

@@ -28,15 +28,15 @@ public class EnemyJournalExtraction(ExtractionFiles extractionFiles, Localizatio
                 displayName = localizationExtraction.RequestExport(record.DisplayName);
             }
 
-            string? description = null;
+            /*string? description = null;
             if (!string.IsNullOrEmpty(record.Description.Sheet) && !string.IsNullOrEmpty(record.Description.Key)) {
                 description = localizationExtraction.RequestExport(record.Description);
-            }
+            }*/
 
-            string? notes = null;
+            /*string? notes = null;
             if (!string.IsNullOrEmpty(record.Notes.Sheet) && !string.IsNullOrEmpty(record.Notes.Key)) {
                 notes = localizationExtraction.RequestExport(record.Notes);
-            }
+            }*/
 
             var iconSprite = record.IconSprite;
             var enemySprite = record.EnemySprite;
@@ -44,8 +44,8 @@ public class EnemyJournalExtraction(ExtractionFiles extractionFiles, Localizatio
             EnemyJournalData enemyData = new() {
                 Id = recordId, // same as record.name
                 DisplayName = displayName,
-                Description = description,
-                Notes = notes,
+                // Description = description,
+                //Notes = notes,
                 RecordType = record.RecordType.ToString(),
                 IconSprite = iconSprite.ToSpriteInfoSafe(logger, $"EnemyJournal:{recordId}:IconSprite"),
                 EnemySprite = enemySprite.ToSpriteInfoSafe(logger, $"EnemyJournal:{recordId}:EnemySprite"),

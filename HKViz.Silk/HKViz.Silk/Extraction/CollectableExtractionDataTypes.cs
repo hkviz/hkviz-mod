@@ -9,7 +9,7 @@ public class CollectableData {
     public string? RuntimeType { get; set; }
 
     public string? DisplayNameKey { get; set; }
-    public string? DescriptionKey { get; set; }
+    // public string? DescriptionKey { get; set; }
     public string? UseResponseTextOverrideKey { get; set; }
     public List<string>? UseResponseDescriptionKeys { get; set; }
 

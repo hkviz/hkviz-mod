@@ -7,8 +7,8 @@ namespace HKViz.Silk.Extraction;
 public class EnemyJournalData {
     public string? Id { get; set; }
     public string? DisplayName { get; set; }
-    public string? Description { get; set; }
-    public string? Notes { get; set; }
+    // public string? Description { get; set; }
+    // public string? Notes { get; set; }
     public string? RecordType { get; set; }
     public SpriteInfo? IconSprite { get; set; }
     public SpriteInfo? EnemySprite { get; set; }

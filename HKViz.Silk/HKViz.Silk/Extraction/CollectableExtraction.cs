@@ -29,9 +29,9 @@ public class CollectableExtraction(ExtractionFiles extractionFiles, Localization
             }
 
             var displayNameKeysBySource = BuildDisplayNameKeysBySource(item);
-            var descriptionKeysBySource = BuildDescriptionKeysBySource(item);
+            // var descriptionKeysBySource = BuildDescriptionKeysBySource(item);
             var extraDescriptionKeys = BuildExtraDescriptionKeys(item);
-            var useResponseDescriptionKeys = BuildUseResponseDescriptionKeys(item);
+            // var useResponseDescriptionKeys = BuildUseResponseDescriptionKeys(item);
             var useResponses = BuildUseResponses(item);
 
             var iconInventory = TryGetIcon(item, CollectableItem.ReadSource.Inventory);
@@ -48,12 +48,12 @@ public class CollectableExtraction(ExtractionFiles extractionFiles, Localization
                 RuntimeType = item.GetType().Name,
 
                 DisplayNameKey = GetPrimaryKey(displayNameKeysBySource),
-                DescriptionKey = GetPrimaryKey(descriptionKeysBySource),
+                // DescriptionKey = GetPrimaryKey(descriptionKeysBySource),
                 UseResponseTextOverrideKey = useResponseTextOverrideKey,
                 DisplayNameKeysBySource = HasAnyKeys(displayNameKeysBySource) ? displayNameKeysBySource : null,
-                DescriptionKeysBySource = HasAnyKeys(descriptionKeysBySource) ? descriptionKeysBySource : null,
-                ExtraDescriptionKeys = extraDescriptionKeys.Count > 0 ? extraDescriptionKeys : null,
-                UseResponseDescriptionKeys = useResponseDescriptionKeys.Count > 0 ? useResponseDescriptionKeys : null,
+                // DescriptionKeysBySource = HasAnyKeys(descriptionKeysBySource) ? descriptionKeysBySource : null,
+                // ExtraDescriptionKeys = extraDescriptionKeys.Count > 0 ? extraDescriptionKeys : null,
+                // UseResponseDescriptionKeys = useResponseDescriptionKeys.Count > 0 ? useResponseDescriptionKeys : null,
                 UseResponses = useResponses.Count > 0 ? useResponses : null,
 
                 IconInventory = iconInventory.ToSpriteInfoSafe(logger, $"Collectable:{item.name}:IconInventory"),

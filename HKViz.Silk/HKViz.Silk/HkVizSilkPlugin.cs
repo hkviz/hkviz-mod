@@ -12,6 +12,7 @@ using Silksong.ModMenu.Screens;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using HarmonyLib;
+using HKViz.Silk.Recording.Patch;
 
 namespace HKViz.Silk;
 
@@ -44,6 +45,7 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
 
             _extractor = new Extractor(Logger);
             SceneManager.sceneLoaded += HandleSceneLoaded;
+            GameManagerStartNewGamePatch.OnStartNewGame += HandleOnStartNewGame;
 
             Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
         } catch (Exception ex) {
@@ -98,11 +100,18 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
                 return;
             }
             //Logger.LogInfo("Initializing HKViz from run save state: " + GameManager.instance.profileID + "  " + SceneManager.GetActiveScene().name);
-            CurrentRunWriter?.Close();
-            Guid localRunId = value == null ? Guid.NewGuid() : Guid.Parse(value.LocalRunId);
-            long nextRunPart = value?.NextRunPart ?? 0L;
-            CurrentRunWriter = new RunWriter(localRunId, nextRunPart, uploadManager, Logger);
+            StartRecording(value?.LocalRunId, value?.NextRunPart ?? 0L);
         }
+    }
+
+    private void StartRecording(string? runId, long nextRunPart) {
+        CurrentRunWriter?.Close();
+        Guid localRunId = runId == null ? Guid.NewGuid() : Guid.Parse(runId);
+        CurrentRunWriter = new RunWriter(localRunId, nextRunPart, uploadManager, Logger);
+    }
+    
+    private void HandleOnStartNewGame() {
+        StartRecording(null, 0L);
     }
 
     public bool IsRecording => CurrentRunWriter != null;

@@ -51,6 +51,13 @@ public enum WriteEntryType : byte {
     SceneDataInt        = 0x22,
     SceneDataGeoRock    = 0x23,
     
+    // Enemy
+    EnemyStart          = 0x20,
+    EnemyDestroy        = 0x25,
+    EnemyTakeDamage     = 0x24,
+    EnemyLocations      = 0x26,
+    EnemyHps            = 0x27,
+
     // Freed up:
     // PlayerDataWrappedVector2ListAppend = 0x20,
     

@@ -9,7 +9,7 @@ public class MateriumData {
     public string? RuntimeType { get; set; }
 
     public string? DisplayNameKey { get; set; }
-    public string? DescriptionKey { get; set; }
+    // public string? DescriptionKey { get; set; }
 
     public SpriteInfo? Icon { get; set; }
 

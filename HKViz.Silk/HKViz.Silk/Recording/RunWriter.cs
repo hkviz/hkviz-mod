@@ -2,6 +2,7 @@ using System;
 using BepInEx.Logging;
 using GlobalEnums;
 using HKViz.Shared;
+using HKViz.Silk.Recording.Patch;
 using HKViz.Silk.Upload;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,6 +17,7 @@ public class RunWriter {
     private readonly HeroLocationWriter heroLocationWriter;
     private readonly PlayerDataWriter playerDataWriter;
     private readonly SceneDataWriter sceneDataWriter;
+    private readonly EnemyWriter enemyWriter;
     private readonly SilkUploadManager uploadManager;
     private readonly ManualLogSource logger;
 
@@ -29,6 +31,7 @@ public class RunWriter {
         heroLocationWriter = new HeroLocationWriter(runFiles);
         playerDataWriter = new PlayerDataWriter(runFiles);
         sceneDataWriter = new SceneDataWriter(runFiles);
+        enemyWriter = new EnemyWriter(runFiles);
         runFiles.OnNewFileCreated += OnNewFileCreated;
         runFiles.OnFileFinished += OnFileFinished;
         
@@ -122,8 +125,10 @@ public class RunWriter {
         var gm = GameManager._instance;
         if (!gm || gm.IsGamePaused()) return;
         runFiles.Update();
-        bool writeFrequentChangeFields = heroLocationWriter.Update();
-        playerDataWriter.WriteChanged(writeFrequentChangeFields);
+        bool frequencyUpdate = heroLocationWriter.Update();
+        playerDataWriter.WriteChanged(frequencyUpdate);
+        enemyWriter.WriteChanged(frequencyUpdate);
+        
         sceneDataWriter.WriteChanged();
     }
 }

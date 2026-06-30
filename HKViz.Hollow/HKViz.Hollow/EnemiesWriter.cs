@@ -20,7 +20,7 @@ namespace HKViz {
             }
         }
 
-        public List<HKVizHealthManagerInfo> existingHealthManagers = new List<HKVizHealthManagerInfo>();
+        public List<HKVizHealthManagerInfo> existingHealthManagers = [];
 
         public void SetupHooks() {
             On.HealthManager.Start += HealthManager_Start;
@@ -97,10 +97,6 @@ namespace HKViz {
             recording.WriteSep();
             recording.Write(self.hp.ToString());
             recording.WriteNL();
-        }
-
-        internal void ResetIdCounterIfSceneChanged(Scene scene) {
-
         }
 
         internal void ActiveSceneChanged(Scene oldScene, Scene newScene) {

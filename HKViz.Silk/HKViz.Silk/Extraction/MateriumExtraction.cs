@@ -32,16 +32,16 @@ public class MateriumExtraction(ExtractionFiles extractionFiles, LocalizationExt
                 displayNameKey = localizationExtraction.RequestExport(item.DisplayName);
             }
 
-            string? descriptionKey = null;
+            /*string? descriptionKey = null;
             if (!string.IsNullOrEmpty(item.Description.Sheet) && !string.IsNullOrEmpty(item.Description.Key)) {
                 descriptionKey = localizationExtraction.RequestExport(item.Description);
-            }
+            }*/
 
             MateriumData itemData = new() {
                 Id = item.name,
                 RuntimeType = item.GetType().Name,
                 DisplayNameKey = displayNameKey,
-                DescriptionKey = descriptionKey,
+                //DescriptionKey = descriptionKey,
                 Icon = item.Icon.ToSpriteInfoSafe(logger, $"Materium:{item.name}:Icon"),
                 IsRequiredForCompletion = item.IsRequiredForCompletion,
                 IsCollected = item.IsCollected,

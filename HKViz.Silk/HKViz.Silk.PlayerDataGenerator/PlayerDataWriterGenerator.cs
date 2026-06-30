@@ -122,6 +122,9 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
 
         ["BelltownCouriersGenericQuests"] = NoIds,
         ["unlockedBossScenes"] = NoIds,
+        
+        // todo check if works:
+        ["toolAmountsOverride"] = ToolIds,
     };
 
     private static readonly Dictionary<string, string> namedMapToStringIdDict = new(StringComparer.Ordinal) {
