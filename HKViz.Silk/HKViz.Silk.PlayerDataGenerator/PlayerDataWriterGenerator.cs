@@ -335,10 +335,9 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         }
 
         source.AppendLine();
-        source.AppendLine("    public partial void WriteAll() {");
-        source.Append("        ");
+        source.Append("    public partial void WriteAll(");
         source.Append(playerDataTypeName);
-        source.AppendLine(" playerData = global::PlayerData.instance;");
+        source.AppendLine(" playerData, bool writeLiveRuntimeState) {");
         source.AppendLine("        if (playerData == null) {");
         source.AppendLine("            return;");
         source.AppendLine("        }");
@@ -347,6 +346,10 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         source.AppendLine();
 
         foreach (ObservedField field in supportedFields) {
+            if (field.IsLiveRuntimeState) {
+                source.AppendLine("        if (writeLiveRuntimeState) {");
+            }
+
             if (TryGetNamedMapInfo(field.FieldType, out NamedMapInfo namedMapInfo)) {
                 if (field.IsFrequentChangeField) {
                     source.AppendLine("        if (writeFrequentChangeFields) {");
@@ -376,6 +379,10 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 source.Append("true");
                 source.AppendLine(");");
                 if (field.IsFrequentChangeField) {
+                    source.AppendLine("        }");
+                }
+
+                if (field.IsLiveRuntimeState) {
                     source.AppendLine("        }");
                 }
 
@@ -524,16 +531,20 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             source.Append(" = ");
             source.Append(GetPreviousAssignmentExpression(field, field.CurrentName));
             source.AppendLine(";");
+
+            if (field.IsLiveRuntimeState) {
+                source.AppendLine("        }");
+            }
+
             source.AppendLine();
         }
 
         source.AppendLine("        _hasPreviousPlayerDataValues = true;");
         source.AppendLine("    }");
         source.AppendLine();
-        source.AppendLine("    public partial void WriteChanged(bool writeFrequentChangeFields) {");
-        source.Append("        ");
+        source.Append("    public partial void WriteChanged(bool writeFrequentChangeFields, ");
         source.Append(playerDataTypeName);
-        source.AppendLine(" playerData = global::PlayerData.instance;");
+        source.AppendLine(" playerData, bool writeLiveRuntimeState) {");
         source.AppendLine("        if (playerData == null) {");
         source.AppendLine("            return;");
         source.AppendLine("        }");
@@ -541,12 +552,16 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         source.AppendLine("        GameManager gameManager = GameManager._instance;");
         source.AppendLine();
         source.AppendLine("        if (!_hasPreviousPlayerDataValues) {");
-        source.AppendLine("            WriteAll();");
+        source.AppendLine("            WriteAll(playerData, writeLiveRuntimeState);");
         source.AppendLine("            return;");
         source.AppendLine("        }");
         source.AppendLine();
 
         foreach (ObservedField field in supportedFields) {
+            if (field.IsLiveRuntimeState) {
+                source.AppendLine("        if (writeLiveRuntimeState) {");
+            }
+
             if (TryGetNamedMapInfo(field.FieldType, out NamedMapInfo namedMapInfo)) {
                 source.Append("        var ");
                 source.Append(field.CurrentName);
@@ -571,6 +586,11 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 source.Append(", ");
                 source.Append("false");
                 source.AppendLine(");");
+
+                if (field.IsLiveRuntimeState) {
+                    source.AppendLine("        }");
+                }
+
                 source.AppendLine();
                 continue;
             }
@@ -756,6 +776,10 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             }
 
             if (field.IsFrequentChangeField) {
+                source.AppendLine("        }");
+            }
+
+            if (field.IsLiveRuntimeState) {
                 source.AppendLine("        }");
             }
 
@@ -1392,7 +1416,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                                     field.Name;
             string fieldName = "heroState_" + field.Name;
             yield return ObservedField.CreateSynthetic(field.Type, fieldName, "heroState", readExpression,
-                PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(fieldName));
+                PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(fieldName), isLiveRuntimeState: true);
         }
     }
 
@@ -1423,7 +1447,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                         "gameManager == null ? default(" + propType + ") : gameManager." + prop.Name;
                     string fieldName = "gameManager_" + prop.Name;
                     yield return ObservedField.CreateSynthetic(prop.Type, fieldName, "heroState", readExpression,
-                        PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(fieldName));
+                        PlayerDataSchemaRules.IsFrequentChangePlayerDataFieldName(fieldName), isLiveRuntimeState: true);
                 }
             }
         }
@@ -1523,10 +1547,11 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
             ContainingFieldName = symbol.Name;
             ReadExpressionOverride = string.Empty;
             IsFrequentChangeField = isFrequentChangeField;
+            IsLiveRuntimeState = false;
         }
 
         public static ObservedField CreateSynthetic(ITypeSymbol fieldType, string fieldName, string containingFieldName,
-            string readExpressionOverride, bool isFrequentChangeField) {
+            string readExpressionOverride, bool isFrequentChangeField, bool isLiveRuntimeState = false) {
             return new ObservedField {
                 Symbol = null!,
                 FieldType = fieldType,
@@ -1542,6 +1567,7 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
                 ContainingFieldName = containingFieldName,
                 ReadExpressionOverride = readExpressionOverride,
                 IsFrequentChangeField = isFrequentChangeField,
+                IsLiveRuntimeState = isLiveRuntimeState,
             };
         }
 
@@ -1559,5 +1585,6 @@ public sealed class PlayerDataWriterGenerator : IIncrementalGenerator {
         public string ContainingFieldName;
         public string ReadExpressionOverride;
         public bool IsFrequentChangeField;
+        public bool IsLiveRuntimeState;
     }
 }

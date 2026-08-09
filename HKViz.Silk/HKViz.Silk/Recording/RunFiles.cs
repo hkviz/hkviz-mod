@@ -25,19 +25,24 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
     private bool _isClosed;
     private bool _wroteTimeForUpdate;
     private long _lastWrittenTime;
-    
+
     private string previousScene;
-    
+
     private BinaryWriter? _writer;
     private ArrayBufferWriter<byte> _entryBuffer = new();
 
     private bool firstHeaderInSession = true;
 
+    // While true, rotating to a new file is held off, so a pending restore point backfill is
+    // guaranteed to always land in the run's first file. Never blocks creating that first file
+    // itself: by the time anything sets this, NextFileIfNeeded() has already run once for it.
+    public bool BackfillPending { get; set; }
+
     public event Action<(long runPart, long partFirstUnixMillis, string previousScene)>? OnFileFinished;
 
 
     public void NextFileIfNeeded() {
-        if (_isClosed) return;
+        if (_isClosed || BackfillPending) return;
         if (_writer == null || Time.unscaledTime - _lastPartCreatedTime > SwitchFileAfterSeconds) {
             NextFile();
         }
@@ -633,6 +638,29 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
         writer.WriteIdOrStringCompat(SilkSongScenes.SCENES, sceneName);
         writer.WriteIdOrStringCompat(fieldNameLookup, key);
         writer.WriteInt(value);
+    }
+
+    public void WriteRestorePointStart(ushort number, string date) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write restore point start but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.RestorePointStart);
+        writer.Write(number);
+        writer.WriteStringCompat(date ?? string.Empty);
+    }
+
+    public void WriteRestorePointFinish() {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write restore point finish but writer is null");
+            return;
+        }
+
+        writer.WriteEntryType(WriteEntryType.RestorePointFinish);
     }
 
     public void WriteEnemyStart(ushort id, string journalName, int healthManagerHp) {

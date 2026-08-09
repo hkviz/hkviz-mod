@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using BepInEx;
 using HKViz.Shared.Recording;
 using HKViz.Silk.Extraction;
@@ -100,7 +103,71 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
                 return;
             }
             //Logger.LogInfo("Initializing HKViz from run save state: " + GameManager.instance.profileID + "  " + SceneManager.GetActiveScene().name);
-            StartRecording(value?.LocalRunId, value?.NextRunPart ?? 0L);
+            if (value == null) {
+                // first time recording this profile -> start live recording now, backfill restore
+                // point history into it asynchronously.
+                StartRecording(null, 0L);
+                BeginRestorePointBackfill(CurrentRunWriter!);
+            } else {
+                StartRecording(value.LocalRunId, value.NextRunPart);
+            }
+        }
+    }
+
+    private void BeginRestorePointBackfill(RunWriter targetRunWriter) {
+        // marked pending before the fetch starts, so a quick quit can't discard it (see Close())
+        targetRunWriter.BeginBackfill();
+        int profileId = GameManager.instance.profileID;
+        StartCoroutine(FetchAndBackfillRestorePoints(profileId, targetRunWriter));
+    }
+
+    private IEnumerator FetchAndBackfillRestorePoints(int profileId, RunWriter targetRunWriter) {
+        try {
+            FetchDataRequest<RestorePointData>? fetchRequest = null;
+            try {
+                var rawRequest = Platform.Current != null ? Platform.Current.FetchRestorePoints(profileId) : null;
+                if (rawRequest != null) {
+                    fetchRequest = new FetchDataRequest<RestorePointData>(rawRequest);
+                } else {
+                    Logger.LogWarning("Platform.Current unavailable, skipping restore point backfill.");
+                }
+            } catch (Exception ex) {
+                Logger.LogWarning($"Failed to start restore point fetch: {ex}");
+                fetchRequest = null;
+            }
+
+            if (fetchRequest != null) {
+                float timer = 0f;
+                while (fetchRequest.State == FetchDataRequest.Status.InProgress && timer < 10f) {
+                    yield return null;
+                    timer += Time.unscaledDeltaTime;
+                }
+            }
+
+            List<FetchDataRequest<RestorePointData>.FetchResult>? restorePoints = null;
+            try {
+                if (fetchRequest is { State: FetchDataRequest.Status.Completed } && fetchRequest.results != null) {
+                    restorePoints = fetchRequest.results
+                        .Where(r => r.loadedObject != null && r.loadedObject.IsValid())
+                        .OrderBy(r => r.sourceData.number)
+                        .ToList();
+                    Logger.LogInfo($"Backfilling {restorePoints.Count} restore point(s) for profile {profileId}");
+                } else {
+                    Logger.LogInfo(
+                        $"No restore points to backfill for profile {profileId} (state: {fetchRequest?.State.ToString() ?? "no request"})"
+                    );
+                }
+            } catch (Exception ex) {
+                Logger.LogWarning($"Failed to process restore points for backfill: {ex}");
+                restorePoints = null;
+            }
+
+            if (restorePoints is { Count: > 0 }) {
+                targetRunWriter.BackfillRestorePoints(restorePoints);
+            }
+        } finally {
+            // runs even on early exit, so a deferred Close() (see BeginBackfill()) can go through
+            targetRunWriter.EndBackfill();
         }
     }
 
@@ -109,7 +176,7 @@ public partial class HkVizSilkPlugin : BaseUnityPlugin, ISaveDataMod<SaveDataRun
         Guid localRunId = runId == null ? Guid.NewGuid() : Guid.Parse(runId);
         CurrentRunWriter = new RunWriter(localRunId, nextRunPart, uploadManager, Logger);
     }
-    
+
     private void HandleOnStartNewGame() {
         StartRecording(null, 0L);
     }

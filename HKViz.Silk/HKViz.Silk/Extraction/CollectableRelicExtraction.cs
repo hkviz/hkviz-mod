@@ -42,7 +42,7 @@ public class CollectableRelicExtraction(ExtractionFiles extractionFiles, Localiz
                     typeNameKey = localizationExtraction.RequestExport(typeNameValue);
                 }
 
-                var typeDescriptionField = relicTypeType.GetField("typeDescription", flags);
+                /*var typeDescriptionField = relicTypeType.GetField("typeDescription", flags);
                 if (typeDescriptionField?.GetValue(relicType) is LocalisedString typeDescriptionValue && !string.IsNullOrEmpty(typeDescriptionValue.Sheet) && !string.IsNullOrEmpty(typeDescriptionValue.Key)) {
                     typeDescriptionKey = localizationExtraction.RequestExport(typeDescriptionValue);
                 }
@@ -50,7 +50,7 @@ public class CollectableRelicExtraction(ExtractionFiles extractionFiles, Localiz
                 var appendDescriptionField = relicTypeType.GetField("appendDescription", flags);
                 if (appendDescriptionField?.GetValue(relicType) is LocalisedString appendDescriptionValue && !string.IsNullOrEmpty(appendDescriptionValue.Sheet) && !string.IsNullOrEmpty(appendDescriptionValue.Key)) {
                     appendDescriptionKey = localizationExtraction.RequestExport(appendDescriptionValue);
-                }
+                }*/
             }
 
             CollectableRelicData relicData = new() {
@@ -58,8 +58,8 @@ public class CollectableRelicExtraction(ExtractionFiles extractionFiles, Localiz
                 RuntimeType = relic.GetType().Name,
 
                 TypeNameKey = typeNameKey,
-                TypeDescriptionKey = typeDescriptionKey,
-                AppendDescriptionKey = appendDescriptionKey,
+                //TypeDescriptionKey = typeDescriptionKey,
+                //AppendDescriptionKey = appendDescriptionKey,
                 RewardAmount = rewardAmount,
 
                 CollectionIcon = collectionIcon.ToSpriteInfoSafe(logger, $"CollectableRelic:{relic.name}:CollectionIcon"),

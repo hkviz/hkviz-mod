@@ -58,6 +58,10 @@ public enum WriteEntryType : byte {
     EnemyLocations      = 0x26,
     EnemyHps            = 0x27,
 
+    // RestorePoints (backfill on first-ever recording of a profile)
+    RestorePointStart   = 0x28,
+    RestorePointFinish  = 0x29,
+
     // Freed up:
     // PlayerDataWrappedVector2ListAppend = 0x20,
     

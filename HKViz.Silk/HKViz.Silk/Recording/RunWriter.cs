@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BepInEx.Logging;
 using GlobalEnums;
 using HKViz.Shared;
@@ -22,8 +23,15 @@ public class RunWriter {
     private readonly ManualLogSource logger;
 
     private readonly int profileId;
-    
-    public RunWriter(Guid localRunId, long nextRunPart, SilkUploadManager uploadManager, ManualLogSource logger) {
+
+    private bool _closeRequested;
+
+    public RunWriter(
+        Guid localRunId,
+        long nextRunPart,
+        SilkUploadManager uploadManager,
+        ManualLogSource logger
+    ) {
         LocalRunId = localRunId;
         this.logger = logger;
         this.uploadManager = uploadManager;
@@ -34,21 +42,80 @@ public class RunWriter {
         enemyWriter = new EnemyWriter(runFiles);
         runFiles.OnNewFileCreated += OnNewFileCreated;
         runFiles.OnFileFinished += OnFileFinished;
-        
+
         profileId = GameManager.instance.profileID;
 
         GameMapLevelReadyPatch.OnGameMapLevelReady += OnGameMapLevelReady;
-        
+
         // initializing writer indirect by faking a change to the current scene
         // bit odd, but we get the benefit that each file begins with a scene.
         HandleSceneChange(SceneManager.GetActiveScene(), LoadSceneMode.Single);
     }
 
     private void OnNewFileCreated(bool isFirstFile) {
-        if (isFirstFile) {
-            playerDataWriter.WriteAll();
-            sceneDataWriter.WriteAll();
+        if (!isFirstFile) return;
+
+        playerDataWriter.WriteAll();
+        sceneDataWriter.WriteAll();
+    }
+
+    // Call before starting the async restore point fetch, and EndBackfill() once it's resolved
+    // (whether or not it found anything to backfill) - this keeps Close() from tearing down the
+    // file out from under an in-flight backfill if the player quits to menu (or starts a new game)
+    // while the fetch is still running. Close() gets deferred instead of skipped, so a quick exit
+    // never permanently loses the restore point history - it's the only chance we get at it.
+    public void BeginBackfill() {
+        runFiles.BackfillPending = true;
+    }
+
+    public void EndBackfill() {
+        runFiles.BackfillPending = false;
+        if (_closeRequested) {
+            CloseNow();
         }
+    }
+
+    // Backfills history for a save that's being recorded for the first time. Called asynchronously,
+    // whenever the game's restore point fetch resolves - by that point live recording (this
+    // RunWriter, including playerDataWriter/sceneDataWriter above) is typically already running, so
+    // this must not touch their previous-value caches: doing so would make the next live diff
+    // compare against a restore point's historical values instead of the actual last-seen live
+    // values. Each restore point is instead written (oldest first, as its own bracketed frame)
+    // through throwaway PlayerDataWriter/SceneDataWriter instances that only exist for this call -
+    // they still diff restore points against each other (for file size), just never against the
+    // live writers. Physical position in the file doesn't matter: the parser reconstructs
+    // chronological order from the RestorePointStart/Finish brackets.
+    // ResetNonSerializableFields/SetupExistingPlayerData mirror the same calls the game itself makes
+    // on any loaded save (GameManager.SetLoadedGameData) to fix up legacy/missing fields on
+    // older-schema PlayerData - they're plain instance methods, not tied to PlayerData.instance, so
+    // no global singleton needs to be touched here.
+    // writeLiveRuntimeState: false skips the heroState_*/gameManager_GameState fields, since those
+    // reflect live HeroController/GameManager singletons rather than anything in the restore point's
+    // PlayerData - writing them here would just repeat whatever the game is doing right now (not the
+    // historical state) on every backfilled frame, for no benefit.
+    public void BackfillRestorePoints(IReadOnlyList<FetchDataRequest<RestorePointData>.FetchResult> restorePoints) {
+        if (isClosed) return;
+
+        var backfillPlayerDataWriter = new PlayerDataWriter(runFiles);
+        var backfillSceneDataWriter = new SceneDataWriter(runFiles);
+
+        foreach (var result in restorePoints) {
+            var restorePointData = result.loadedObject;
+            var saveGameData = restorePointData?.saveGameData;
+            var playerData = saveGameData?.playerData;
+            if (restorePointData == null || saveGameData == null || playerData == null) continue;
+
+            playerData.ResetNonSerializableFields();
+            playerData.SetupExistingPlayerData();
+
+            runFiles.Update();
+            runFiles.WriteRestorePointStart((ushort)result.sourceData.number, restorePointData.date);
+            backfillPlayerDataWriter.WriteChanged(true, playerData, writeLiveRuntimeState: false);
+            backfillSceneDataWriter.WriteChanged(saveGameData.sceneData);
+            runFiles.WriteRestorePointFinish();
+        }
+
+        logger.LogInfo($"Backfilled {restorePoints.Count} restore point(s), profile {profileId}");
     }
 
     private void OnFileFinished((long runPart, long partFirstUnixMillis, string previousScene) file) {
@@ -95,7 +162,15 @@ public class RunWriter {
     }
 
     public void Close() {
-        if (isClosed) return;
+        if (isClosed || _closeRequested) return;
+        if (runFiles.BackfillPending) {
+            _closeRequested = true;
+            return;
+        }
+        CloseNow();
+    }
+
+    private void CloseNow() {
         isClosed = true;
         runFiles.Close();
         runFiles.OnNewFileCreated -= OnNewFileCreated;

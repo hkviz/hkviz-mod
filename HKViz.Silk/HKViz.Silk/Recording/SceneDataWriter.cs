@@ -4,25 +4,22 @@ using System.Collections.Generic;
 namespace HKViz.Silk.Recording;
 
 public class SceneDataWriter(RunFiles runFiles) {
-    public void WriteAll() {
-        Write(true);
-    }
+    public void WriteAll() => Write(true, SceneData.instance);
+    public void WriteAll(SceneData sceneData) => Write(true, sceneData);
 
-    public void WriteChanged() {
-        Write(false);
-    }
+    public void WriteChanged() => Write(false, SceneData.instance);
+    public void WriteChanged(SceneData sceneData) => Write(false, sceneData);
 
     private readonly Dictionary<string, Dictionary<string, bool>> _previousBool = [];
     private readonly Dictionary<string, Dictionary<string, int>> _previousInt = [];
     private readonly Dictionary<string, Dictionary<string, int>> _previousGeoRock = [];
 
 
-    private void Write(bool all) {
-        SceneData instance = SceneData._instance;
+    private void Write(bool all, SceneData instance) {
         if (instance == null) {
             return;
         }
-        
+
         WriteCollection(instance.persistentBools, _previousBool, runFiles.WriteSceneDataBool, all);
         WriteCollection(instance.persistentInts, _previousInt, runFiles.WriteSceneDataInt, all);
         WriteCollection(instance.geoRocks, _previousGeoRock, runFiles.WriteSceneDataGeoRock, all);

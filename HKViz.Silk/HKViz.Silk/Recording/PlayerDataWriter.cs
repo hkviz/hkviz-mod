@@ -7,8 +7,13 @@ using HKViz.Silk.Recording.DataHelpers;
 namespace HKViz.Silk.Recording;
 
 public partial class PlayerDataWriter(RunFiles runFiles) {
-    public partial void WriteAll();
-    public partial void WriteChanged(bool writeFrequentChangeFields);
+    public void WriteAll() => WriteAll(global::PlayerData.instance, writeLiveRuntimeState: true);
+    public void WriteAll(global::PlayerData playerData) => WriteAll(playerData, writeLiveRuntimeState: true);
+    public partial void WriteAll(global::PlayerData playerData, bool writeLiveRuntimeState);
+
+    public void WriteChanged(bool writeFrequentChangeFields) => WriteChanged(writeFrequentChangeFields, global::PlayerData.instance, writeLiveRuntimeState: true);
+    public void WriteChanged(bool writeFrequentChangeFields, global::PlayerData playerData) => WriteChanged(writeFrequentChangeFields, playerData, writeLiveRuntimeState: true);
+    public partial void WriteChanged(bool writeFrequentChangeFields, global::PlayerData playerData, bool writeLiveRuntimeState);
 
     public void WriteBoolIfChanged(ushort fieldId, bool oldValue, bool newValue) {
         if (oldValue != newValue) {
