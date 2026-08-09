@@ -661,7 +661,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
         writer.WriteEntryType(WriteEntryType.RestorePointFinish);
     }
 
-    public void WriteEnemyStart(ushort id, string journalName, int healthManagerHp) {
+    public void WriteEnemyStart(ushort id, string journalName, int healthManagerHp, Vector2 position) {
         var writer = _writer;
         if (writer == null) {
             logger.LogDebug("Tried to write enemy start but writer is null");
@@ -674,7 +674,20 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
         _entryBuffer.WriteUShort(id);
         _entryBuffer.WriteIdOrString(SilkSongEnemyJournalIds.VALUE_TO_ID, journalName);
         _entryBuffer.WriteInt(healthManagerHp);
+        _entryBuffer.WriteVector2(position);
         writer.Write(_entryBuffer.WrittenSpan);
+    }
+
+    public void WriteEnemyDestroy(ushort id) {
+        var writer = _writer;
+        if (writer == null) {
+            logger.LogDebug("Tried to write enemy destroy but writer is null");
+            return;
+        }
+
+        WriteTimeIfChanged(writer);
+        writer.WriteEntryType(WriteEntryType.EnemyDestroy);
+        writer.Write(id);
     }
 
     public void WriteEnemyLocationDiff(List<HKVizHealthManagerBehaviour> healthManagers) {
@@ -691,6 +704,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
         foreach (var behaviour in healthManagers) {
             var currPosition = behaviour.trans.position;
             if (behaviour.lastWrittenPosition == currPosition) continue;
+            _entryBuffer.WriteUShort(behaviour.id);
             _entryBuffer.WriteVector2(currPosition);
             behaviour.lastWrittenPosition = currPosition;
             count++;
@@ -704,7 +718,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
         _entryBuffer.WriteUShortAt(count, lengthOffset);
         writer.Write(_entryBuffer.WrittenSpan);
     }
-    
+
     public void WriteEnemyHpDiff(List<HKVizHealthManagerBehaviour> healthManagers) {
         var writer = _writer;
         if (writer == null) {
@@ -719,6 +733,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
         foreach (var behaviour in healthManagers) {
             var currHp = behaviour.healthManager.hp;
             if (behaviour.lastWrittenHp == currHp) continue;
+            _entryBuffer.WriteUShort(behaviour.id);
             _entryBuffer.WriteInt(currHp);
             behaviour.lastWrittenHp = currHp;
             count++;

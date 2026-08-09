@@ -35,13 +35,21 @@ public class EnemyWriter {
         healthManagerToBehaviour[healthManager] = hkvizBehaviour;
 
         var journalName = deathEffects.journalRecord.name;
-        
-        runFiles.WriteEnemyStart(id, journalName, healthManager.hp);
+        var position = hkvizBehaviour.trans.position;
+        var hp = healthManager.hp;
+
+        // seed the diff-writer's baselines so the next WriteChanged() tick doesn't immediately
+        // re-send what WriteEnemyStart already wrote
+        hkvizBehaviour.lastWrittenPosition = position;
+        hkvizBehaviour.lastWrittenHp = hp;
+
+        runFiles.WriteEnemyStart(id, journalName, hp, position);
     }
 
     private void OnHealthManagerDestroyed(HKVizHealthManagerBehaviour behaviour) {
         healthManagers.Remove(behaviour);
         healthManagerToBehaviour.Remove(behaviour.healthManager);
+        runFiles.WriteEnemyDestroy(behaviour.id);
     }
 
     private void OnHealthManagerDamaged(HealthManager healthManager, HitInstance hit) {
