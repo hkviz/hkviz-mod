@@ -33,9 +33,7 @@ public class RunFiles(Guid localRunId, long currentRunPart, SilkUploadManager up
 
     private bool firstHeaderInSession = true;
 
-    // While true, rotating to a new file is held off, so a pending restore point backfill is
-    // guaranteed to always land in the run's first file. Never blocks creating that first file
-    // itself: by the time anything sets this, NextFileIfNeeded() has already run once for it.
+    // while true, holds off rotating to a new file, so backfill always lands in the first file
     public bool BackfillPending { get; set; }
 
     public event Action<(long runPart, long partFirstUnixMillis, string previousScene)>? OnFileFinished;
